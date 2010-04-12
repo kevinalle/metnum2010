@@ -1,16 +1,27 @@
 #!/usr/bin/env python
 
-from itertools import *
+#from itertools import *
 
-def alpha_beta_gamma(x0, x1):# gamma != 0
-	mat = [ [ 3-xo  ,   5-x0,     100-x0        ],
-			[ 3*(3-x1), 5*(5-x0), (100)*100-x0] ] ]
+def alpha_beta_gamma(x0, x1): # gamma != 0
+	mat = [ [ x0-3  ,   x0-5,     x0-100      ],
+			[ 3*x1-9, 5*x1-25, 100*x1-10000]    ]
 			
 	triangular(mat)
 	
 	b = -mat[1][2]/mat[1][1]
 	a = -mat[0][2]/mat[0][0] - b*mat[0][1]/mat[0][0]
 	return a, b
+
+
+def alpha_beta(x0, x1): # gamma = 0
+	mat = [[x0-3,   x0-5   ],
+	       [3*x1-9, 5*x1-25]]
+	
+	if triangular(mat):
+		b = 0
+		a = 0
+		return a, b
+	else: return alpha_beta_gamma(x0,x1)
 		
 
 def triangular(mat):
@@ -47,10 +58,19 @@ def x_n_iter(n,x1,x0):
 		
 	return res
 		
+def x_n_exacto_abg(alpha,beta,gamma,n):
+	return (alpha*3**(n+1) + beta*5**(n+1) + gamma*100**(n+1)) / (alpha*3**n + beta*5**n + gamma*100**n)
 
+def x_n_exacto(x0,x1,n):
+	alpha,beta = alpha_beta_gamma(x0,x1)
+	gamma = 1
+	return x_n_exacto_abg(alpha,beta,gamma,n)
 
 def main():
-	
+	alpha,beta,gamma=1,1,1
+	x0=x_n_exacto_abg(alpha,beta,gamma,0)
+	x1=x_n_exacto_abg(alpha,beta,gamma,1)
+	print alpha_beta_gamma(x0,x1)
 	return 0
 
 if __name__ == '__main__': main()

@@ -9,7 +9,7 @@ def alpha_beta_gamma(x0, x1):# gamma != 0
 	triangular(mat)
 	
 	b = -mat[1][2]/mat[1][1]
-	a = -mat[0][2]/mat[0][0] + b*mat[0][1]/mat[0][0]
+	a = -mat[0][2]/mat[0][0] - b*mat[0][1]/mat[0][0]
 	return a, b
 		
 

@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-#from itertools import *
-
 def alpha_beta_gamma(x0, x1): # gamma != 0
 	mat = [ [ x0-3  ,   x0-5,     x0-100      ],
 			[ 3*x1-9, 5*x1-25, 100*x1-10000]    ]

@@ -1,10 +1,12 @@
 #! /usr/bin/python
 
+e = 0.00001
+
 def exacto(x0,x1):
 	# si gamma puede ser 0
-	if (x1-8)*x0 + 15 < 0.1:
+	if (x1-8)*x0 + 15 < e:
 		# si b==0 y a!=0
-		if x0==3 and x1!=5:
+		if x0==3 and x1==3:
 			return 3
 		# si b!=0
 		else:

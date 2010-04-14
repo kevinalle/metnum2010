@@ -1,0 +1,53 @@
+%\documentclass[11pt, a4paper]{article}
+% \usepackage{a4wide}
+%\usepackage{amssymb}
+%\parindent = 0 pt
+%\parskip = 11 pt
+%\usepackage[width=15.5cm, left=3cm, top=2.5cm, height= 24.5cm]{geometry}
+
+%\begin{document}
+
+\begin{centering}
+\bf Laboratorio de M\'etodos Num\'ericos - Primer cuatrimestre 2010 \\
+\bf Trabajo Pr\'actico N\'umero 1: ``Perdidos'' en el Pac\'\i fico \\
+\end{centering}
+
+\vskip 25pt
+\hrule
+\vskip 11pt
+
+Dados dos n\'umeros $x_0, x_1\in\mathbb{R}$, la \emph{recurrencia de M\"uller} es la sucesi\'on $\{x_n\}_{n=0}^{\infty}$ definida por 
+% $x_{n+1} = E(x_n, x_{n-1})$ para $n\ge 1$, donde
+% \begin{equation}
+% E(y,z) \ =\ 108 - \frac{815 - 1500/y}{z}. \label{muller}
+% \end{equation}
+\begin{equation}
+ x_{n+1} = 108 - \frac{815 - 1500/x_{n-1}}{x_n}, \label{muller} \qquad n\ge 1.
+\end{equation}
+
+Esta sucesi\'on tiende a un l\'\i mite $L$, es decir, $\lim_{n\to\infty} x_n = L$ y se puede dise\~nar un algoritmo sencillo para determinar emp\'\i ricamente este valor de $L$ en funci\'on de los valores iniciales $x_0$ y $x_1$: computar $x_n$ para $n\ge 1$ y detener el c\'omputo cuando $|x_n-x_{n-1}| < \epsilon$, donde $\epsilon\in\mathbb{R}_+$ es una tolerancia especificada de antemano. El objetivo del trabajo pr\'actico es analizar la efectividad de este procedimiento.
+
+Para realizar este an\'alisis, es interesante observar que se puede encontrar una f\'ormula cerrada para $x_n$. Para esto, definimos $x_n = y_{n+1} / y_n$ y hacemos este cambio de variables en (\ref{muller}), obteniendo
+\begin{displaymath}
+y_{n+2} \ =\ 108 y_{n+1} - 815 y_n + 1500 y_{n-1}
+\end{displaymath}
+para $n\ge 1$. Esta recurrencia lineal se puede resolver por medio de su polinomio caracter\'istico $p(z) = z^3 - 108 z^2 + 815 z - 1500 = (z-3)(z-5)(z-100)$, generando la f\'ormula cerrada
+\begin{displaymath}
+x_n \ =\ \frac{\alpha 3^{n+1} + \beta 5^{n+1} + \gamma 100^{n+1}}{\alpha 3^n + \beta 5^n + \gamma 100^n}
+\end{displaymath}
+para $n\ge 0$, donde $\alpha$, $\beta$ y $\gamma$ son constantes que se deben ajustar de acuerdo con los valores iniciales $x_0$ y $x_1$. Por ejemplo, $\alpha = \beta = 1$ y $\gamma = 0$ generan los valores iniciales $x_0 = 4$ y $x_1 = 4.25$. De esta forma se puede obtener anal\'\i ticamente el l\'\i mite exacto de la sucesi\'on, para compararlo con el l\'\i mite obtenido emp\'\i ricamente.
+
+El trabajo pr\'actico consiste en implementar la recurrencia de M\"uller con aritm\'etica de punto flotante sobre distintos entornos (por ejemplo, en distintos compiladores de C usando \texttt{float} y \texttt{double}, en planillas de c\'alculo, software matem\'atico, etc.) para analizar el comportamiento del m\'etodo emp\'\i rico en cada uno de estos entornos. Sobre la base de las implementaciones realizadas, se piden los siguientes experimentos obligatorios:
+\begin{enumerate}
+\item Graficar el l\'\i mite exacto en funci\'on de $x_0$ y $x_1$. >C\'omo se comporta este l\'\i mite en funci\'on de los valores iniciales?
+\item Comparar la aproximaci\'on del l\'\i mite del m\'etodo emp\'\i rico contra el valor anal\'\i tico obtenido en el experimento anterior. >C\'omo se comporta este valor hallado experimentalmente? >Existen combinaciones de valores iniciales para los cuales el m\'etodo emp\'\i rico tenga problemas? En caso afirmativo, >se pueden caracterizar estos puntos y explicar por qu\'e se producen estos efectos?
+\end{enumerate}
+Los invitamos a que realicen todos los experimentos adicionales que sean necesarios para analizar y explicar convenientemente los efectos observados. El informe debe contener los resultados de todos los experimentos realizados, en un formato adecuado para su visualizaci\'on y an\'alisis. 
+
+\vskip 15pt
+\hrule
+\vskip 11pt
+
+Fecha de entrega: 16 de abril de 2010
+
+%\end{document}

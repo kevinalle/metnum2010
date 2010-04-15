@@ -205,7 +205,7 @@
 
 					de la cuál podemos deducir que $x0(x1-8) = -15$.
 
-					Dentro de este caso tengo otro caso especial en el cuál
+					Dentro de este caso existe otro caso especial en el cuál
 					$\beta = 0$ y $\alpha \neq 0$. Podemos ver que este caso solo aparece
 					cuando $x0 = x1 = 3$.				
 
@@ -233,6 +233,27 @@
  			\end{itemize} 			
  
 		\end{usubsection}
+
+		\begin{usubsection}{Implementación}
+
+			Luego el trabajo consistió en implementar
+			la \textit{Recurrencia de Müller} en distintos lenguajes y plataformas,
+			y calcular hasta un n-ésimo término la sucesión
+			de tal manera que $|x_n-x_{n-1}|<\epsilon$
+			donde $\epsilon$ es una diferencia entre términos sucesivos
+			a partir de la cuál consideramos que la recurrencia
+			ya ha alcanzado el límite. \\
+\\
+			Los resultados de ejecutar estos programas son comparados
+			con los resultados teóricos de límite obtenidos,
+			explicados en la seccion precedente.
+			Así podemos obtener un valor del error relativo
+			cometido por el algoritmo por consecuencia de las limitaciones
+			de representación aritmética de las computadoras. \\
+\\
+			Los resultados obtenidos son analizados en la sección siguiente.
+
+		\end{usubsection}		
 
 	\end{usection}
 	

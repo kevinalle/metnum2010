@@ -17,7 +17,10 @@ def exacto(x0,x1):
 	
 		
 
-r = [float(i)/100 for i in range(-1000,1001)]
-for x0 in r:
-	for x1 in r:
-		print str(x0) + " " + str(x1)# + " " + str(exacto(x0,x1))
+def generate(min,max,gran):
+	r = [float(i)/float(gran) for i in range(min*gran,max*gran+1)]
+	for x0 in r:
+		for x1 in r:
+			print str(x0) + ", " + str(x1) + ", " + str(exacto(x0,x1))
+
+generate(-10,10,10)

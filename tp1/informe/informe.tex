@@ -31,6 +31,7 @@
 
 \newenvironment{while}{\WHILE \\ \setlength{\leftmargin}{0em} }{}
 
+\newcommand{\iif}{\leftrightarrow}
 \newcommand{\gra}[1]{\noindent\includegraphics[scale=.70]{#1}\\}
 \newcommand{\gram}[1]{\noindent\includegraphics[scale=.50]{#1}}
 \newcommand{\dirmail}[1]{\normalsize{\texttt{#1}}}
@@ -50,7 +51,19 @@
 \integrante{Thomas Fischer}{489/08}{tfischer@dc.uba.ar}
 \integrante{Kevin Allekotte}{490/08}{kevinalle@gmail.com}
 
-\abstracto{un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. un tp.. }
+\abstracto{aa}
+
+	Este trabajo pretende hacer una comparación sobre el desempeño y la precisión de la aritmética flotante de diversos entornos y
+	mostrar en los resultados  lo que pueden producir pequeños errores de cálculo.
+
+	Para ello trabajamos sobre la \textit{Recurrencia de Müller} detallada en el Apéndice A,
+	sobre la cuál sabemos que converge y conocemos una ecuación cerrada para sus términos,
+	lo que nos permite calcular el límite exacto analíticamente.
+
+	Las pruebas consisten en comparar el límite exacto de la sucesión con el límite obtenido por la sucesión de recurrencia
+	programada en distintos entornos y lenguajes.
+
+
 \palabraClave{perdidos}
 \palabraClave{pacifico}
 
@@ -61,9 +74,169 @@
 \newpage
 
 	\begin{usection}{Introducción teorica}
+
+		Cuando trabajamos con números reales en una computadora,
+		nos encontramos con algunos factores limitantes para nuestros cálculos
+		como lo son la aritmética finita y
+		también el tipo de representación que se nos provee para trabajar. 	\\
+		Esto surge como una consecuencia de la necesidad
+		de una memoria física finita de la computadora
+		en contraste con la precisión infinita
+		que requieren la mayoría de los números reales.
+\\
+		Luego, al intentar representar números en una computadora,
+		cuya precisión va mas allá de la otorgada por la misma,
+		surgen en la representación del número pequeños errores,
+		los cuáles, como muestra este trabajo, no son despreciables
+		al realizarse ciertos tipos de cálculos.
+\\
+		Cada uno de estos sistemas puede tener una precisión muy distinta,
+		lo que produce una diferencia en los errores cometidos al representar
+		números en cada uno.
+\\
+		Además existen distintos tipos de precisión a analizar, 
+		como por ejemplo la resolución o granularidad,
+		o los limites superiores e inferiores,
+		tanto de la parte entera como de la parte decimal.
+\\
+		La representación que elijamos depende totalmente
+		de los tipos de cálculo que vallamos a realizar
+		y el tipo de precisión que necesitemos
+		para obtener un resultado razonable.
+\\
+		Existen múltiples estándares de representación para los números reales,
+		de los cuáles tal vez el más difundido para números reales
+		sea la norma \texttt{IEEE - 754}.
+
 	\end{usection}
 	
 	\begin{usection}{Desarrollo}
+
+		\begin{usubsection}{Análisis Teórico de la sucesión}
+
+			En primer lugar, es necesario un análisis
+			de la fórmula cerrada de la \textit{Recurrencia de Müller},
+			para encontrar el límite al cuál converge.
+
+			La formula cerrada para los términos de la \textit{Recurrencia de Müller} esta dada por
+
+			\begin{displaymath}
+				x_n \ =\ \frac{\alpha 3^{n+1} + \beta 5^{n+1} + \gamma 100^{n+1}}{\alpha 3^n + \beta 5^n + \gamma 100^n}
+			\end{displaymath}
+\\
+			por lo cuál el límite esta dado por $\lim_{n\to\infty} x_n$. Separando en caso, calculamos los posibles límites de la siguiente manera.
+
+			\begin{itemize}
+
+				\item para $\gamma \neq 0$
+
+					\begin{displaymath}
+						\lim_{n\to\infty} \frac{\gamma 100^{n+1}}{\alpha 3^n + \beta 5^n + \gamma 100^n}
+						\leq \lim_{n\to\infty} x_n
+						\leq \lim_{n\to\infty} \frac{\alpha 3^{n+1} + \beta 5^{n+1} + \gamma 100^{n+1}}{\gamma 100^n}
+					\end{displaymath}
+					\begin{displaymath}
+						\iif
+						\lim_{n\to\infty} \frac{\gamma 100}{\alpha{(\frac{3}{100})}^n + \beta{(\frac{5}{100})}^n + \gamma}
+						\leq \lim_{n\to\infty} x_n
+						\leq \lim_{n\to\infty} \frac{\alpha 3^{n+1}}{\gamma 100^n} + \frac{\beta 5^{n+1}}{\gamma 100^n} + \frac{\gamma 100^{n+1}}{\gamma 100^n}
+					\end{displaymath}
+					\begin{displaymath}
+						\iif
+						\lim_{n\to\infty} 100
+						\leq \lim_{n\to\infty} x_n
+						\leq \lim_{n\to\infty} \frac{3\alpha}{\gamma} {(\frac{3}{100})}^n + \lim_{n\to\infty} \frac{5\beta}{\gamma} {(\frac{5}{100})}^n + \lim_{n\to\infty} 100
+					\end{displaymath}
+					\begin{displaymath}
+						\iif 100 \leq \lim_{n\to\infty} x_n \leq 100
+						\iif \lim_{n\to\infty} x_n = 100
+					\end{displaymath}
+
+				\item para $\gamma = 0$ y $\beta \neq 0$
+
+					\begin{displaymath}
+						\lim_{n\to\infty} \frac{\beta 5^{n+1}}{\alpha 3^n + \beta 5^n}
+						\leq \lim_{n\to\infty} \frac{\alpha 3^{n+1} + \beta 5^{n+1}}{\alpha 3^n + \beta 5^n}
+						\leq \lim_{n\to\infty} \frac{\alpha 3^{n+1} + \beta 5^{n+1}}{\beta 5^n}
+					\end{displaymath}
+					\begin{displaymath}
+						\iif
+						\lim_{n\to\infty} \frac{\beta 5}{\alpha{(\frac{3}{5})}^n + \beta}
+						\leq \lim_{n\to\infty} x_n
+						\leq \lim_{n\to\infty} \frac{\alpha 3^{n+1}}{\beta 5^n} + \frac{\beta 5^{n+1}}{\beta 5^n}
+					\end{displaymath}
+					\begin{displaymath}
+						\iif
+						\lim_{n\to\infty} 5
+						\leq \lim_{n\to\infty} x_n
+						\leq \lim_{n\to\infty} \frac{3\alpha}{\beta} {(\frac{3}{5})}^n + \lim_{n\to\infty} 5
+					\end{displaymath}
+					\begin{displaymath}
+						\iif 5 \leq \lim_{n\to\infty} x_n \leq 5
+						\iif \lim_{n\to\infty} x_n = 5
+					\end{displaymath}
+
+				\item para $\gamma = 0$, $\beta = 0$ y $\alpha \neq 0$
+
+					\begin{displaymath}
+						\lim_{n\to\infty} \frac{\alpha 3^{n+1}}{\alpha 3^n}
+						= \lim_{n\to\infty} 3
+						= 3
+					\end{displaymath}
+\\
+				\item para $\gamma = \beta = \alpha = 0$ la función no esta definida,
+				y por lo tanto no nos interesa, porque suponemos que para todo $x0$, $x1$ existen
+				$\alpha$, $\beta$ y $\gamma$ que cumplen con la fórmula cerrada
+				de tal manera que alguno de ellos es distinto de $0$.
+
+			\end{itemize}
+ 
+			Luego queremos ver para que casos de entrada, o valores de $x0$ y $x1$,
+			se dan las distintas opciones para $\alpha$, $\beta$ y $\gamma$.
+
+			Consideramos que si $\gamma$ puede ser $0$ entonces lo es, y solamente en caso contrario $\gamma!=0$.
+
+			\begin{itemize}
+
+				\item para $\gamma = 0$
+
+					Despejamos la fórmula cerrada para $x0$ y $x1$ y restando las ecuaciones obtenemos la igualdad
+
+					\begin{displaymath}
+						b( \frac{5-x_0}{x_0-3} - \frac{5}{3} \frac{5-x_1}{x_1-3} ) = 0
+					\end{displaymath}
+
+					de la cuál podemos deducir que $x0(x1-8) = -15$.
+
+					Dentro de este caso tengo otro caso especial en el cuál
+					$\beta = 0$ y $\alpha \neq 0$. Podemos ver que este caso solo aparece
+					cuando $x0 = x1 = 3$.				
+
+				\item El resto de las entradas cae en el caso $\gamma \neq 0$
+
+%					Para este caso, divido tanto dividendo como divisor
+%					de la fórmula cerrada por $\gamma$,
+%					generando así una nueva expresión de la fórmula,
+%					esta vez en funcion de 2 variables
+%					$\alpha' = \frac{\alpha}{\gamma}$ y $\beta'= \frac{\beta}{\gamma}$
+
+%					\begin{displaymath}
+%						x_n \ =\ \frac{\alpha' 3^{n+1} + \beta' 5^{n+1} + 100^{n+1}}{\alpha' 3^n + \beta' 5^n + 100^n}
+%					\end{displaymath}
+
+			\end{itemize}
+ 
+			Luego quedan resueltos los límitesde la \textit{Recurrencia de Müller}
+			en función de las distintas entradas de la siguiente manera:
+ 
+ 			\begin{itemize}
+				\item Si $x0 = x1 = 3$ entonces $\lim_{n\to\infty} x_n = 3$
+				\item Si $x0(x1-8) = -15$ entonces $\lim_{n\to\infty} x_n = 5$
+				\item Sino $\lim_{n\to\infty} x_n = 100$
+ 			\end{itemize} 			
+ 
+		\end{usubsection}
+
 	\end{usection}
 	
 	\begin{usection}{Resultados}

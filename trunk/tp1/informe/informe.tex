@@ -281,11 +281,11 @@
 		todos los términos de la recurrencia para esta entrada
 		deben cumplir también con la condición $C(x_n,x_{n+1})$ ya que
 		si tomamos $x_0 = x_n$ y $x_1 = x_{n+1}$ la recurrencia
-		para estos valores de entrada también debe converger al mismo número. \\
+		para estos valores de entrada también debe converger al mismo número.
 
 		Merece atención entonces notar en la \texttt{figura 1},
 		que casi todo el dominio corresponde a instancias
-		tales que $\lim_{n\to\infty} x_n = 100$. \\
+		tales que $\lim_{n\to\infty} x_n = 100$. 
 
 		Por lo tanto, si $x_0$ y $x_1$ cumplen con la condición $x0(x1-8) = -15$,
 		todos los pares de términos sucesivos de la recurrencia
@@ -306,11 +306,30 @@
 		y dado que la probabilidad de que se cometa un error
 		mayor que el criterio de parada en una sola cuenta es casi nulo
 		(para un buen criterio de parada), la probabilidad de error
-		para este caso de entrada también es muy baja. 
-\\
+		para este caso de entrada también es muy baja.
+
 		Por esto es que notamos varios errores en el cálculo de límite
 		para recurrencias que deben converger a $5$, y que terminan
-		convergiendo a $100$, pero no en aquellas que convergen a $3$ o $100$.
+		convergiendo a $100$, pero no en aquellas que convergen a $3$ o $100$. \\
+
+		Es importante también aclarar, que aunque pareciera que
+		en el caso promedio casi no encontramos errores,
+		ya que para casi toda la entrada el limite es $100$,
+		esto no necesariamente es cierto ya que no sabemos nada
+		sobre la distribución de los datos de entrada.
+		Estos podrían caer inicialmente en su mayoría en el caso
+		en que $\lim_{n\to\infty} x_n = 5$ y podríamos estar cometiendo
+		un error para la mayoría de los casos de entrada.
+
+		Además no sabemos el significado de riesgo que puede llegar a tener
+		un error en estos casos, por lo que tampoco podemos dejar que
+		el programa responda erróneamente a los mismos ya que
+		por alguna razon el factor de riesgo podría ser muy grande para esta entrada,
+		mas alla de que la probabilidad de que toque uno de estos casos sea muy baja.
+
+		Por lo tanto el cálculo del límite mediante la recurrencia,
+		con este algoritmo y estas limitaciones en la aritmética puede llegar a ser incluso inútil.
+		Alternativas...
 
 	\end{usection}
 	

@@ -330,11 +330,37 @@
 		mas alla de que la probabilidad de que toque uno de estos casos sea muy baja.
 
 		Por lo tanto el cálculo del límite mediante la recurrencia,
-		con este algoritmo y estas limitaciones en la aritmética puede llegar a ser incluso inútil.
-		Alternativas...
+		con este algoritmo y estas limitaciones en la aritmética puede llegar a ser incluso inútil. \\
+\\
+		En la \texttt{ultima figura} podemos observar como se comportan
+		los distintos lenguajes para algunos casos de entrada
+		particulares arbitrarios tal que $\lim_{n\to\infty} x_n = 5$,
+		ya que no tiene mucho sentido analizar las recurrencias
+		para $\lim_{n\to\infty} x_n = 3 o 100$,
+		ya que vimos que en estos casos es muy fácil para el algoritmo
+		converger correctamente.
+
+		Como podemos apreciar, el formato float de C hace
+		que el programa "explote" mucho antes que el implementado
+		con el tipo double, ya que este último tiene el doble de precision
+		por lo cuál los errores que se generan son mucho mas chicos,
+		y el error que se arrastra también.
+
+		Como podemos leer en la referencia de python,
+		los numeros de punto flotante en este lenguaje
+		son implementados con el tipo double en C, y como vemos en el gráfico,
+		la similitud de las precisiones hace que ambos algoritmos
+		"exploten" aproximadamente en el mismo lugar.
+		Difieren un poco en comportamiento ya que el python
+		puede compilar un algoritmo ligeramente distinto que el g++.
+
+		Sobre el \textit{OpenOffice spreadsheet} no tenemos referencias sobre la precisión usada,
+		pero vemos claramente que el comportamiento es exactamente el mismo que el de python.
+		Esto no necesariamente se traduce a todas las instancias del problema,
+		pero podemos intuir al menos que la precisión que usa es la misma,
+		o sea la \textit{double precision IEEE-754}$^1$.
 
 	\end{usection}
-	
 	\begin{usection}{Conclusiones}
 	\end{usection}
 	
@@ -388,8 +414,14 @@ do{
 	\end{usection}
 	
 	\begin{usection}{Referencias}
-	\texttt{http://docs.python.org/tutorial/floatingpoint.html}\\ \indent\indent Explicación de la aritmética de punto flotante en Python
-	
+
+	\begin{enumerate}
+		\item \texttt{http://docs.python.org/tutorial/floatingpoint.html} \\
+		Explicación de la aritmética de punto flotante en Python
+
+		\item \texttt{http://steve.hollasch.net/cgindex/coding/ieeefloat.html} \\
+		Estándard de representación de punto flotante más utilizado
+	\end{enumerate}	
 	
 	\end{usection}
 

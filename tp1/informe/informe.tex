@@ -322,8 +322,47 @@
 			\input{enunciado.tex}
 		\end{usubsection}
 		
+		\newpage
 		\begin{usubsection}{Apéndice B: Codigos Fuente}
-			
+\textbf{Algoritmo para calcular $x_n$ de forma exacta, en Python}
+\begin{verbatim}
+def xn_exacto(x0,x1,n):
+   # si gamma puede ser 0
+   if abs((x1-8.)*x0 + 15.) < e:
+      # elijo un b
+      b = 1.
+      # calculo a
+      a = b*(5.-x0)/(x0-3.)
+      return ( a*3.**(n+1) + b*5.**(n+1) ) / ( a*3.**n + b*5.**n )
+   # si gamma != 0
+   else:
+      # calculo b/g
+      bg = 50.*(600.-297.*x1+x0*(91.+2.*x1)) / (15.+x0*(x1-8.))
+      #calculo a/g
+      ag = (10000.-100.*x0-bg*(x0-5.)) / (x0-3.)
+      return ( ag*3.**(n+1) + bg*5.**(n+1) + 100.**(n+1) ) /
+             ( ag*3.**n + bg*5.**n + 100.**n )
+\end{verbatim}
+
+\bigskip
+\textbf{Algoritmo que calcula la recurrencia, en C++}
+\begin{verbatim}
+double x0, x1, temp, e;
+e = 1e-3;
+cin >> x0 >> x1;
+do{
+   temp = 108.-(815.-(1500./x0))/x1;
+   x0 = x1;
+   x1 = temp;
+}while( abs(x1-x0) >= e );
+\end{verbatim}
+
+\bigskip
+\textbf{Función usada en la Hoja de cálculo para calcular los términos de la recurrencia}
+\begin{verbatim}
+=IF(ABS(B2-C2)<$B$1,C2,108-(815-(1500/B2))/C2)
+\end{verbatim}
+(\texttt{B1} es la celda donde esta almacenado $\epsilon$, \texttt{B2} y \texttt{C2} son $x_{n-2}$ y $x_{n-1}$ respectivamente)
 		\end{usubsection}
 	\end{usection}
 	

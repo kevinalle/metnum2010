@@ -432,6 +432,17 @@
 		será mas prolongado y probablemente el error que lleva acumulado
 		haga que la recurrencia salte a otro espacio de solución antes de llegar al límite correcto.
 
+		Un criterio de parada más adecuado sería tal vez
+		cortar la recurrencia cuando suceda que
+		$|x_{n+2}-x_{n+1}| > |x_{n+1}-x_n|$, o sea, cuando la sucesión
+		comienza a alejarse del lugar adonde estaba convergiendo.
+
+		También se puede mejorar un poco este criterio
+		aplicando una cota mínima para decidir
+		si la recurrencia comienza a diverger, de manera
+		de cuidarse de los casos en que la sucesion parezca diverger
+		simplemente por un error aritmético.
+
 	\end{usection}
 	
 	\begin{usection}{Conclusiones}

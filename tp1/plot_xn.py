@@ -44,7 +44,7 @@ plot(xs,ys,'kx',label=r"algoritmo")
 xlabel("$n$")
 ylabel("$x_n$")
 p10=(max(ys)-min(ys))*.1
-ylim(min(ys)-p10,max(ys)+p10)
+#ylim(min(ys)-p10,max(ys)+p10)
 xlim(0,len(xs)+2)
 legend(loc=0)
 if options.filename: savefig(options.filename,dpi=640./8)

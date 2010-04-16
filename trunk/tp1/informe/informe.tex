@@ -63,8 +63,8 @@
 	programada en distintos entornos y lenguajes.
 }
 
-\palabraClave{perdidos}
-\palabraClave{pacifico}
+\palabraClave{Aritmética Finita}
+\palabraClave{Recurrencia de Müller}
 
 \begin{titlepage}
 \maketitle
@@ -420,6 +420,16 @@
 	\end{usection}
 	
 	\begin{usection}{Conclusiones}
+		Analizamos el comportamiento de la recurrencia en distintos entornos, con distintas precisiones y con distintos parámetros.
+		La principal conclusión que sacamos es que sin importar las condiciones bajo las cuales se realiza el experimento, la solución nunca es exacta.
+		Esto se debe a que la representación de los números reales en la computadora es inexacta, porque el almacenamiento es finito.
+		
+		Como es notado en las secciones anteriores, la recurrencia tiende a un límite distinto a 100 sólo en los puntos de la forma $(t, -15/t + 8)$. Si calculamos uno a uno los términos de la recurrencia para estos puntos, observamos que todos los pares $(x_k,x_{k+1})$ tienen que ser también de la forma $(t, -15/t + 8)$, (y son cada vez más cercanos al punto $(5,5)$).
+		Dada esta condición, vemos que el más mínimo error en alguno de los cálculos, y el siguiente par de valores cae afuera de la curva.
+		Como la recurrencia involucra restas y divisiones, un error de representacion y/o de cálculo es esperable en prácticamente todos los casos.\footnote{Valores particulares como por ejemplo $(5,5)$ no tienen error porque las operaciones de la recurrencia siempre dan enteros}
+		
+		Incluso con precisión arbitraria de 2000 digitos decimales la sucesión tiene un error importantísimo para los $x_k$ con $k\geq 1400$.
+		
 	\end{usection}
 	
 	\begin{usection}{Apéndices}
@@ -450,6 +460,7 @@ def xn_exacto(x0,x1,n):
 \end{verbatim}
 
 \bigskip
+\bigskip
 \textbf{Algoritmo que calcula la recurrencia, en Python con presicion arbitraria}
 \begin{verbatim}
 from decimal import *
@@ -464,7 +475,7 @@ for i in range(n):
    print x1
 \end{verbatim}
 
-\bigskip
+\newpage
 \textbf{Algoritmo que calcula la recurrencia, en C++}
 \begin{verbatim}
 double x0, x1, temp, e;

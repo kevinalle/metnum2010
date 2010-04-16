@@ -16,12 +16,12 @@ int main(){
 	while( cin >> x0 >> x1 && ( x0!=0 || x1!=0 ) ){
 
 		/* Muller por sucesion */
-		double x2;
+		double temp;
 		int r = 1;
 		do{
-			x2 = 108.-(815.-(1500./x0))/x1;
+			temp = 108.-(815.-(1500./x0))/x1;
 			x0 = x1;
-			x1 = x2;
+			x1 = temp;
 			r++;
 			cout << "   "<< x1 << endl;
 		}while( abs(x1-x0) >= e );

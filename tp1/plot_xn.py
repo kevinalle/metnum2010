@@ -8,6 +8,7 @@ import subprocess
 parser = OptionParser()
 parser.add_option("-c", "--compare", dest="x0x1",help="Compare to exact result")
 parser.add_option("-o", "--out", dest="filename",help="Save PNG to file")
+parser.add_option("-t", "--title", dest="title",help="Titulo del Grafico")
 parser.add_option("-q", action="store_false", dest="show", default=True, help="Don't show output")
 (options, args) = parser.parse_args()
 
@@ -47,5 +48,6 @@ p10=(max(ys)-min(ys))*.1
 #ylim(min(ys)-p10,max(ys)+p10)
 xlim(0,len(xs)+2)
 legend(loc=0)
+if options.title: title(options.title)
 if options.filename: savefig(options.filename,dpi=640./8)
 if options.show: show()

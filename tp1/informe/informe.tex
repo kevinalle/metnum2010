@@ -5,6 +5,7 @@
 \usepackage{amssymb}
 \usepackage{graphicx}
 \usepackage{caratulaMetNum}
+\usepackage{float}
 
 \usepackage{color}
 \usepackage{url}
@@ -257,21 +258,59 @@
 		En este primer gráfico representamos los pares $(x_0,x_1)$ para los cuales el limite teórico es 5 (línea azul),
 		y el punto $(3,3)$ que es el único que tiene límite teórico 3.
 		El resto del plano son los $(x_0,x_1)$ para los cuales el límite es 100.
-		\gra{lim5.png}
-		\\
+		
+		\begin{figure}[H]
+			\centering
+			\caption{Dominio del límite de la sucesión}
+			\label{fig:dominio}
+				\gras{lim5.png}{.6}
+		\end{figure}
+
 		A continuación graficamos los sucesivos valores de $x_n$ para $1\leq n\leq 20$ con $x_0=2$ y $x_1=8$, comparando el resultado exacto con el resultado de generar la sucesion con la fórmula recurrente usando C++ (con double de presicion).
 		Se observa que a pesar de unos errores importantes el límite es el mismo.
-		\gras{fig_2_8_20.png}{.6}
-		
-		\gras{fig_4_4-25_20.png}{.6}
-		
-		\gras{fig_4_4-25_10.png}{.6}
-		
-		\gra{fig_comparaciones.png}
-		
-		\gras{fig_divergencia.png}{.6}
-		
-		\gras{fig_iteraciones.png}{.4}
+
+		\begin{figure}[H]
+			\centering
+				\gras{fig_2_8_20.png}{.6}
+%%			\caption{La recurrencia se acomoda al exacto}
+%%			\label{fig:acomodo}	
+		\end{figure}
+
+		\begin{figure}[H]
+			\centering
+%			\caption{Dominio del límite de la sucesión}
+%			\label{fig:comparaciones}
+				\gras{fig_4_4-25_20.png}{.6}
+		\end{figure}
+
+		\begin{figure}[H]
+			\centering
+%			\caption{Dominio del límite de la sucesión}
+%			\label{fig:comparaciones}
+				\gras{fig_4_4-25_10.png}{.6}
+		\end{figure}
+
+		\begin{figure}[H]
+			\centering
+			\caption{Comparación de lenguajes}
+			\label{fig:comparaciones}
+				\gras{fig_comparaciones.png}{.6}
+		\end{figure}
+
+		\begin{figure}[H]
+			\centering
+			\caption{Divergencia de la recurrencia para una instancia}
+			\label{fig:divergencia}
+				\gras{fig_divergencia.png}{.6}
+		\end{figure}
+
+		\begin{figure}[H]
+			\centering
+			\caption{Iteraciones necesarias para llegar a límite 100}
+			\label{fig:iteraciones}
+				\gras{fig_iteraciones.png}{.3}
+		\end{figure}
+
 	\end{usection}
 	
 	\begin{usection}{Discusión}
@@ -288,7 +327,7 @@
 		si tomamos $x_0 = x_n$ y $x_1 = x_{n+1}$ la recurrencia
 		para estos valores de entrada también debe converger al mismo número.
 
-		Merece atención entonces notar en la \texttt{figura 1},
+		Merece atención entonces notar en la figura \ref{fig:dominio},
 		que casi todo el dominio corresponde a instancias
 		tales que $\lim_{n\to\infty} x_n = 100$. 
 
@@ -335,7 +374,7 @@
 		Por lo tanto el cálculo del límite mediante la recurrencia,
 		con este algoritmo y estas limitaciones en la aritmética puede llegar a ser incluso inútil. \\
 \\
-		En la \texttt{ultima figura} podemos observar como se comportan
+		En la figura \ref{fig:comparacion} podemos observar como se comportan
 		los distintos lenguajes para algunos casos de entrada
 		particulares arbitrarios tal que $\lim_{n\to\infty} x_n = 5$,
 		ya que no tiene mucho sentido analizar las recurrencias
@@ -358,10 +397,25 @@
 		puede compilar un algoritmo ligeramente distinto que el g++.
 
 		Sobre el \textit{OpenOffice spreadsheet} no tenemos referencias sobre la precisión usada,
-		pero vemos claramente que el comportamiento es exactamente el mismo que el de python.
+		pero vemos claramente que el comportamiento es exactamente el mismo que el de python,
+		por lo que creemos que la aritmética es resuelta en python,
+		ya que el programa además acepta macros en este lenguaje.
 		Esto no necesariamente se traduce a todas las instancias del problema,
 		pero podemos intuir al menos que la precisión que usa es la misma,
 		o sea la \textit{double precision IEEE-754}$^1$.
+
+		Por último tenemos la implementación del algoritmo en python
+		pero usando una librería numerica llamada \textit{decimal}$^3$,
+		que nos permite elegir una precisión arbitraria para
+		la representación en punto flotante.
+		Vemos que con una precisión de 2000 dígitos significativos decimales,
+		el $X_20$ nos sigue dando sobre el límite exacto.
+		Y calculamos que para esta entrada y esta precisión
+		el algoritmo "explota" recien cerca del término $X_1400$.
+		Así, podemos acotar el criterio de parada de la recurrencia
+		con un epsilon arbitrariamente chico, eligiendo una precisión
+		suficientemente grande. Esto sin embargo nunca garantiza
+		que el algoritmo a partir de un término "explote".
 
 	\end{usection}
 	

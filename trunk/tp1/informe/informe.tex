@@ -113,7 +113,7 @@
 
 			En primer lugar, es necesario un análisis
 			de la fórmula cerrada de la \textit{Recurrencia de Müller},
-			para encontrar el límite al cuál converge.
+			para encontrar el límite al cual converge.
 
 			La formula cerrada para los términos de la \textit{Recurrencia de Müller} esta dada por
 
@@ -121,7 +121,7 @@
 				x_n \ =\ \frac{\alpha 3^{n+1} + \beta 5^{n+1} + \gamma 100^{n+1}}{\alpha 3^n + \beta 5^n + \gamma 100^n}
 			\end{displaymath}
 \\
-			por lo cuál el límite esta dado por $\lim_{n\to\infty} x_n$. Separando en caso, calculamos los posibles límites de la siguiente manera.
+			por lo cuál el límite esta dado por $\lim_{n\to\infty} x_n$. Separando en casos, calculamos los posibles límites de la siguiente manera.
 
 			\begin{itemize}
 
@@ -197,7 +197,7 @@
 
 					de la cuál podemos deducir que $x0(x1-8) = -15$.
 
-					Dentro de este caso existe otro caso especial en el cuál
+					Dentro de este caso existe otro caso especial en el cual
 					$\beta = 0$ y $\alpha \neq 0$. Podemos ver que este caso solo aparece
 					cuando $x0 = x1 = 3$.				
 
@@ -218,11 +218,13 @@
 			Luego quedan resueltos los límitesde la \textit{Recurrencia de Müller}
 			en función de las distintas entradas de la siguiente manera:
  
- 			\begin{itemize}
-				\item Si $x0 = x1 = 3$ entonces $\lim_{n\to\infty} x_n = 3$
-				\item Si $x0(x1-8) = -15$ entonces $\lim_{n\to\infty} x_n = 5$
-				\item Sino $\lim_{n\to\infty} x_n = 100$
- 			\end{itemize} 			
+ 			$$\lim_{n\to\infty} x_n =
+				\begin{cases}
+				3 & x0 = 3 \land x1 = 3\\
+				5 & x0(x1-8) = -15\\
+				100 & \mbox{sino}\\
+				\end{cases}
+ 			$$
  
 		\end{usubsection}
 

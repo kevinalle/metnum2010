@@ -20,4 +20,6 @@ def xn_exacto(x0,x1,n):
 		# calculo la sucesion hasta n
 		return ( ag*3.**(n+1) + bg*5.**(n+1) + 100.**(n+1) ) / ( ag*3.**n + bg*5.**n + 100.**n )
 
-print xn_exacto(4.,4.25,200)
+x0,x1=4.,4.25
+print xn_exacto(x0,x1,2)
+print 108.-(815.-(1500./x0))/x1

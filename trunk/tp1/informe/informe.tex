@@ -267,17 +267,24 @@
 			\label{fig:dominio}
 				\gras{lim5.png}{.6}
 		\end{figure}
-
+		
+		\newpage
 		A continuación graficamos los sucesivos valores de $x_n$ para $1\leq n\leq 20$ con $x_0=2$ y $x_1=8$, comparando el resultado exacto con el resultado de generar la sucesion con la fórmula recurrente usando C++ (con double de presicion).
 		Se observa que a pesar de unos errores importantes el límite es el mismo.
-
+		
 		\begin{figure}[H]
 			\centering
 				\gras{fig_2_8_20.png}{.6}
 %%			\caption{La recurrencia se acomoda al exacto}
 %%			\label{fig:acomodo}	
 		\end{figure}
-
+		
+		\begin{figure}[H]
+			\centering
+			\caption{Acá graficamos los valores de los sucesivos $x_n$ de la recurrencia vs. el valor exacto. Vemos que hasta la iteración 10 estos valores coinciden, pero luego el resultado de la recurrencia se dispara a 100.}
+			\label{fig:comparaciones}
+				\gras{fig_4_4-25_10.png}{.5}
+		\end{figure}
 		\begin{figure}[H]
 			\centering
 %			\caption{Dominio del límite de la sucesión}
@@ -285,32 +292,38 @@
 				\gras{fig_4_4-25_20.png}{.6}
 		\end{figure}
 
-		\begin{figure}[H]
-			\centering
-%			\caption{Dominio del límite de la sucesión}
-%			\label{fig:comparaciones}
-				\gras{fig_4_4-25_10.png}{.6}
-		\end{figure}
-
-		\begin{figure}[H]
-			\centering
+		\noindent\begin{figure}[H]
+			{\centering
 			\caption{Comparación de lenguajes}
 			\label{fig:comparaciones}
-				\gras{fig_comparaciones.png}{.6}
+			\gras{fig_comparaciones.png}{.8}}
+			En estre gráfico se observan las sucesiones de los $x_n$ de distintos lenguajes de programación/precisiones hasta la iteración 20.
+			
+			Vemos, por ejemplo, que el Python con precision arbitraria coincide con el $x_n$ exacto, que el float (precisión simple en C++) diverge mucho antes que todos los demas, y que el Python y el Spreadsheet se comportan exactamente igual.
+			
+			(Obs: todos los valores son discretos. algunas secuencias las graficamos como líneas para que se aprecie mejor, no para interpolar los resultados)
 		\end{figure}
 
 		\begin{figure}[H]
-			\centering
+			{\centering
 			\caption{Divergencia de la recurrencia para una instancia}
 			\label{fig:divergencia}
-				\gras{fig_divergencia.png}{.6}
+				\gras{fig_divergencia.png}{.7}}
+			Este gráfico ilustra los distintos puntos $(x_k,x_{k+1})$ partiendo de $(x_0,x_1)=$(4,4.25)
+			
+			Se observa que tiende lentamente al punto $(5,5)$, como es esperado, pero luego salta a (5,5.5) y luego a (5.5,15)
+			
+			De ahi en más se va acercando al punto $(100,100)$, que es el límite para todos los puntos fuera de la curva azul.
 		\end{figure}
 
 		\begin{figure}[H]
-			\centering
+			{\centering
 			\caption{Iteraciones necesarias para llegar a límite 100}
 			\label{fig:iteraciones}
-				\gras{fig_iteraciones.png}{.3}
+				\gras{fig_iteraciones.png}{.5}}
+			Acá pretendimos visualizar la cantidad de iteraciones que hay que hacer en \texttt{C++} (con precision double) para llegar cercano al límite 100, partiendo del punto $(x,y)=(x_0,y_0)$
+			
+			Las zonas más oscuras corresponden a una menor cantidad de iteraciones, y las zonas más claras significan que son necesarias más iteraciones para llegar desde ese punto al límite 100. (Blanco significa 20 o más iteraciones)
 		\end{figure}
 
 	\end{usection}

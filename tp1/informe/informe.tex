@@ -40,6 +40,8 @@
 \newenvironment{usection}[1]{\newpage\begin{section}*{#1}	\addcontentsline{toc}{section}{#1}}{\end{section}}
 \newenvironment{usubsection}[1]{\begin{subsection}*{#1}	\addcontentsline{toc}{subsection}{#1}}{\end{subsection}}
 
+\newcommand{\superref}[1]{\textsuperscript{\ref{#1}}}
+
 %\title{{\sc\normalsize Métodos Numéricos}\\{\bf Trabajo Práctico Nº1}}
 %\author{\begin{tabular}{lcr}Pablo Herrero & LU & \dirmail{pablodherrero@gmail.com}\\Thomas Fischer & 489/08 & \dirmail{tfischer@dc.uba.ar}\\Kevin Allekotte & 490/08 & \dirmail{kevinalle@gmail.com} \end{tabular}}
 %\date{\VSP \normalsize{Abril 2010}}
@@ -374,11 +376,11 @@
 		Por lo tanto el cálculo del límite mediante la recurrencia,
 		con este algoritmo y estas limitaciones en la aritmética puede llegar a ser incluso inútil. \\
 \\
-		En la figura \ref{fig:comparacion} podemos observar como se comportan
+		En la figura \ref{fig:comparaciones} podemos observar como se comportan
 		los distintos lenguajes para algunos casos de entrada
 		particulares arbitrarios tal que $\lim_{n\to\infty} x_n = 5$,
 		ya que no tiene mucho sentido analizar las recurrencias
-		para $\lim_{n\to\infty} x_n = 3 o 100$,
+		para $\lim_{n\to\infty} x_n = 3$ o $100$,
 		ya que vimos que en estos casos es muy fácil para el algoritmo
 		converger correctamente.
 
@@ -402,20 +404,20 @@
 		ya que el programa además acepta macros en este lenguaje.
 		Esto no necesariamente se traduce a todas las instancias del problema,
 		pero podemos intuir al menos que la precisión que usa es la misma,
-		o sea la \textit{double precision IEEE-754}$^1$.
+		o sea la \textit{double precision IEEE-754}\superref{ref:IEEE754}.
 
 		Por último tenemos la implementación del algoritmo en python
-		pero usando una librería numerica llamada \textit{decimal}$^3$,
+		pero usando una librería numerica llamada \textit{decimal}\superref{ref:decimal},
 		que nos permite elegir una precisión arbitraria para
 		la representación en punto flotante.
 		Vemos que con una precisión de 2000 dígitos significativos decimales,
-		el $X_20$ nos sigue dando sobre el límite exacto.
+		el $X_{20}$ nos sigue dando sobre el límite exacto.
 		Y calculamos que para esta entrada y esta precisión
-		el algoritmo "explota" recien cerca del término $X_1400$.
+		el algoritmo "explota" recien cerca del término $X_{1400}$.
 		Así, podemos acotar el criterio de parada de la recurrencia
 		con un epsilon arbitrariamente chico, eligiendo una precisión
 		suficientemente grande. Esto sin embargo nunca garantiza
-		que el algoritmo a partir de un término "explote".
+		que el algoritmo a partir de un término "explote". \\
 
 	\end{usection}
 	
@@ -500,13 +502,13 @@ do{
 	\begin{usection}{Referencias}
 
 	\begin{enumerate}
-		\item \texttt{http://docs.python.org/tutorial/floatingpoint.html} \\
+		\item \label{ref:pythonfloat} \texttt{http://docs.python.org/tutorial/floatingpoint.html} \\
 		Explicación de la aritmética de punto flotante en Python
 
-		\item \texttt{http://steve.hollasch.net/cgindex/coding/ieeefloat.html} \\
+		\item \label{ref:IEEE754} \texttt{http://steve.hollasch.net/cgindex/coding/ieeefloat.html} \\
 		Estándard de representación de punto flotante más utilizado
 
-		\item \texttt{http://docs.python.org/library/decimal.html}\\ 
+		\item \label{ref:decimal} \texttt{http://docs.python.org/library/decimal.html}\\ 
 		Documentación de la libreria \texttt{decimal} en Python, para presicion arbitraria
 	\end{enumerate}	
 	

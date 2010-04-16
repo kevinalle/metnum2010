@@ -79,35 +79,35 @@
 		Cuando trabajamos con números reales en una computadora,
 		nos encontramos con algunos factores limitantes para nuestros cálculos
 		como lo son la aritmética finita y
-		también el tipo de representación que se nos provee para trabajar. 	\\
+		también el tipo de representación que se nos provee para trabajar.
+
 		Esto surge como una consecuencia de la necesidad
 		de una memoria física finita de la computadora
 		en contraste con la precisión infinita
 		que requieren la mayoría de los números reales.
-\\
+
 		Luego, al intentar representar números en una computadora,
 		cuya precisión va mas allá de la otorgada por la misma,
 		surgen en la representación del número pequeños errores,
 		los cuáles, como muestra este trabajo, no son despreciables
 		al realizarse ciertos tipos de cálculos.
-\\
+
 		Cada uno de estos sistemas puede tener una precisión muy distinta,
 		lo que produce una diferencia en los errores cometidos al representar
 		números en cada uno.
-\\
+
 		Además existen distintos tipos de precisión a analizar, 
 		como por ejemplo la resolución o granularidad,
 		o los limites superiores e inferiores,
 		tanto de la parte entera como de la parte decimal.
-\\
+
 		La representación que elijamos depende totalmente
 		de los tipos de cálculo que vallamos a realizar
 		y el tipo de precisión que necesitemos
 		para obtener un resultado razonable.
-\\
+
 		Existen múltiples estándares de representación para los números reales,
-		de los cuáles tal vez el más difundido para números reales
-		sea la norma \texttt{IEEE - 754}.
+		de los cuáles tal vez el más difundido sea la norma \texttt{IEEE-754}.
 
 	\end{usection}
 	
@@ -240,15 +240,26 @@
 			de tal manera que $|x_n-x_{n-1}|<\epsilon$
 			donde $\epsilon$ es una diferencia entre términos sucesivos
 			a partir de la cuál consideramos que la recurrencia
-			ya ha alcanzado el límite. \\
-\\
+			ya ha alcanzado el límite.\\
+
 			Los resultados de ejecutar estos programas son comparados
 			con los resultados teóricos de límite obtenidos,
 			explicados en la seccion precedente.
-			Así podemos obtener un valor del error relativo
+			Así podemos obtener un valor del error
 			cometido por el algoritmo por consecuencia de las limitaciones
 			de representación aritmética de las computadoras. \\
-\\
+			
+			Para Implementar la recurrencia elegimos los lenguajes:
+			\begin{itemize}
+				\item \texttt{C++} con precisión simple (\texttt{float})
+				\item \texttt{C++} con precisión doble (\texttt{double})
+				\item \texttt{Python}
+				\item \texttt{Python} con precisión arbitraria
+				\item \texttt{OpenOffice Spreadsheet}
+			\end{itemize}
+			
+			Creemos que este subconjunto de lenguajes ilustrará los resultados para entornos distintos para poder comparar.
+
 			Los resultados obtenidos son analizados en la sección siguiente.
 
 		\end{usubsection}		
@@ -270,6 +281,7 @@
 		
 		\newpage
 		A continuación graficamos los sucesivos valores de $x_n$ para $1\leq n\leq 20$ con $x_0=2$ y $x_1=8$, comparando el resultado exacto con el resultado de generar la sucesion con la fórmula recurrente usando C++ (con double de presicion).
+		
 		Se observa que a pesar de unos errores importantes el límite es el mismo.
 		
 		\begin{figure}[H]
@@ -298,9 +310,9 @@
 			\label{fig:comparaciones}
 			\gras{fig_comparaciones.png}{.8}}
 			En estre gráfico se observan las sucesiones de los $x_n$ de distintos lenguajes de programación/precisiones hasta la iteración 20.
-			
+
 			Vemos, por ejemplo, que el Python con precision arbitraria coincide con el $x_n$ exacto, que el float (precisión simple en C++) diverge mucho antes que todos los demas, y que el Python y el Spreadsheet se comportan exactamente igual.
-			
+
 			(Obs: todos los valores son discretos. algunas secuencias las graficamos como líneas para que se aprecie mejor, no para interpolar los resultados)
 		\end{figure}
 

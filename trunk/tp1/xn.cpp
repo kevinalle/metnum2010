@@ -3,7 +3,6 @@
 using namespace std;
 
 int main(int argc, char*argv[]){
-	cout << argc << endl;
 	if(argc==4){
 		double x0=atof(argv[1]);
 		double x1=atof(argv[2]);

@@ -6,6 +6,37 @@
 using namespace std;
 
 #define forn(i,n) for(int i=0;i<n;i++)
+#define fornr(i,n) for(int i=n-1;0<=i;i--)
+#define forsn(i,s,n) for(int i=s;i<n;i++)
+#define forsnr(i,s,n) for(int i=n-1;s<=i;i--)
+
+void print(const double* M, int n, int m){
+	cout << '[';
+	forn(i,n){
+		if(i!=0) cout << ';';
+		cout << '[';
+		forn(j,m){
+			if(j!=0) cout << ',';
+			cout << M[m*i + j];
+		}
+		cout << ']';
+	}
+	cout << ']';
+}
+
+void print(const int* M, int n, int m){
+	cout << '[';
+	forn(i,n){
+		if(i!=0) cout << ';';
+		cout << '[';
+		forn(j,m){
+			if(j!=0) cout << ',';
+			cout << M[m*i + j];
+		}
+		cout << ']';
+	}
+	cout << ']';
+}
 
 class Matriz{
 
@@ -16,6 +47,9 @@ class Matriz{
 
 		/* Constructor por copia */
 		Matriz(const Matriz& B);
+
+		/* Constructor por copia de un array */
+		Matriz(const double* B, const int _n, const int _m);
 
 		/* Destructor */
 		~Matriz();
@@ -28,6 +62,17 @@ class Matriz{
 
 		/* Devuelve la matriz traspuesta */
 		Matriz T() const;
+
+		/* factoriza la matriz en PLU */
+		void factorizar();
+
+		/* resuelve un sistema de ecuaciones con solucion b */
+		/* requiere factorizacion previa */
+		Matriz resolver(const Matriz& b) const;
+
+		Matriz getL() const;
+		Matriz getU() const;
+		void printPLU() const;
 
 		/* Operadores varios */
 
@@ -44,23 +89,34 @@ class Matriz{
 		int n, m;
 
 		double* M;
+		double* L;
+		double* U;
+		int* P;
+
+		void triangular(const int i);
 
 };
 
 Matriz::Matriz(const int _n, const int _m, const double& e){
 	n = _n; m = _m;
-	M = new double[n*m];
-	forn(i,n*m) M[i] = e;
+	M = new double[n*m]; forn(i,n*m) M[i] = e;
 }
 
 Matriz::Matriz(const Matriz& B){
 	n = B.n; m = B.m;
-	M = new double[n*m];
-	forn(i,n) forn(j,m) def(i,j,B.elem(i,j));
+	M = new double[n*m]; forn(i,n) forn(j,m) def(i,j,B.elem(i,j));
+}
+
+Matriz::Matriz(const double* B, const int _n, const int _m){
+	n = _n; m = _m;
+	M = new double[n*m]; forn(i,n*m) M[i] = B[i];
 }
 
 Matriz::~Matriz(){
-	delete M;
+	if(M) delete M;
+	if(L) delete L;
+	if(U) delete U;
+	if(P) delete P;
 }
 
 void Matriz::def(const int i, const int j, const double& e){
@@ -77,6 +133,105 @@ Matriz Matriz::T() const {
 	Matriz res(m,n);
 	forn(i,m) forn(j,n) res.def(i,j, elem(j,i));
 	return res;
+}
+
+void Matriz::factorizar(){
+	assert(n==m);
+
+	L = new double[n*m]; forn(i,n*m) L[i] = 0;
+	U = new double[n*m]; forn(i,n*m) U[i] = M[i];
+	P = new int[n]; P = new int[n]; forn(i,n) P[i] = i;
+
+	forn(k,n-1) triangular(k);
+
+	forn(i,n) L[i*m + i] = 1;
+
+}
+
+Matriz Matriz::resolver(const Matriz& b) const{
+	assert( b.n==n && b.m==1 );
+
+	double bb[n]; forn(i,n) bb[i] = b.elem(P[i],1);
+	double res[n];
+
+	fornr(i,n){
+
+		res[i] = bb[i];
+
+		forsn(j,i+1,n) res[i] -= res[j]*U[i*m + j];
+
+		res[i] /= U[i*m + i];
+
+	}
+
+	Matriz Pres(n,1);
+	forn(i,n) Pres.M[P[i]] = res[i];
+
+	return Pres;
+}
+
+void Matriz::triangular(int k){
+
+	int f = k;
+	double p = U[f*m + k];
+
+	// elijo la fila pivote
+	forsn(i,k,n) if(U[i*m + k] > p){ f = i; p = U[f*m + k]; }
+
+	// swapeo las filas f y k en L y U
+	forn(j,n){
+
+		double temp_U = U[f*m + j];
+		U[f*m + j] = U[k*m + j];
+		U[k*m + j] = temp_U;
+
+		double temp_L = L[f*m + j];
+		L[f*m + j] = L[k*m + j];
+		L[k*m + j] = temp_L;
+
+	}
+
+	// actualizo el vector de perumtación
+	int temp = P[f];
+	P[f] = P[k];
+	P[k] = temp;
+
+	// triangulo las filas k+1 -> n
+	forsn(i,k+1,n){
+
+		// elijo el m_ij
+		double a = U[ i*m + k ]/p;
+
+		L[ i*m + k ] = a;
+
+		// la k-esima columna es 0
+		U[ i*m + k ] = 0;
+
+		// calculo el valor de las columnas k+1 -> n
+		forsn(j,k+1,n)
+
+			U[ i*m + j ] -= a*U[ k*m + j ];
+
+	}
+
+//cout << "	L: "; print(L,n,m); cout << endl;
+//cout << "	U: "; print(U,n,m); cout << endl;
+//cout << "	Permutacion: "; print(P,1,n); cout << endl;
+
+}
+
+Matriz Matriz::getL() const{
+	return Matriz(L,n,m);
+}
+
+Matriz Matriz::getU() const{
+	return Matriz(U,n,m);
+}
+
+void Matriz::printPLU() const{
+	cout << "P = "; print(P,1,n); cout << endl;
+	cout << "L = "; print(L,n,m); cout << endl;
+	cout << "U = "; print(U,n,m); cout << endl;
 }
 
 Matriz Matriz::operator * (const Matriz& B) const {
@@ -122,7 +277,7 @@ Matriz operator * (const double& lambda, const Matriz& A){
 ostream& operator << (ostream& os, const Matriz& A){
 	os << '[';
 	forn(i,A.n){
-		if(i!=0) os << ',';
+		if(i!=0) os << ';';
 		os << '[';
 		forn(j,A.m){
 			if(j!=0) os << ',';

@@ -7,13 +7,18 @@ using namespace std;
 
 int main(){
 	Matriz A(3,3,.5);
-	Matriz B(A);
-	Matriz I(3,3); forn(i,3) I.def(i,i,1);
-	Matriz V(3,1,2);
-	A.def(1,1,.3);
-	Matriz W = V.T();
+	A.def(0,0,1); A.def(0,1,2); A.def(0,2,3);
+	A.def(1,0,3); A.def(1,1,5); A.def(1,2,1);
+	A.def(2,0,7); A.def(2,1,8); A.def(2,2,9);
 	cout << A << endl;
-	cout << B << endl;
-	cout << (A*=I) << endl;
+	A.factorizar();
+
+	A.printPLU();
+//	Matriz b(3,1,0.1);
+
+	// resolver anda ???
+
+//	cout << "L = " << A.getL() << endl; ?? error de memoria
+//	cout << "U = " << A.getU() << endl; ?? error de memoria
 	return 0;
 }

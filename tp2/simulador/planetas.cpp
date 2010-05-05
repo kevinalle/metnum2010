@@ -12,6 +12,7 @@ typedef vector<double> vd;
 typedef vector<vd> vvd;
 
 SDL_Surface* screen;
+vvd depth;
 
 #define G 0.00002499215588275752801651213378056900054016
 
@@ -35,7 +36,7 @@ void draw_pixel32( SDL_Surface* S, int i, int j, Uint32 r, Uint32 g, Uint32 b ){
 		pixels[ (S->h-1-i)*S->w + j ] = SDL_MapRGB(S->format, r, g, b);
 }
 
-void clear(SDL_Surface* S, vvd& depth){
+void clear(SDL_Surface* S){
 	forn(i,S->h) forn(j,S->w){
 		//Convert the pixels to 32 bit
 		Uint32* pixels = (Uint32*)S->pixels;
@@ -66,7 +67,7 @@ Vector Proyeccion( const Vector& p, const Observador& o ){
 	);
 }
 
-void draw(SDL_Surface* S, vvd& depth, const Observador& o, const Vector& v, Uint32 r, Uint32 g, Uint32 b){
+void draw(SDL_Surface* S, const Observador& o, const Vector& v, Uint32 r, Uint32 g, Uint32 b){
 	Vector w = Proyeccion(v,o);
 	int i = S->h/2 + w.Z();
 	int j = S->w/2 + w.X();
@@ -78,21 +79,21 @@ void draw(SDL_Surface* S, vvd& depth, const Observador& o, const Vector& v, Uint
 	}
 }
 
-void draw_base(SDL_Surface* S, vvd& depth, const Observador& o){
-	forn(i,100) draw(S,depth,o,Vector(i,0,0),255,0,0);
+void draw_base(SDL_Surface* S, const Observador& o){
+	forn(i,100) draw(S,o,Vector(i,0,0),255,0,0);
 //	forn(i,100) draw(S,depth,o,Vector(-i,0,0),255,0,0);
 
-	forn(i,100) draw(S,depth,o,Vector(0,i,0),0,255,0);
+	forn(i,100) draw(S,o,Vector(0,i,0),0,255,0);
 //	forn(i,100) draw(S,depth,o,Vector(0,-i,0),0,255,0);
 
-	forn(i,100) draw(S,depth,o,Vector(0,0,i),0,0,255);
+	forn(i,100) draw(S,o,Vector(0,0,i),0,0,255);
 //	forn(i,100) draw(S,depth,o,Vector(0,0,-i),0,0,255);
 }
 
 // fuerza ejercida sobre p1 por p2
 Vector Fg(const Planeta& p1, const Planeta& p2){
 	Vector F = -G*p1.m*p2.m*(p1.x-p2.x);
-	double d = abs(pow((p1.x-p2.x).norm(),3.));
+	double d = abs(pow((p1.x-p2.x).norm(),3));
 	return F/d;
 }
 
@@ -105,7 +106,7 @@ int main(){
 	screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE );
 	if( !screen ) return 1;
 
-	vvd depth(screen->h,vd(screen->w,INFINITY));
+	depth = vvd(screen->h,vd(screen->w,INFINITY));
 
 	// Coordenada (0,0): Solar System Barycenter
 	// datos para: A.D. 2010-May-05 00:00:00.0000 CT
@@ -136,10 +137,11 @@ int main(){
 	o.dir = Vector(1,0,0).normalize();//o.pos.inverse().normalize();
 	o.up = Vector(0,-1,0).normalize();
 
-	clear(screen,depth);
-	draw_base(screen,depth,o);
+	clear(screen);
+	draw_base(screen,o);
 	SDL_Flip(screen);
 
+	int dias = 0;
 	SDL_Event event;
 	bool quit = false;
 	while(!quit){
@@ -157,26 +159,26 @@ int main(){
 					case SDLK_UP:
 						o.dir = o.dir.rotate(0,-.1);
 						o.up = o.up.rotate(0,-.1);
-						clear(screen,depth);
-						draw_base(screen,depth,o);
+						clear(screen);
+						draw_base(screen,o);
 						break;
 					case SDLK_DOWN:
 						o.dir = o.dir.rotate(0,.1);
 						o.up = o.up.rotate(0,.1);
-						clear(screen,depth);
-						draw_base(screen,depth,o);
+						clear(screen);
+						draw_base(screen,o);
 						break;
 					case SDLK_RIGHT:
 						o.dir = o.dir.rotate(.1,0);
 						o.up = o.up.rotate(.1,0);
-						clear(screen,depth);
-						draw_base(screen,depth,o);
+						clear(screen);
+						draw_base(screen,o);
 						break;
 					case SDLK_LEFT:
 						o.dir = o.dir.rotate(-.1,0);
 						o.up = o.up.rotate(-.1,0);
-						clear(screen,depth);
-						draw_base(screen,depth,o);
+						clear(screen);
+						draw_base(screen,o);
 						break;
 					default:
 						break;
@@ -185,34 +187,40 @@ int main(){
 			}
 		}
 
-		// fuerza gravitacional ejercida sobre p1 por p2:
-		// Fg(p1,p2) = -G*m1*m2 * (x1-x2)/(|x1-x2|^3)
+		if(dias<=365){
 
-		Vector F_l = Fg(luna,tierra) + Fg(luna,sol);
-		Vector F_t = Fg(tierra,sol) + Fg(tierra,luna);
-		Vector F_s = Fg(sol,tierra) + Fg(sol,luna);
+			draw(screen,o,luna.x,0,255,255);
+			draw(screen,o,tierra.x,255,255,255);
+			draw(screen,o,sol.x,255,255,0);
 
-		Vector a_l = F_l/luna.m;
-		Vector a_t = F_t/tierra.m;
-		Vector a_s = F_s/sol.m;
+			SDL_Flip(screen);
 
-		luna.v = luna.v + a_l;
-		tierra.v = tierra.v + a_t;
-		sol.v = sol.v + a_s;
+			// fuerza gravitacional ejercida sobre p1 por p2:
+			// Fg(p1,p2) = -G*m1*m2 * (x1-x2)/(|x1-x2|^3)
 
-		luna.x += luna.v;
-		tierra.x += tierra.v;
-		sol.x += sol.v;
+			Vector F_l = Fg(luna,tierra) + Fg(luna,sol);
+			Vector F_t = Fg(tierra,sol) + Fg(tierra,luna);
+			Vector F_s = Fg(sol,tierra) + Fg(sol,luna);
 
-		draw(screen,depth,o,luna.x,0,255,255);
-		draw(screen,depth,o,tierra.x,255,255,255);
-		draw(screen,depth,o,sol.x,255,255,0);
+			Vector a_l = F_l/luna.m;
+			Vector a_t = F_t/tierra.m;
+			Vector a_s = F_s/sol.m;
 
-		cout << "ac luna: " << a_l << endl;
-		cout << "ac tierra: " << a_t << endl;
-		cout << "ac sol: " << a_s << endl;
+			luna.v = luna.v + a_l;
+			tierra.v = tierra.v + a_t;
+			sol.v = sol.v + a_s;
 
-		SDL_Flip(screen);
+			luna.x += luna.v;
+			tierra.x += tierra.v;
+			sol.x += sol.v;
+
+			cout << "ac luna: " << a_l << endl;
+			cout << "ac tierra: " << a_t << endl;
+			cout << "ac sol: " << a_s << endl;
+
+		}
+
+		dias++;
 
 	}
 

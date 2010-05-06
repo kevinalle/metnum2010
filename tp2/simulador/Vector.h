@@ -15,8 +15,8 @@ class Vector{
 		Vector();
 
 		/* Constructor que toma las coordenadas */
-		Vector(double& _x, double& _y, double& _z);
-		Vector(double _x, double _y, double _z);
+		Vector(const double& _x, const double& _y, const double& _z);
+//		Vector(double _x, double _y, double _z);
 
 		/* Constructor que toma los angulo th y phi donde 
 		 * th = angulo en el plano xy
@@ -88,9 +88,9 @@ ostream& operator << (ostream& os, const Vector& v);
 
 Vector::Vector() : x(0), y(0), z(0) {}
 
-Vector::Vector(double& _x, double& _y, double& _z) : x(_x), y(_y), z(_z) {}
+Vector::Vector(const double& _x, const double& _y, const double& _z) : x(_x), y(_y), z(_z) {}
 
-Vector::Vector(double _x, double _y, double _z) : x(_x), y(_y), z(_z) {}
+//Vector::Vector(double _x, double _y, double _z) : x(_x), y(_y), z(_z) {}
 
 Vector::Vector(double& th, double& phi) : x(cos(th)*sin(phi)), y(sin(th)*sin(phi)), z(cos(phi)) {}
 

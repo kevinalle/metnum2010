@@ -12,13 +12,18 @@ int main(){
 	A.def(2,0,7); A.def(2,1,8); A.def(2,2,9);
 	cout << A << endl;
 	A.factorizar();
+	A.factorizar();
 
-	A.printPLU();
-//	Matriz b(3,1,0.1);
+//	A.printPLU();
+//	cout << "L = " << A.getL() << endl;
+//	cout << "U = " << A.getU() << endl;
 
-	// resolver anda ???
+	Matriz b(3,1,0.1);
 
-//	cout << "L = " << A.getL() << endl; ?? error de memoria
-//	cout << "U = " << A.getU() << endl; ?? error de memoria
+	cout << b << endl;
+
+	// resolver anda ??? ni en pedo
+	A.resolver(b);
+
 	return 0;
 }

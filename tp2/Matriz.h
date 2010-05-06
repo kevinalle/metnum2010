@@ -100,23 +100,26 @@ class Matriz{
 Matriz::Matriz(const int _n, const int _m, const double& e){
 	n = _n; m = _m;
 	M = new double[n*m]; forn(i,n*m) M[i] = e;
+	L = NULL; U = NULL; P = NULL;
 }
 
 Matriz::Matriz(const Matriz& B){
 	n = B.n; m = B.m;
 	M = new double[n*m]; forn(i,n) forn(j,m) def(i,j,B.elem(i,j));
+	L = NULL; U = NULL; P = NULL;
 }
 
 Matriz::Matriz(const double* B, const int _n, const int _m){
 	n = _n; m = _m;
 	M = new double[n*m]; forn(i,n*m) M[i] = B[i];
+	L = NULL; U = NULL; P = NULL;
 }
 
 Matriz::~Matriz(){
-	if(M) delete M;
-	if(L) delete L;
-	if(U) delete U;
-	if(P) delete P;
+	delete[] M;
+	delete[] L;
+	delete[] U;
+	delete[] P;
 }
 
 void Matriz::def(const int i, const int j, const double& e){
@@ -138,9 +141,13 @@ Matriz Matriz::T() const {
 void Matriz::factorizar(){
 	assert(n==m);
 
-	L = new double[n*m]; forn(i,n*m) L[i] = 0;
-	U = new double[n*m]; forn(i,n*m) U[i] = M[i];
-	P = new int[n]; P = new int[n]; forn(i,n) P[i] = i;
+	delete[] L; L = new double[n*m];
+	delete[] U; U = new double[n*m];
+	delete[] P; P = new int[n];
+
+	forn(i,n*m) L[i] = 0;
+	forn(i,n*m) U[i] = M[i];
+	forn(i,n) P[i] = i;
 
 	forn(k,n-1) triangular(k);
 

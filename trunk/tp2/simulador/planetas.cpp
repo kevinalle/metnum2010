@@ -15,11 +15,12 @@ typedef vector<double> vd;
 typedef vector<vd> vvd;
 
 #include "Planetas.h"
+#include "Timer.h"
 
 SDL_Surface* screen;
 vvd depth;
 
-#define G 0.00002499215588275752801651213378056900054016
+#define G 0.0002499215588275752801651213378056900054016
 
 struct Observador{
 	Vector pos;
@@ -89,6 +90,7 @@ void draw_base(SDL_Surface* S, const Observador& o){
 }
 
 // fuerza ejercida sobre p1 por p2
+// Fg(p1,p2) = -G*m1*m2 * (x1-x2)/(|x1-x2|^3)
 Vector Fg(const Planeta& p1, const Planeta& p2){
 	Vector F = -G*p1.m*p2.m*(p1.x-p2.x);
 	double d = abs(pow((p1.x-p2.x).norm(),3));
@@ -106,14 +108,27 @@ int main(){
 
 	depth = vvd(screen->h,vd(screen->w,INFINITY));
 
-	// inicializa la info de los planetas y ala list<Planeta> 'planetas'
+	// inicializa la info de los planetas y la list<Planeta> 'planetas'
 	initPlanetas();
 
+/************************************************************/
+
+	/* Para toquetear */
+
+	// tiempo virtual de simulacion (en dias)
+	double total_sim_t = 1000000;
+
 	// delta de tiempo (en dias)
-	double dt = .1;
+	double dt = 1;
+
+	// tiempo real de simulacion en frames/s
+	// 1 dias/dt = 1 frame
+	int fps = 365;
 
 	// zoom sobre el espacio
-	double zoom = 50;
+	double zoom = 20;
+
+/************************************************************/
 
 	Observador o;
 //	o.pos = Vector(0,0,0);
@@ -124,14 +139,13 @@ int main(){
 	draw_base(screen,o);
 	SDL_Flip(screen);
 
-	ifstream f_sol; f_sol.open("sol.in");
-	ifstream f_tierra; f_tierra.open("tierra.in");
-	ifstream f_luna; f_luna.open("luna.in");
-
-	int dias = 0;
+	Timer t;
 	SDL_Event event;
+	int sim_t = 0; // en 1/dt * dias
 	bool quit = false;
 	while(!quit){
+
+		t.start();
 
 		while( SDL_PollEvent( &event ) ) {
 
@@ -173,61 +187,32 @@ int main(){
 
 			}
 		}
-/*
-		// leyendo data de la NASA
 
-		if(dias<=365){
-
-			draw(screen,o,200*luna.x,0,255,255);
-			draw(screen,o,200*tierra.x,255,255,255);
-			draw(screen,o,200*sol.x,255,255,0);
-
-			SDL_Flip(screen);
-
-			double x, y, z;
-
-			f_sol >> x >> y >>z; sol.x = Vector(x,y,z);
-			f_sol >> x >> y >>z; sol.v = Vector(x,y,z);
-
-			f_tierra >> x >> y >>z; tierra.x = Vector(x,y,z);
-			f_tierra >> x >> y >>z; tierra.v = Vector(x,y,z);
-
-			f_luna >> x >> y >>z; luna.x = Vector(x,y,z);
-			f_luna >> x >> y >>z; luna.v = Vector(x,y,z);
-
-	}
-*/
-
-		if(dias<=float(365)/dt){
-
-			// fuerza gravitacional ejercida sobre p1 por p2:
-			// Fg(p1,p2) = -G*m1*m2 * (x1-x2)/(|x1-x2|^3)
+		if(sim_t<=total_sim_t/dt){
 
 			foreach(it,planetas){
 
-				draw(screen,o,zoom*it->x,255,255,255);
+				draw(screen,o,zoom*it->x,it->r,it->g,it->b);
 
-				Vector a = Vector(0,0,0);
+				Vector a(0,0,0);
 
+				// Fg = fuerza gravitacional ejercida sobre p1 por p2:
 				foreach(it2,planetas) if(it!=it2) a += Fg(*it,*it2);
 
 				a /= it->m;
-//				cout << a << endl;
 				it->v += dt*a;
 				it->x += dt*it->v;
 
 			}
-
 			SDL_Flip(screen);
 		}
 
-		dias++;
+		sim_t++;
+
+		// bloqueo hasta cumplir el framerate
+		if (t.get_ticks() < 1000/fps) SDL_Delay((1000/fps) - t.get_ticks());
 
 	}
-
-		f_sol.close();
-		f_luna.close();
-		f_tierra.close();
 
 	/* Quit SDL */
 	SDL_Quit(); 

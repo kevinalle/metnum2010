@@ -177,99 +177,107 @@ int main(){
 
 		t.start();
 
-		while( SDL_PollEvent( &event ) ) {
+		/* EVENTOS */
 
-			if( event.type == SDL_QUIT ) quit = true;
+			while( SDL_PollEvent( &event ) ) {
 
-			if( event.type == SDL_KEYDOWN ) {
+				if( event.type == SDL_QUIT ) quit = true;
 
-				switch( event.key.keysym.sym ) {
-					case SDLK_q:
-						quit = true;
-						break;
-					case SDLK_s:
-						if(sim_stop){
-							sim_t = 0;
-							foreach(it,planetas) it->orbit.clear();
-						}
-						sim_pause = false;
-						sim_stop = !sim_stop;
-						break;
-					case SDLK_PLUS:
-						zoom += 5;
-						break;
-					case SDLK_MINUS:
-						zoom -= 5;
-						if(!zoom) zoom = 5;
-						break;
-					case SDLK_p:
-						if(!sim_stop) sim_pause = !sim_pause;
-						break;
-					case SDLK_UP:
-						o.dir = o.dir.rotate(0,-.1);
-						o.up = o.up.rotate(0,-.1);
-						break;
-					case SDLK_DOWN:
-						o.dir = o.dir.rotate(0,.1);
-						o.up = o.up.rotate(0,.1);
-						break;
-					case SDLK_RIGHT:
-						o.dir = o.dir.rotate(.1,0);
-						o.up = o.up.rotate(.1,0);
-						break;
-					case SDLK_LEFT:
-						o.dir = o.dir.rotate(-.1,0);
-						o.up = o.up.rotate(-.1,0);
-						break;
-					default:
-						break;
+				if( event.type == SDL_KEYDOWN ) {
+
+					switch( event.key.keysym.sym ) {
+						case SDLK_q:
+							quit = true;
+							break;
+						case SDLK_s:
+							if(sim_stop){
+								sim_t = 0;
+								foreach(it,planetas) it->orbit.clear();
+							}
+							sim_pause = false;
+							sim_stop = !sim_stop;
+							break;
+						case SDLK_PLUS:
+							zoom += 5;
+							break;
+						case SDLK_MINUS:
+							zoom -= 5;
+							if(!zoom) zoom = 5;
+							break;
+						case SDLK_p:
+							if(!sim_stop) sim_pause = !sim_pause;
+							break;
+						case SDLK_UP:
+							o.dir = o.dir.rotate(0,-.1);
+							o.up = o.up.rotate(0,-.1);
+							break;
+						case SDLK_DOWN:
+							o.dir = o.dir.rotate(0,.1);
+							o.up = o.up.rotate(0,.1);
+							break;
+						case SDLK_RIGHT:
+							o.dir = o.dir.rotate(.1,0);
+							o.up = o.up.rotate(.1,0);
+							break;
+						case SDLK_LEFT:
+							o.dir = o.dir.rotate(-.1,0);
+							o.up = o.up.rotate(-.1,0);
+							break;
+						default:
+							break;
+					}
+
+				}
+			}
+
+		/* RENDER */
+
+			clear(screen);
+			draw_base(screen,o);
+			foreach(it,planetas) foreach(p,it->orbit) draw(screen,o,zoom*(*p),it->r,it->g,it->b);
+
+			stringstream s, s2;
+			s << (sim_stop ? "Stopped" : ( sim_pause ? "Paused" : "Playing" ));
+			s2 << "Epoch: " << sim_t << " (days)";
+
+			SDL_Surface *message = TTF_RenderText_Solid(font, s.str().c_str(), (sim_stop ? SDL_Color({255,0,0}) : ( sim_pause ? SDL_Color({0,0,255}) : SDL_Color({0,255,0}) )) );
+			apply_surface(5,0,message,screen);
+
+			message = TTF_RenderText_Solid(font, s2.str().c_str(), {255,255,255} );
+			apply_surface(5,20,message,screen);
+
+			SDL_FreeSurface( message );
+
+			if( SDL_Flip(screen)==-1 ) return 1;
+
+		/* SIMULACION */
+
+			if(sim_t > total_sim_t) sim_stop = true;
+
+			if(!sim_stop && !sim_pause){
+
+				foreach(it,planetas){
+
+					Vector a(0,0,0);
+
+					// Fg = fuerza gravitacional ejercida sobre p1 por p2:
+					foreach(it2,planetas) if(it!=it2) a += Fg(*it,*it2);
+
+					a /= it->m;
+					it->v += dt*a;
+					it->x += dt*it->v;
+
+					// esto es reindio
+					it->orbit.push_back(it->x);
 				}
 
-			}
-		}
-
-		clear(screen);
-		draw_base(screen,o);
-		foreach(it,planetas) foreach(p,it->orbit) draw(screen,o,zoom*(*p),it->r,it->g,it->b);
-
-		stringstream s, s2;
-		s << (sim_stop ? "Stopped" : ( sim_pause ? "Paused" : "Playing" ));
-		s2 << "Epoch: " << sim_t << " (days)";
-
-		SDL_Surface *message = TTF_RenderText_Solid(font, s.str().c_str(), (sim_stop ? SDL_Color({255,0,0}) : ( sim_pause ? SDL_Color({0,0,255}) : SDL_Color({0,255,0}) )) );
-		apply_surface(5,0,message,screen);
-
-		message = TTF_RenderText_Solid(font, s2.str().c_str(), {255,255,255} );
-		apply_surface(5,20,message,screen);
-
-		SDL_FreeSurface( message );
-
-		if( SDL_Flip(screen)==-1 ) return 1;
-
-		if(sim_t > total_sim_t) sim_stop = true;
-
-		if(!sim_stop && !sim_pause){
-
-			foreach(it,planetas){
-
-				Vector a(0,0,0);
-
-				// Fg = fuerza gravitacional ejercida sobre p1 por p2:
-				foreach(it2,planetas) if(it!=it2) a += Fg(*it,*it2);
-
-				a /= it->m;
-				it->v += dt*a;
-				it->x += dt*it->v;
-
-				// esto es reindio
-				it->orbit.push_back(it->x);
+				sim_t += dt;
 			}
 
-			sim_t += dt;
-		}
+		/* FRAME RATE */
 
-		// bloqueo hasta cumplir el framerate
-		if (t.get_ticks() < 1000/fps) SDL_Delay((1000/fps)-t.get_ticks());
+			// bloqueo hasta cumplir el framerate
+			if (t.get_ticks() < 1000/fps) SDL_Delay((1000/fps)-t.get_ticks());
 	}
 
 	// cleanup

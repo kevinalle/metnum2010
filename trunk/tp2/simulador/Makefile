@@ -1,2 +1,2 @@
-planetas: planetas.cpp Vector.h
+planetas: planetas.cpp Planetas.h Vector.h
 	g++ -W -o $@ $< -lSDL

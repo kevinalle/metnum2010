@@ -163,10 +163,6 @@ int main(){
 	o.dir = Vector(0,0,1).normalize();//o.pos.inverse().normalize();
 	o.up = Vector(0,1,0).normalize();
 
-	clear(screen);
-	draw_base(screen,o);
-	SDL_Flip(screen);
-
 	Timer t;
 	SDL_Event event;
 	double sim_t = 0; // en 1/dt * dias
@@ -238,7 +234,7 @@ int main(){
 
 			stringstream s, s2;
 			s << (sim_stop ? "Stopped" : ( sim_pause ? "Paused" : "Playing" ));
-			s2 << "Epoch: " << sim_t << " (days)";
+			s2 << "Epoch: " << (int)sim_t << " dias";
 
 			SDL_Surface *message = TTF_RenderText_Solid(font, s.str().c_str(), (sim_stop ? SDL_Color({255,0,0}) : ( sim_pause ? SDL_Color({0,0,255}) : SDL_Color({0,255,0}) )) );
 			apply_surface(5,0,message,screen);

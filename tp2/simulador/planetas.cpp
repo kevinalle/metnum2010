@@ -1,10 +1,12 @@
 #include <vector>
 #include <cmath>
 #include <list>
+#include <sstream>
 #include <iostream>
 #include <fstream>
 #include <assert.h>
 #include <SDL/SDL.h>
+#include <SDL/SDL_ttf.h>
 using namespace std;
 
 #include "Vector.h"
@@ -18,6 +20,7 @@ typedef vector<vd> vvd;
 #include "Timer.h"
 
 SDL_Surface* screen;
+TTF_Font* font;
 vvd depth;
 
 #define G 0.0002499215588275752801651213378056900054016
@@ -33,6 +36,18 @@ void draw_pixel32( SDL_Surface* S, int i, int j, Uint32 r, Uint32 g, Uint32 b ){
 		Uint32* pixels = (Uint32*)S->pixels;
 		//Set the pixel
 		pixels[ (S->h-1-i)*S->w + j ] = SDL_MapRGB(S->format, r, g, b);
+}
+
+void apply_surface( int x, int y, SDL_Surface* source, SDL_Surface* destination, SDL_Rect* clip = NULL ){
+    //Holds offsets
+    SDL_Rect offset;
+
+    //Get offsets
+    offset.x = x;
+    offset.y = y;
+
+    //Blit
+    SDL_BlitSurface( source, clip, destination, &offset );
 }
 
 void clear(SDL_Surface* S){
@@ -97,11 +112,24 @@ Vector Fg(const Planeta& p1, const Planeta& p2){
 	return F/d;
 }
 
-int main(){
-
+bool init(){
 	/* inicio SDL */
 	SDL_Surface* screen = NULL;
-	if( SDL_Init( SDL_INIT_EVERYTHING ) == -1 ) return 1;
+
+	if( SDL_Init( SDL_INIT_EVERYTHING ) == -1 ) return false;
+	if( TTF_Init()==-1 ) return false;
+
+	font = TTF_OpenFont( "/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf", 20); // /usr/share/fonts/truetype/latex-xft-fonts/cmr10.ttf
+	if( font == NULL ) return false;
+
+	SDL_WM_SetCaption("Orbit Sim",NULL);
+
+	return true;
+}
+
+int main(){
+
+	if( !init() ) return 1;
 
 	screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE );
 	if( !screen ) return 1;
@@ -123,7 +151,7 @@ int main(){
 
 	// tiempo real de simulacion en frames/s
 	// 1 dias/dt = 1 frame
-	int fps = 20;
+	int fps = 30;
 
 	// zoom sobre el espacio
 	double zoom = 20;
@@ -133,7 +161,7 @@ int main(){
 	Observador o;
 //	o.pos = Vector(0,0,0);
 	o.dir = Vector(0,0,1).normalize();//o.pos.inverse().normalize();
-	o.up = Vector(0,-1,0).normalize();
+	o.up = Vector(0,1,0).normalize();
 
 	clear(screen);
 	draw_base(screen,o);
@@ -141,7 +169,7 @@ int main(){
 
 	Timer t;
 	SDL_Event event;
-	int sim_t = 0; // en 1/dt * dias
+	double sim_t = 0; // en 1/dt * dias
 	bool quit = false;
 	bool sim_stop = true;
 	bool sim_pause = false;
@@ -162,37 +190,36 @@ int main(){
 					case SDLK_s:
 						if(sim_stop){
 							sim_t = 0;
-							clear(screen);
-							draw_base(screen,o);
+							foreach(it,planetas) it->orbit.clear();
 						}
+						sim_pause = false;
 						sim_stop = !sim_stop;
 						break;
+					case SDLK_PLUS:
+						zoom += 5;
+						break;
+					case SDLK_MINUS:
+						zoom -= 5;
+						if(!zoom) zoom = 5;
+						break;
 					case SDLK_p:
-						sim_pause = !sim_pause;
+						if(!sim_stop) sim_pause = !sim_pause;
 						break;
 					case SDLK_UP:
 						o.dir = o.dir.rotate(0,-.1);
 						o.up = o.up.rotate(0,-.1);
-						clear(screen);
-						draw_base(screen,o);
 						break;
 					case SDLK_DOWN:
 						o.dir = o.dir.rotate(0,.1);
 						o.up = o.up.rotate(0,.1);
-						clear(screen);
-						draw_base(screen,o);
 						break;
 					case SDLK_RIGHT:
 						o.dir = o.dir.rotate(.1,0);
 						o.up = o.up.rotate(.1,0);
-						clear(screen);
-						draw_base(screen,o);
 						break;
 					case SDLK_LEFT:
 						o.dir = o.dir.rotate(-.1,0);
 						o.up = o.up.rotate(-.1,0);
-						clear(screen);
-						draw_base(screen,o);
 						break;
 					default:
 						break;
@@ -201,13 +228,29 @@ int main(){
 			}
 		}
 
-		if(sim_t > total_sim_t/dt) sim_stop = true;
+		clear(screen);
+		draw_base(screen,o);
+		foreach(it,planetas) foreach(p,it->orbit) draw(screen,o,zoom*(*p),it->r,it->g,it->b);
+
+		stringstream s, s2;
+		s << (sim_stop ? "Stopped" : ( sim_pause ? "Paused" : "Playing" ));
+		s2 << "Epoch: " << sim_t << " (days)";
+
+		SDL_Surface *message = TTF_RenderText_Solid(font, s.str().c_str(), (sim_stop ? SDL_Color({255,0,0}) : ( sim_pause ? SDL_Color({0,0,255}) : SDL_Color({0,255,0}) )) );
+		apply_surface(5,0,message,screen);
+
+		message = TTF_RenderText_Solid(font, s2.str().c_str(), {255,255,255} );
+		apply_surface(5,20,message,screen);
+
+		SDL_FreeSurface( message );
+
+		if( SDL_Flip(screen)==-1 ) return 1;
+
+		if(sim_t > total_sim_t) sim_stop = true;
 
 		if(!sim_stop && !sim_pause){
 
 			foreach(it,planetas){
-
-				draw(screen,o,zoom*it->x,it->r,it->g,it->b);
 
 				Vector a(0,0,0);
 
@@ -218,18 +261,20 @@ int main(){
 				it->v += dt*a;
 				it->x += dt*it->v;
 
+				// esto es reindio
+				it->orbit.push_back(it->x);
 			}
 
-			sim_t++;
+			sim_t += dt;
 		}
 
-		SDL_Flip(screen);
-
 		// bloqueo hasta cumplir el framerate
-		if (t.get_ticks() < 1000/fps) SDL_Delay((1000/fps) - t.get_ticks());
+		if (t.get_ticks() < 1000/fps) SDL_Delay((1000/fps)-t.get_ticks());
 	}
 
-	/* Quit SDL */
+	// cleanup
+	TTF_CloseFont( font );
+	TTF_Quit();
 	SDL_Quit(); 
 
 	return 0;

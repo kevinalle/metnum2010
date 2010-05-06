@@ -14,6 +14,7 @@ struct Planeta{
 	Vector x;
 	Vector v;
 	double m;
+	list<Vector> orbit;
 	Uint32 r, g, b;
 };
 

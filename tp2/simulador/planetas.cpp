@@ -131,7 +131,7 @@ int main(){
 
 	if( !init() ) return 1;
 
-	screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE );
+	screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE | SDL_FULLSCREEN );
 	if( !screen ) return 1;
 
 	depth = vvd(screen->h,vd(screen->w,INFINITY));
@@ -167,8 +167,10 @@ int main(){
 	SDL_Event event;
 	double sim_t = 0; // en 1/dt * dias
 	bool quit = false;
+	bool moving = false;
 	bool sim_stop = true;
 	bool sim_pause = false;
+	int mouseX, mouseY;
 	while(!quit){
 
 		t.start();
@@ -224,6 +226,36 @@ int main(){
 					}
 
 				}
+
+				if( event.type == SDL_MOUSEBUTTONDOWN ){
+					if( event.button.button == SDL_BUTTON_MIDDLE ){
+						mouseX = event.button.x;
+						mouseY = event.button.y;
+						moving = true;
+					}
+				}
+
+				if( event.type == SDL_MOUSEBUTTONUP ){
+					if( event.button.button == SDL_BUTTON_MIDDLE )
+						moving = false;
+				}
+
+				if( event.type == SDL_MOUSEMOTION ){
+					if(moving){
+						int newX = event.motion.x;
+						int newY = event.motion.y;
+						int dX = newX - mouseX;
+						int dY = newY - mouseY;
+						mouseX = newX;
+						mouseY = newY;
+
+						o.dir = o.dir.rotate(-.01*dX,0);
+						o.up = o.up.rotate(-.01*dX,0);
+						o.dir = o.dir.rotate(0,-.01*dY);
+						o.up = o.up.rotate(0,-.01*dY);
+					}
+				}
+
 			}
 
 		/* RENDER */

@@ -116,14 +116,14 @@ int main(){
 	/* Para toquetear */
 
 	// tiempo virtual de simulacion (en dias)
-	double total_sim_t = 1000000;
+	double total_sim_t = 365;
 
 	// delta de tiempo (en dias)
 	double dt = 1;
 
 	// tiempo real de simulacion en frames/s
 	// 1 dias/dt = 1 frame
-	int fps = 365;
+	int fps = 20;
 
 	// zoom sobre el espacio
 	double zoom = 20;
@@ -143,6 +143,8 @@ int main(){
 	SDL_Event event;
 	int sim_t = 0; // en 1/dt * dias
 	bool quit = false;
+	bool sim_stop = true;
+	bool sim_pause = false;
 	while(!quit){
 
 		t.start();
@@ -156,6 +158,17 @@ int main(){
 				switch( event.key.keysym.sym ) {
 					case SDLK_q:
 						quit = true;
+						break;
+					case SDLK_s:
+						if(sim_stop){
+							sim_t = 0;
+							clear(screen);
+							draw_base(screen,o);
+						}
+						sim_stop = !sim_stop;
+						break;
+					case SDLK_p:
+						sim_pause = !sim_pause;
 						break;
 					case SDLK_UP:
 						o.dir = o.dir.rotate(0,-.1);
@@ -188,7 +201,9 @@ int main(){
 			}
 		}
 
-		if(sim_t<=total_sim_t/dt){
+		if(sim_t > total_sim_t/dt) sim_stop = true;
+
+		if(!sim_stop && !sim_pause){
 
 			foreach(it,planetas){
 
@@ -204,14 +219,14 @@ int main(){
 				it->x += dt*it->v;
 
 			}
-			SDL_Flip(screen);
+
+			sim_t++;
 		}
 
-		sim_t++;
+		SDL_Flip(screen);
 
 		// bloqueo hasta cumplir el framerate
 		if (t.get_ticks() < 1000/fps) SDL_Delay((1000/fps) - t.get_ticks());
-
 	}
 
 	/* Quit SDL */

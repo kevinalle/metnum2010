@@ -14,12 +14,12 @@ using namespace std;
 typedef vector<double> vd;
 typedef vector<vd> vvd;
 
+#include "Planetas.h"
+
 SDL_Surface* screen;
 vvd depth;
 
 #define G 0.00002499215588275752801651213378056900054016
-
-#include "Planetas.h"
 
 struct Observador{
 	Vector pos;
@@ -106,7 +106,14 @@ int main(){
 
 	depth = vvd(screen->h,vd(screen->w,INFINITY));
 
+	// inicializa la info de los planetas y ala list<Planeta> 'planetas'
 	initPlanetas();
+
+	// delta de tiempo (en dias)
+	double dt = .1;
+
+	// zoom sobre el espacio
+	double zoom = 50;
 
 	Observador o;
 //	o.pos = Vector(0,0,0);
@@ -191,14 +198,14 @@ int main(){
 	}
 */
 
-		if(dias<=365){
+		if(dias<=float(365)/dt){
 
 			// fuerza gravitacional ejercida sobre p1 por p2:
 			// Fg(p1,p2) = -G*m1*m2 * (x1-x2)/(|x1-x2|^3)
 
 			foreach(it,planetas){
 
-				draw(screen,o,100*it->x,0,255,255);
+				draw(screen,o,zoom*it->x,255,255,255);
 
 				Vector a = Vector(0,0,0);
 
@@ -206,8 +213,8 @@ int main(){
 
 				a /= it->m;
 //				cout << a << endl;
-				it->v += a;
-				it->x += it->v;
+				it->v += dt*a;
+				it->x += dt*it->v;
 
 			}
 

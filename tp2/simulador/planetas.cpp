@@ -135,7 +135,7 @@ int main(){
 
 	Observador o;
 //	o.pos = Vector(0,0,0);
-	o.dir = Vector(1,0,0).normalize();//o.pos.inverse().normalize();
+	o.dir = Vector(0,0,1).normalize();//o.pos.inverse().normalize();
 	o.up = Vector(0,-1,0).normalize();
 
 	clear(screen);
@@ -191,27 +191,31 @@ int main(){
 
 			}
 		}
-/*
+
 		// leyendo data de la NASA
 
-		draw(screen,o,200*luna.x,0,255,255);
-		draw(screen,o,200*tierra.x,255,255,255);
-		draw(screen,o,200*sol.x,255,255,0);
+		if(dias<=365){
 
-		SDL_Flip(screen);
+			draw(screen,o,200*luna.x,0,255,255);
+			draw(screen,o,200*tierra.x,255,255,255);
+			draw(screen,o,200*sol.x,255,255,0);
 
-		double x, y, z;
+			SDL_Flip(screen);
 
-		f_sol >> x >> y >>z; sol.x = Vector(x,y,z);
-		f_sol >> x >> y >>z; sol.v = Vector(x,y,z);
+			double x, y, z;
 
-		f_tierra >> x >> y >>z; tierra.x = Vector(x,y,z);
-		f_tierra >> x >> y >>z; tierra.v = Vector(x,y,z);
+			f_sol >> x >> y >>z; sol.x = Vector(x,y,z);
+			f_sol >> x >> y >>z; sol.v = Vector(x,y,z);
 
-		f_luna >> x >> y >>z; luna.x = Vector(x,y,z);
-		f_luna >> x >> y >>z; luna.v = Vector(x,y,z);
-*/
+			f_tierra >> x >> y >>z; tierra.x = Vector(x,y,z);
+			f_tierra >> x >> y >>z; tierra.v = Vector(x,y,z);
 
+			f_luna >> x >> y >>z; luna.x = Vector(x,y,z);
+			f_luna >> x >> y >>z; luna.v = Vector(x,y,z);
+
+	}
+
+/*
 		if(dias<=365){
 
 			draw(screen,o,100*luna.x,0,255,255);
@@ -244,7 +248,7 @@ int main(){
 			cout << "ac sol: " << a_s << endl;
 
 		}
-
+*/
 		dias++;
 
 	}

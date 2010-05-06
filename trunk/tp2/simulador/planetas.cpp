@@ -1,6 +1,7 @@
 #include <vector>
 #include <cmath>
 #include <iostream>
+#include <fstream>
 #include <assert.h>
 #include <SDL/SDL.h>
 using namespace std;
@@ -120,17 +121,17 @@ int main(){
 	Planeta sol;
 	sol.x = Vector(-4.042895106228434e-03, 2.209532530800580e-03, 1.136425407067405e-05);	// AU
 	sol.v = Vector(-1.786236608923230e-06, -5.959144368171789e-06, 4.287462284225408e-08);	// AU / dia
-	sol.m = 1; // 10^30 Kg
+	sol.m = 1.9891; // 1.9891 * 10^30 Kg
 
 	Planeta tierra;
 	tierra.x = Vector(-7.262551982062518e-01, -7.016177342125620e-01, 2.942601923402196e-05);	// AU
 	tierra.v = Vector(1.172032570433690e-02, -1.239499064419012e-02, -2.875393960566639e-07);	// AU / dia
-	tierra.m = 1e-6; // 10^24 Kg = m_sol/10^6
+	tierra.m = 0.0000059736; // 5.9736 * 10^24 Kg
 
 	Planeta luna;
 	luna.x = Vector(-7.248557601516714e-01, -7.039097848869444e-01, 1.029051462977911e-04);	// AU
 	luna.v = Vector(1.220576787081027e-02, -1.211595432894550e-02, 4.775108508860639e-05);	// AU / dia
-	luna.m = 1e-10; // 10^20 Kg = m_sol/10^10
+	luna.m = 0.00000007349; // 734.9 * 10^20 Kg = m_sol/10^10
 
 	Observador o;
 //	o.pos = Vector(0,0,0);
@@ -140,6 +141,10 @@ int main(){
 	clear(screen);
 	draw_base(screen,o);
 	SDL_Flip(screen);
+
+	ifstream f_sol; f_sol.open("sol.in");
+	ifstream f_tierra; f_tierra.open("tierra.in");
+	ifstream f_luna; f_luna.open("luna.in");
 
 	int dias = 0;
 	SDL_Event event;
@@ -186,19 +191,32 @@ int main(){
 
 			}
 		}
+/*
+		// leyendo data de la NASA
 
-		draw(screen,o,luna.x,0,255,255);
-		draw(screen,o,tierra.x,255,255,255);
-		draw(screen,o,sol.x,255,255,0);
+		draw(screen,o,200*luna.x,0,255,255);
+		draw(screen,o,200*tierra.x,255,255,255);
+		draw(screen,o,200*sol.x,255,255,0);
 
 		SDL_Flip(screen);
 
-/*
+		double x, y, z;
+
+		f_sol >> x >> y >>z; sol.x = Vector(x,y,z);
+		f_sol >> x >> y >>z; sol.v = Vector(x,y,z);
+
+		f_tierra >> x >> y >>z; tierra.x = Vector(x,y,z);
+		f_tierra >> x >> y >>z; tierra.v = Vector(x,y,z);
+
+		f_luna >> x >> y >>z; luna.x = Vector(x,y,z);
+		f_luna >> x >> y >>z; luna.v = Vector(x,y,z);
+*/
+
 		if(dias<=365){
 
-			draw(screen,o,luna.x,0,255,255);
-			draw(screen,o,tierra.x,255,255,255);
-			draw(screen,o,sol.x,255,255,0);
+			draw(screen,o,100*luna.x,0,255,255);
+			draw(screen,o,100*tierra.x,255,255,255);
+			draw(screen,o,100*sol.x,255,255,0);
 
 			SDL_Flip(screen);
 
@@ -226,10 +244,14 @@ int main(){
 			cout << "ac sol: " << a_s << endl;
 
 		}
-*/
+
 		dias++;
 
 	}
+
+		f_sol.close();
+		f_luna.close();
+		f_tierra.close();
 
 	/* Quit SDL */
 	SDL_Quit(); 

@@ -187,6 +187,13 @@ int main(){
 			}
 		}
 
+		draw(screen,o,luna.x,0,255,255);
+		draw(screen,o,tierra.x,255,255,255);
+		draw(screen,o,sol.x,255,255,0);
+
+		SDL_Flip(screen);
+
+/*
 		if(dias<=365){
 
 			draw(screen,o,luna.x,0,255,255);
@@ -219,7 +226,7 @@ int main(){
 			cout << "ac sol: " << a_s << endl;
 
 		}
-
+*/
 		dias++;
 
 	}

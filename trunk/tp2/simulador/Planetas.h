@@ -26,7 +26,7 @@ void initPlanetas(){
 
 	sol.x = Vector(-4.042895106228434e-03, 2.209532530800580e-03, 1.136425407067405e-05);	// AU
 	sol.v = Vector(-1.786236608923230e-06, -5.959144368171789e-06, 4.287462284225408e-08);	// AU / dia
-	sol.m = 1.9891; // 1.9891 * 10^30 Kg
+	sol.m = 1.9891/1.675; // 1.9891 * 10^30 Kg
 	sol.r = 255; sol.g = 255; sol.b = 0;
 
 	mercurio.x = Vector(-2.563687782457914E-01, -3.810998677594219E-01, -8.153193298845162E-03);
@@ -69,14 +69,14 @@ void initPlanetas(){
 	urano.m = 0.0000868103; // 86.8103 * 10^24 Kg
 	urano.r = 0; urano.g = 128; urano.b = 128;
 
-	pluton.x = Vector(2.502782007663963E+01, -1.656920556977117E+01, -2.355717002525958E-01);
-	pluton.v = Vector(1.712539920668144E-03, 2.636211613138070E-03, -9.391170566983233E-05);
+	neptuno.x = Vector(2.502782007663963E+01, -1.656920556977117E+01, -2.355717002525958E-01);
+	neptuno.v = Vector(1.712539920668144E-03, 2.636211613138070E-03, -9.391170566983233E-05);
 	neptuno.m = 0.00010241; // 102.41 * 10^24 Kg
 	neptuno.r = 0; neptuno.g = 128; neptuno.b = 255;
 
 	pluton.x = Vector(2.019772677347968E+00, -3.163728071405687E+01, 2.801128087784796E+00);
 	pluton.v = Vector(3.185164506154487E-03, -4.178107880823737E-04, -8.865662135620683E-04);
-	pluton.m = 000000001314; // 1.314 * 10^22 Kg
+	pluton.m = 0.00000001314; // 1.314 * 10^22 Kg
 	pluton.r = 200; pluton.g = 200; pluton.b = 200;
 
 	planetas.push_back(sol);
@@ -87,8 +87,9 @@ void initPlanetas(){
 	planetas.push_back(marte);
 	planetas.push_back(jupiter);
 	planetas.push_back(saturno);
-	planetas.push_back(urano);
-	planetas.push_back(neptuno);
+//	planetas.push_back(urano);
+//	planetas.push_back(neptuno);
+//	planetas.push_back(pluton);
 
 }
 

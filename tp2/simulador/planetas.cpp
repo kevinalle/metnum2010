@@ -65,7 +65,7 @@ Vector Proyeccion( const Vector& p, const Observador& o ){
 	// las columnas de la matriz de proyeccion W
 	// son las pryecciones de los vectores elementales
 
-	assert(o.dir*o.up<0.001);
+//	assert(o.dir*o.up<0.001);
 
 	const Vector& e1 = (o.dir^o.up);
 	const Vector& e2 = o.dir.inverse();
@@ -96,12 +96,61 @@ void draw_base(SDL_Surface* S, const Observador& o){
 	forn(i,50) draw(S,o,Vector(0,0,i),0,0,100);
 }
 
-// fuerza ejercida sobre p1 por p2
-// Fg(p1,p2) = -G*m1*m2 * (x1-x2)/(|x1-x2|^3)
 Vector Fg(const Planeta& p1, const Planeta& p2){
+	// fuerza ejercida sobre p1 por p2
+	// Fg(p1,p2) = -G*m1*m2 * (x1-x2)/(|x1-x2|^3)
 	Vector F = -G*p1.m*p2.m*(p1.x-p2.x);
 	double d = abs(pow((p1.x-p2.x).norm(),3));
 	return F/d;
+}
+
+void draw_orbits(list<Vector>& orbitas){
+
+	ifstream f_sol; f_sol.open("sol.in");
+	ifstream f_mercurio; f_mercurio.open("mercurio.in");
+	ifstream f_venus; f_venus.open("venus.in");
+	ifstream f_tierra; f_tierra.open("tierra.in");
+	ifstream f_luna; f_luna.open("luna.in");
+	ifstream f_marte; f_marte.open("marte.in");
+	ifstream f_jupiter; f_jupiter.open("jupiter.in");
+	ifstream f_saturno; f_saturno.open("saturno.in");
+
+	forn(i,3000){
+		double x, y, z; Vector X;
+		f_sol >> x >> y >> z; X = Vector(x,y,z);
+		f_sol >> x >> y >> z;
+		orbitas.push_back(X);
+		f_mercurio >> x >> y >> z; X = Vector(x,y,z);
+		f_mercurio >> x >> y >> z;
+		orbitas.push_back(X);
+		f_venus >> x >> y >> z; X = Vector(x,y,z);
+		f_venus >> x >> y >> z;
+		orbitas.push_back(X);
+		f_tierra >> x >> y >> z; X = Vector(x,y,z);
+		f_tierra >> x >> y >> z;
+		orbitas.push_back(X);
+		f_luna >> x >> y >> z; X = Vector(x,y,z);
+		f_luna >> x >> y >> z;
+		orbitas.push_back(X);
+		f_marte >> x >> y >> z; X = Vector(x,y,z);
+		f_marte >> x >> y >> z;
+		orbitas.push_back(X);
+		f_jupiter >> x >> y >> z; X = Vector(x,y,z);
+		f_jupiter >> x >> y >> z;
+		orbitas.push_back(X);
+		f_saturno >> x >> y >> z; X = Vector(x,y,z);
+		f_saturno >> x >> y >> z;
+		orbitas.push_back(X);
+	}
+
+	f_sol.close();
+	f_mercurio.close();
+	f_venus.close();
+	f_tierra.close();
+	f_luna.close();
+	f_marte.close();
+	f_jupiter.close();
+	f_saturno.close();
 }
 
 bool init(){
@@ -123,7 +172,7 @@ int main(){
 
 	if( !init() ) return 1;
 
-	screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE|SDL_FULLSCREEN);
+	screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE/*|SDL_FULLSCREEN*/);
 	if( !screen ) return 1;
 
 	depth = vvd(screen->h,vd(screen->w,INFINITY));
@@ -139,7 +188,7 @@ int main(){
 	double total_sim_t = 1000000;//365;
 
 	// delta de tiempo (en dias)
-	double dt = 5;//.041;
+	double dt = .1;//.04;
 
 	// tiempo real de simulacion en frames/s
 	// 1 dias/dt = 1 frame
@@ -149,6 +198,9 @@ int main(){
 	double zoom = 20;
 
 /************************************************************/
+
+	list<Vector> orbitas;
+	draw_orbits(orbitas);
 
 	Observador o;
 	o.off = Vector(0,0,0);
@@ -256,15 +308,16 @@ int main(){
 			clear(screen);
 			draw_base(screen,o);
 			foreach(it,planetas) foreach(p,it->orbit) draw(screen,o,zoom*(*p),it->r,it->g,it->b);
+			foreach(it,orbitas) draw(screen,o,zoom*(*it),100,100,100);
 
 			stringstream s, s2;
 			s << (sim_stop ? "Stopped" : ( sim_pause ? "Paused" : "Playing" ));
 			s2 << "Epoch: " << (int)sim_t << " dias";
 
-			SDL_Surface *message = TTF_RenderText_Solid(font, s.str().c_str(), (sim_stop ? SDL_Color({255,0,0}) : ( sim_pause ? SDL_Color({0,0,255}) : SDL_Color({0,255,0}) )) );
+			SDL_Surface *message = TTF_RenderText_Solid(font, s.str().c_str(), (sim_stop ? SDL_Color({255,0,0,0}) : ( sim_pause ? SDL_Color({0,0,255,0}) : SDL_Color({0,255,0,0}) )) );
 			apply_surface(5,0,message,screen);
 
-			message = TTF_RenderText_Solid(font, s2.str().c_str(), {255,255,255} );
+			message = TTF_RenderText_Solid(font, s2.str().c_str(), {255,255,255,0} );
 			apply_surface(5,20,message,screen);
 
 			SDL_FreeSurface( message );

@@ -21,23 +21,24 @@ marte =  Cuerpo("Marte", 0.00000064185,  V3(-1.644799113455717E+00, 2.4918237329
 jupiter =Cuerpo("Jupiter", 0.00189813,   V3(4.814383212086098E+00, -1.241505788193773E+00, -1.026521185883739E-01), V3(1.791829827597031E-03, 7.666882051378563E-03, -7.193518744890309E-05))
 saturno =Cuerpo("Saturno", 0.000568319,  V3(-9.498834472404264E+00, -4.314789953129710E-01, 3.854986365834464E-01), V3(-4.474247412442582E-05, -5.585253179574848E-03, 9.894753356331143E-05))
 cuerpos=[sol,tierra,luna,mercurio,venus,marte]#,jupiter,saturno]
-N=len(cuerpos)
+N=xrange(len(cuerpos))
+n=len(cuerpos)
 
 y=[c.v0 for c in cuerpos]+[c.x0 for c in cuerpos]
-dt=.02
-G=0.0002499215588275752801651213378056900054016
+dt=.05
+G=0.0002499215588275752801651213378056900054016/1.65
 
 def F(i,j,xi,xj):
 	return -G*cuerpos[i].m*cuerpos[j].m*(xi-xj)/(xi-xj).norm()**3
 
 def f(y):
-	return [sum([F(i,j,y[N+i],y[N+j])/cuerpos[i].m for j in range(N) if j!=i],V3()) for i in range(N)]+[y[i] for i in range(N)]
+	return [sum([F(i,j,y[n+i],y[n+j]) for j in N if j!=i],V3())/cuerpos[i].m for i in N]+[y[i] for i in N]
 
 
 posiciones=[[c.x0] for c in cuerpos]
-for _ in range(10000):
+for _ in range(5000):
 	y=[a+dt*b for a,b in zip(y,f(y))]
-	for i in range(N): posiciones[i].append(y[N+i])
+	for i in N: posiciones[i].append(y[n+i])
 
 # DRAW
 def render_matplotlib():
@@ -47,10 +48,10 @@ def render_matplotlib():
 
 	fig = plt.figure()
 	ax = Axes3D(fig)
-	for c in range(N): ax.plot(*zip(*posiciones[c]), label=cuerpos[c].nombre)
-	for c in range(N): ax.scatter(*map(lambda x:[x],posiciones[c][-1]),marker='s',s=2e80)
+	for c in N: ax.plot(*zip(*posiciones[c]), label=cuerpos[c].nombre)
+	for c in N: ax.scatter(*map(lambda x:[x],posiciones[c][-1]),marker='s',s=2e80)
 	xs,ys,zs=([],[],[])
-	for c in range(N): xs+=zip(*posiciones[c])[0];ys+=zip(*posiciones[c])[1];zs+=zip(*posiciones[c])[2]
+	for c in N: xs+=zip(*posiciones[c])[0];ys+=zip(*posiciones[c])[1];zs+=zip(*posiciones[c])[2]
 	maxrange=max(map(lambda ls:max(ls)-min(ls),[xs,ys,zs]))
 	ax.set_xlim3d((max(xs)+min(xs)-maxrange)/2, (max(xs)+min(xs)+maxrange)/2)
 	ax.set_ylim3d((max(ys)+min(ys)-maxrange)/2, (max(ys)+min(ys)+maxrange)/2)
@@ -62,9 +63,18 @@ def render_mlab():
 	import numpy
 	import enthought.mayavi.mlab as mlab
 	
-	for c in range(N): mlab.plot3d(*zip(*posiciones[c]), tube_radius=cuerpos[c].rad)
+	for c in N: mlab.plot3d(*zip(*posiciones[c]), tube_radius=cuerpos[c].rad)
 	xs,ys,zs=zip(*zip(*posiciones)[-1])
 	plan=mlab.points3d(xs,ys,zs,[10000.,6371.01,1737.53], color=(0,1,0), scale_factor=.00005)
 	mlab.show()
 
-render_matplotlib()
+def render_2d():
+	from pylab import plot, show, axis, legend
+	for c in N: plot(*zip(*posiciones[c])[:2], label=cuerpos[c].nombre)
+	xs,ys=zip(*[posiciones[c][-1][:2] for c in N])
+	plot(xs, ys, 'o', label="posiciones finales")
+	legend(loc=0)
+	axis('scaled')
+	show()
+
+render_2d()

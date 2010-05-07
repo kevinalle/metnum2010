@@ -12,7 +12,7 @@ int main(){
 	A.def(2,0,7); A.def(2,1,8); A.def(2,2,9);
 	cout << A << endl;
 	A.factorizar();
-	A.factorizar();
+//	A.factorizar();
 
 //	A.printPLU();
 //	cout << "L = " << A.getL() << endl;
@@ -22,8 +22,9 @@ int main(){
 
 	cout << b << endl;
 
-	// resolver anda ??? ni en pedo
-	A.resolver(b);
+	Matriz R = A.resolver(b);
+	cout << "res: " << R << endl;
+	cout << "res: " << A*R << " = " << b << " ?" <<endl;
 
 	return 0;
 }

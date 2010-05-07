@@ -188,7 +188,7 @@ int main(){
 	double total_sim_t = 1000000;//365;
 
 	// delta de tiempo (en dias)
-	double dt = .1;//.04;
+	double dt = 1;//.04;
 
 	// tiempo real de simulacion en frames/s
 	// 1 dias/dt = 1 frame
@@ -199,8 +199,8 @@ int main(){
 
 /************************************************************/
 
-	list<Vector> orbitas;
-	draw_orbits(orbitas);
+//	list<Vector> orbitas;
+//	draw_orbits(orbitas);
 
 	Observador o;
 	o.off = Vector(0,0,0);
@@ -215,6 +215,8 @@ int main(){
 	bool sim_stop = true;
 	bool sim_pause = false;
 	int mouseX, mouseY;
+	int zooming = 0;
+	bool show_base = true;
 	while(!quit){
 
 		t.start();
@@ -240,11 +242,13 @@ int main(){
 							sim_stop = !sim_stop;
 							break;
 						case SDLK_PLUS:
-							zoom += 5;
+							zooming = 1;
 							break;
 						case SDLK_MINUS:
-							zoom -= 5;
-							if(!zoom) zoom = 5;
+							zooming = -1;
+							break;
+						case SDLK_b:
+							show_base = !show_base;
 							break;
 						case SDLK_p:
 							if(!sim_stop) sim_pause = !sim_pause;
@@ -265,6 +269,19 @@ int main(){
 							break;
 					}
 
+				}
+
+				if( event.type == SDL_KEYUP ) {
+					switch( event.key.keysym.sym ) {
+						case SDLK_PLUS:
+							zooming = 0;
+							break;
+						case SDLK_MINUS:
+							zooming = 0;
+							break;
+						default:
+							break;
+					}
 				}
 
 				if( event.type == SDL_MOUSEBUTTONDOWN ){
@@ -303,12 +320,15 @@ int main(){
 
 			}
 
+			zoom += 3*zooming;
+			if(zoom <= 0) zoom = 1;
+
 		/* RENDER */
 
 			clear(screen);
-			draw_base(screen,o);
+			if(show_base) draw_base(screen,o);
 			foreach(it,planetas) foreach(p,it->orbit) draw(screen,o,zoom*(*p),it->r,it->g,it->b);
-			foreach(it,orbitas) draw(screen,o,zoom*(*it),100,100,100);
+//			foreach(it,orbitas) draw(screen,o,zoom*(*it),100,100,100);
 
 			stringstream s, s2;
 			s << (sim_stop ? "Stopped" : ( sim_pause ? "Paused" : "Playing" ));

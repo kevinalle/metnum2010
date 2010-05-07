@@ -128,7 +128,8 @@ void Matriz::def(const int i, const int j, const double& e){
 }
 
 double Matriz::elem(const int i, const int j) const {
-	assert( 0<=i && i<n && 0<=j && j<m );
+	assert(0<=i); assert(i<n);
+	assert(0<=j); assert(j<m );
 	return M[m*i + j];
 }
 
@@ -158,7 +159,7 @@ void Matriz::factorizar(){
 Matriz Matriz::resolver(const Matriz& b) const{
 	assert( b.n==n && b.m==1 );
 
-	double bb[n]; forn(i,n) bb[i] = b.elem(P[i],1);
+	double bb[n]; forn(i,n) bb[i] = b.elem(P[i],0);
 	double res[n];
 
 	fornr(i,n){

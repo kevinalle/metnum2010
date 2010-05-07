@@ -87,9 +87,9 @@ void initPlanetas(){
 	planetas.push_back(marte);
 	planetas.push_back(jupiter);
 	planetas.push_back(saturno);
-//	planetas.push_back(urano);
-//	planetas.push_back(neptuno);
-//	planetas.push_back(pluton);
+	planetas.push_back(urano);
+	planetas.push_back(neptuno);
+	planetas.push_back(pluton);
 
 }
 

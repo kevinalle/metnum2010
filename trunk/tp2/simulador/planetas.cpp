@@ -68,9 +68,9 @@ Vector Proyeccion( const Vector& p, const Observador& o ){
 //	cout << o.dir*o.up << endl;
 	assert(o.dir*o.up<0.001);
 
-	const Vector& e1 = (o.dir^o.up).inverse().reflect(Vector(1,0,0));
-	const Vector& e2 = o.dir.inverse().reflect(Vector(0,1,0)); // ?
-	const Vector& e3 = o.up.inverse().reflect(Vector(0,0,1));
+	const Vector& e1 = (o.dir^o.up).inverse();
+	const Vector& e2 = o.dir.inverse(); // ?
+	const Vector& e3 = o.up.inverse();
 
 //	cout << e1 << e2 << e3 << endl;
 
@@ -131,7 +131,7 @@ int main(){
 
 	if( !init() ) return 1;
 
-	screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE | SDL_FULLSCREEN );
+	screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE);
 	if( !screen ) return 1;
 
 	depth = vvd(screen->h,vd(screen->w,INFINITY));

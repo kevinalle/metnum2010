@@ -32,7 +32,7 @@ void initPlanetas(){
 	mercurio.x = Vector(-2.563687782457914E-01, -3.810998677594219E-01, -8.153193298845162E-03);
 	mercurio.v = Vector(1.781451838572982E-02, -1.414097937982711E-02, -2.789632381177015E-03);
 	mercurio.m = 0.0000003302; // 3.302 * 10^23
-	mercurio.r = 255; mercurio.g = 0; mercurio.b = 255;
+	mercurio.r = 255; mercurio.g = 128; mercurio.b = 0;
 
 	venus.x = Vector(-2.745105890947935E-01, 6.675955871621595E-01, 2.473298509458710E-02);
 	venus.v = Vector(-1.880800003531344E-02, -7.736184882354628E-03, 9.795183384655537E-04);
@@ -42,7 +42,7 @@ void initPlanetas(){
 	tierra.x = Vector(-7.262551982062518e-01, -7.016177342125620e-01, 2.942601923402196e-05);	// AU
 	tierra.v = Vector(1.172032570433690e-02, -1.239499064419012e-02, -2.875393960566639e-07);	// AU / dia
 	tierra.m = 0.0000059736; // 5.9736 * 10^24 Kg
-	tierra.r = 255; tierra.g = 255; tierra.b = 255;
+	tierra.r = 0; tierra.g = 255; tierra.b = 0;
 
 	luna.x = Vector(-7.248557601516714e-01, -7.039097848869444e-01, 1.029051462977911e-04);	// AU
 	luna.v = Vector(1.220576787081027e-02, -1.211595432894550e-02, 4.775108508860639e-05);	// AU / dia
@@ -52,7 +52,7 @@ void initPlanetas(){
 	marte.x = Vector(-1.644799113455717E+00, 2.491823732968801E-01, 4.547552485947825E-02);
 	marte.v = Vector(-1.562104985945559E-03, -1.264976840237743E-02, -2.265804582138816E-04);
 	marte.m = 0.00000064185; // 6.4185 * 10^23 Kg
-	marte.r = 255; marte.g = 0; marte.b = 255;
+	marte.r = 255; marte.g = 0; marte.b = 0;
 
 	jupiter.x = Vector(4.814383212086098E+00, -1.241505788193773E+00, -1.026521185883739E-01);
 	jupiter.v = Vector(1.791829827597031E-03, 7.666882051378563E-03, -7.193518744890309E-05);
@@ -68,7 +68,7 @@ void initPlanetas(){
 	planetas.push_back(mercurio);
 	planetas.push_back(venus);
 	planetas.push_back(tierra);
-//	planetas.push_back(luna);
+	planetas.push_back(luna);
 	planetas.push_back(marte);
 	planetas.push_back(jupiter);
 	planetas.push_back(saturno);

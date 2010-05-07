@@ -26,7 +26,7 @@ vvd depth;
 #define G 0.0002499215588275752801651213378056900054016
 
 struct Observador{
-	Vector pos;
+	Vector off;
 	Vector dir;
 	Vector up;
 };
@@ -68,8 +68,8 @@ Vector Proyeccion( const Vector& p, const Observador& o ){
 //	cout << o.dir*o.up << endl;
 	assert(o.dir*o.up<0.001);
 
-	const Vector& e1 = (o.dir^o.up).inverse();
-	const Vector& e2 = o.dir.inverse(); // ?
+	const Vector& e1 = (o.dir^o.up);
+	const Vector& e2 = o.dir.inverse();
 	const Vector& e3 = o.up.inverse();
 
 //	cout << e1 << e2 << e3 << endl;
@@ -94,14 +94,9 @@ void draw(SDL_Surface* S, const Observador& o, const Vector& v, Uint32 r, Uint32
 }
 
 void draw_base(SDL_Surface* S, const Observador& o){
-	forn(i,100) draw(S,o,Vector(i,0,0),255,0,0);
-//	forn(i,100) draw(S,depth,o,Vector(-i,0,0),255,0,0);
-
-	forn(i,100) draw(S,o,Vector(0,i,0),0,255,0);
-//	forn(i,100) draw(S,depth,o,Vector(0,-i,0),0,255,0);
-
-	forn(i,100) draw(S,o,Vector(0,0,i),0,0,255);
-//	forn(i,100) draw(S,depth,o,Vector(0,0,-i),0,0,255);
+	forn(i,50) draw(S,o,Vector(i,0,0),100,0,0);
+	forn(i,50) draw(S,o,Vector(0,i,0),0,100,0);
+	forn(i,50) draw(S,o,Vector(0,0,i),0,0,100);
 }
 
 // fuerza ejercida sobre p1 por p2
@@ -131,7 +126,7 @@ int main(){
 
 	if( !init() ) return 1;
 
-	screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE);
+	screen = SDL_SetVideoMode( 640, 480, 32, SDL_SWSURFACE|SDL_FULLSCREEN);
 	if( !screen ) return 1;
 
 	depth = vvd(screen->h,vd(screen->w,INFINITY));
@@ -147,7 +142,7 @@ int main(){
 	double total_sim_t = 365;
 
 	// delta de tiempo (en dias)
-	double dt = 1;
+	double dt = 1;//.041;
 
 	// tiempo real de simulacion en frames/s
 	// 1 dias/dt = 1 frame
@@ -159,8 +154,8 @@ int main(){
 /************************************************************/
 
 	Observador o;
-//	o.pos = Vector(0,0,0);
-	o.dir = Vector(0,0,1).normalize();//o.pos.inverse().normalize();
+	o.off = Vector(0,0,0);
+	o.dir = Vector(0,0,-1).normalize();
 	o.up = Vector(0,1,0).normalize();
 
 	Timer t;
@@ -206,20 +201,16 @@ int main(){
 							if(!sim_stop) sim_pause = !sim_pause;
 							break;
 						case SDLK_UP:
-							o.dir = o.dir.rotate(0,-.1);
-							o.up = o.up.rotate(0,-.1);
+							o.off -= 10*o.up;
 							break;
 						case SDLK_DOWN:
-							o.dir = o.dir.rotate(0,.1);
-							o.up = o.up.rotate(0,.1);
+							o.off += 10*o.up;
 							break;
 						case SDLK_RIGHT:
-							o.dir = o.dir.rotate(.1,0);
-							o.up = o.up.rotate(.1,0);
+							o.off += 10*(o.dir^o.up);
 							break;
 						case SDLK_LEFT:
-							o.dir = o.dir.rotate(-.1,0);
-							o.up = o.up.rotate(-.1,0);
+							o.off -= 10*(o.dir^o.up);
 							break;
 						default:
 							break;
@@ -232,6 +223,11 @@ int main(){
 						mouseX = event.button.x;
 						mouseY = event.button.y;
 						moving = true;
+					}
+					if( event.button.button == SDL_BUTTON_WHEELUP ) zoom += 5;
+					if( event.button.button == SDL_BUTTON_WHEELDOWN ){
+						zoom -= 5;
+						if(!zoom) zoom = 5;
 					}
 				}
 

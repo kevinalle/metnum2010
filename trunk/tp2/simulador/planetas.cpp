@@ -65,14 +65,11 @@ Vector Proyeccion( const Vector& p, const Observador& o ){
 	// las columnas de la matriz de proyeccion W
 	// son las pryecciones de los vectores elementales
 
-//	cout << o.dir*o.up << endl;
 	assert(o.dir*o.up<0.001);
 
 	const Vector& e1 = (o.dir^o.up);
 	const Vector& e2 = o.dir.inverse();
 	const Vector& e3 = o.up.inverse();
-
-//	cout << e1 << e2 << e3 << endl;
 
 	return Vector(
 		e1.X()*p.X() + e2.X()*p.Y() + e3.X()*p.Z(),
@@ -139,10 +136,10 @@ int main(){
 	/* Para toquetear */
 
 	// tiempo virtual de simulacion (en dias)
-	double total_sim_t = 365;
+	double total_sim_t = 1000000;//365;
 
 	// delta de tiempo (en dias)
-	double dt = 1;//.041;
+	double dt = 5;//.041;
 
 	// tiempo real de simulacion en frames/s
 	// 1 dias/dt = 1 frame

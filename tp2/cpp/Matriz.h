@@ -44,6 +44,8 @@ class Matriz{
 
 	public:
 
+//		Matriz();
+
 		/* Constructor. Toma filas - columnas - valor inicial de los campos */
 		Matriz(const int _n, const int _m, const double& e = 0);
 
@@ -110,7 +112,9 @@ Matriz::Matriz(const int _n, const int _m, const double& e){
 			else M[i*m+j] = 0;
 		}
 	else
-		forn(i,n*m) M[i] = e;
+		forn(i,n*m){
+			M[i] = e;
+		}
 
 	L = NULL; U = NULL; P = NULL;
 }
@@ -135,9 +139,10 @@ Matriz::~Matriz(){
 }
 
 void Matriz::def(const int i, const int j, const double& e){
-	desfactorizar();
 	assert( 0<=i && i<n && 0<=j && j<m );
 	M[m*i + j] = e;
+	// if(L!=NULL) cout << "QUEEE?" << endl;
+	// desfactorizar();
 }
 
 double& Matriz::elem(const int i, const int j) const {
@@ -321,8 +326,18 @@ Matriz& Matriz::operator = (const Matriz& A){
 }
 
 void Matriz::desfactorizar(){
-	delete[] L; delete[] U; delete[] P;
+cout << 0 << endl;
+	if(L!=NULL){
+		cout << "WTF?" << endl;
+		//delete[] L;
+	}
+cout << 1 << endl;
+	if(U!=NULL) delete[] U;
+cout << 2 << endl;
+	if(P!=NULL) delete[] P;
+cout << 3 << endl;
 	L = NULL; U = NULL; P = NULL;
+cout << 4 << endl;
 }
 
 Matriz operator * (const double& lambda, const Matriz& A){
@@ -351,8 +366,8 @@ class VectorN: public Matriz{
 		VectorN(const int _n, const double& e) : Matriz(_n,1,e) {}
 		VectorN(const Matriz& V) : Matriz(V) {}
 		VectorN operator+(const VectorN& B) const{return VectorN(Matriz(*this)+B);}
-		double& operator[](const int i){return Matriz(*this)(i,0); }
-		const double& operator[](const int i) const { return Matriz(*this)(i,0); }
+		double& operator[](const int i){ return M[i]; }
+		const double& operator[](const int i) const { return M[i]; }
 		friend ostream& operator<<(ostream& os, const VectorN& V);
 };
 

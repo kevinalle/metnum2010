@@ -63,7 +63,7 @@ Vn f(const Vn& y){
 	return res;
 }
 
-Matriz dFdx(int i, int j, Vn& y){
+Matriz dFdx(int i, int j, const Vn& y){
 	double d=sqrt( sq(yX(i)-yX(j)) + sq(yY(i)-yY(j)) + sq(yZ(i)-yZ(j)) );
 	double d3=1/(d*d*d);
 	double d5=3/(d*d*d*d*d);
@@ -80,12 +80,21 @@ Matriz dFdx(int i, int j, Vn& y){
 Matriz Df(const Vn& y){
 	Matriz res(6*N,6*N,0);
 
-	Matriz A12(3*N,3*N);
-	Matriz A21(3*N,3*N);
+	// lleno A21
+	forn(i,3*N) forn(j,3*N) if(i==j) res(3*N+i,j) = 1;
 
+	// lleno A12
 	forn(i,N) forn(j,N) {
-		
+		Matriz S(3,3,0);
+		if(i==j){
+			forn(k,N) if(k!=i) S += dFdx(i,k,y);
+			S *= (1/Cuerpos[i].m);
+		}else{
+			S = (1/Cuerpos[i].m)*dFdx(i,j,y);
+		}
+		forn(ii,3) forn(jj,3) res(i+ii,j+jj) = (double)S(ii,jj);
 	}
+
 	return res;
 }
 
@@ -99,17 +108,18 @@ Matriz Taylor(const Vn& y){
 int main(int argc, char*argv[]){
 	Vn y(6*N,0);
 	forn(i,N){
-		y[3*i]  =Cuerpos[i].v.X();
-		y[3*i+1]=Cuerpos[i].v.Y();
-		y[3*i+2]=Cuerpos[i].v.Z();
-		y[3*i+3*N]  =Cuerpos[i].x.X();
-		y[3*i+1+3*N]=Cuerpos[i].x.Y();
-		y[3*i+2+3*N]=Cuerpos[i].x.Z();
+		y[3*i]  	 = Cuerpos[i].v.X();
+		y[3*i+1]	 = Cuerpos[i].v.Y();
+		y[3*i+2]	 = Cuerpos[i].v.Z();
+		y[3*i+3*N]   = Cuerpos[i].x.X();
+		y[3*i+1+3*N] = Cuerpos[i].x.Y();
+		y[3*i+2+3*N] = Cuerpos[i].x.Z();
 	}
+
 	// y=[v1,v2,...,vn,x1,x2,...,xn]
-	
 	PRINTPOS(y);
 	forn(iter,resolution){
+//		cout << f(y) << endl;
 		y=y+dt*f(y);		
 		if(iter%(resolution/(outresolution-2))==0) PRINTPOS(y);//cout << y << endl;
 	}

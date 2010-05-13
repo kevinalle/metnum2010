@@ -10,6 +10,8 @@ using namespace std;
 #define forsn(i,s,n) for(int i=s;i<n;i++)
 #define forsnr(i,s,n) for(int i=n-1;s<=i;i--)
 
+class Vector;
+
 void print(const double* M, int n, int m){
 	cout << '[';
 	forn(i,n){
@@ -76,6 +78,7 @@ class Matriz{
 
 		/* Operadores varios */
 
+		double operator () (const int i, const int j);
 		Matriz operator + (const Matriz& B) const;
 		Matriz operator * (const Matriz& B) const;
 		Matriz& operator += (const Matriz& B);
@@ -84,7 +87,7 @@ class Matriz{
 		friend Matriz operator * (const double& lambda, const Matriz& A);
 		friend ostream& operator << (ostream& os, const Matriz& A);
 
-	private:
+	protected:
 
 		int n, m;
 
@@ -159,23 +162,19 @@ void Matriz::factorizar(){
 Matriz Matriz::resolver(const Matriz& b) const{
 	assert( b.n==n && b.m==1 );
 
-	double bb[n]; forn(i,n) bb[i] = b.elem(P[i],0);
 	double res[n];
 
+	forn(i,n) res[i] = b.elem(P[i],0);
+
+	forn(j,n-1) forsn(i,j+1,n) res[i] -= L[i*m + j]*res[j];
+
 	fornr(i,n){
-
-		res[i] = bb[i];
-
-		forsn(j,i+1,n) res[i] -= res[j]*U[i*m + j];
-
+		forsn(j,i+1,n) res[i] -= U[i*m + j]*res[j];
+		assert(U[i*m + i]);
 		res[i] /= U[i*m + i];
-
 	}
 
-	Matriz Pres(n,1);
-	forn(i,n) Pres.M[P[i]] = res[i];
-
-	return Pres;
+	return Matriz(res,n,1);;
 }
 
 void Matriz::triangular(int k){
@@ -242,6 +241,12 @@ void Matriz::printPLU() const{
 	cout << "U = "; print(U,n,m); cout << endl;
 }
 
+double Matriz::operator () (const int i, const int j){
+	assert(0<=i); assert(i<n);
+	assert(0<=j); assert(j<m );
+	return M[m*i + j];
+}
+
 Matriz Matriz::operator * (const Matriz& B) const {
 	assert( m==B.n );
 	Matriz res(n,B.m,0);
@@ -295,6 +300,23 @@ ostream& operator << (ostream& os, const Matriz& A){
 	}
 	os << ']';
 	return os;
+}
+
+class Vector : public Matriz{
+	public:
+		Vector(const int i, const double& e);
+		//Vector(const Vector& v);
+		Vector(const double* b, const int _n, const int _m);
+	private:
+		friend ostream& operator << (ostream& os, const Vector& A);
+};
+
+Vector::Vector(const int i, const double& e) : Matriz(n,1,e){}
+
+Vector::Vector(const double* V, const int _n, const int _m) : Matriz(V,_n,_m) {}
+
+ostream& operator << (ostream& os, const Vector& A){
+	
 }
 
 #endif

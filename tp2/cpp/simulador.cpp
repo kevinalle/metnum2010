@@ -5,6 +5,9 @@
 #include "Matriz.h"
 using namespace std;
 #define G 0.0001488180711083514625549864281980165853856665309337938391
+#define F(i,j,x) (-G*Cuerpos[i].m*Cuerpos[j].m*(y[3*N+3*i+x]-y[3*N+3*j+x])/(dist*dist*dist))
+
+#define PRINTPOS(y) {forn(pos,N) cout<<"("<<y[3*N+3*pos]<<","<<y[3*N+3*pos+1]<<","<<y[3*N+3*pos+2]<<")"<<" "; cout<<endl;}
 
 typedef Vector V;
 typedef VectorN Vn;
@@ -16,9 +19,12 @@ struct Cuerpo{
 typedef Cuerpo Planeta;
 
 int days=365;
-int resolution=8000;
+int resolution=800;
+int outresolution=10;
 double dt=days/(float)resolution;
 
+//Cuerpo sol(1, V(0,0,0), V(0,0,0));
+//Planeta mercurio(1, V(0,0,1), V(0,0,0));
 Cuerpo sol(1.9891, V(-4.042895106228434e-03, 2.209532530800580e-03, 1.136425407067405e-05), V(-1.786236608923230e-06, -5.959144368171789e-06, 4.287462284225408e-08));
 Planeta mercurio(0.0000003302, V(-2.563687782457914E-01, -3.810998677594219E-01, -8.153193298845162E-03), V(1.781451838572982E-02, -1.414097937982711E-02, -2.789632381177015E-03));
 Planeta venus(0.0000048685, V(-2.745105890947935E-01, 6.675955871621595E-01, 2.473298509458710E-02), V(-1.880800003531344E-02, -7.736184882354628E-03, 9.795183384655537E-04));
@@ -34,6 +40,24 @@ Cuerpo sistema[]={sol, mercurio};//, venus, tierra, marte, jupiter, saturno, ura
 int N=sizeof(sistema)/sizeof(Cuerpo);
 vector<Cuerpo> Cuerpos(sistema, sistema+N);
 
+Vn f(Vn y){
+	Vn res(6*N,0);
+	forn(i,N){
+		double sumx=0,sumy=0,sumz=0;
+		forn(j,N) if(j!=i){
+			double dist=(V(y[3*N+3*i],y[3*N+3*i+1],y[3*N+3*i+2])-V(y[3*N+3*j],y[3*N+3*j+1],y[3*N+3*j+2])).norm();
+			sumx+=F(i,j,0);
+			sumy+=F(i,j,1);
+			sumz+=F(i,j,2);
+		}
+		res[3*i]  =sumx/Cuerpos[i].m;
+		res[3*i+1]=sumy/Cuerpos[i].m;
+		res[3*i+2]=sumz/Cuerpos[i].m;
+	}
+	forn(i,3*N) res[i+3*N]=y[i];
+	return res;
+}
+
 int main(int argc, char*argv[]){
 	Vn y(6*N,0);
 	forn(i,N){
@@ -46,5 +70,11 @@ int main(int argc, char*argv[]){
 	}
 	// y=[v1,v2,...,vn,x1,x2,...,xn]
 	
+	PRINTPOS(y);
+	forn(iter,resolution){
+		y=y+dt*f(y);		
+		if(iter%(resolution/(outresolution-2))==0) PRINTPOS(y);//cout << y << endl;
+	}
+	PRINTPOS(y);
 	return 0;
 }

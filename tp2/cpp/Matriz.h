@@ -54,12 +54,6 @@ class Matriz{
 		/* Destructor */
 		~Matriz();
 
-		/* define al elemento (i,j) como e */
-		void def(const int i, const int j, const double& e);
-
-		/* devuelve el valor del elemento (i,j) */
-		double& elem(const int i, const int j) const;
-
 		/* Devuelve la matriz traspuesta */
 		Matriz T() const;
 
@@ -97,6 +91,8 @@ class Matriz{
 		int* P;
 
 		void triangular(const int i);
+		void def(const int i, const int j, const double& e);
+		double& elem(const int i, const int j) const;
 
 };
 

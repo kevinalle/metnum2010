@@ -19,8 +19,12 @@ int main(){
 //	cout << "U = " << A.getU() << endl;
 
 	Matriz b(3,1,0.1);
+	b.def(1,0,0.2); b.def(2,0,0.3);
 
-	cout << b << endl;
+	Vector v(3,0.1);
+	v.def(1,0,0.2); v.def(2,0,0.3);
+
+	cout << v << endl;
 
 	Matriz R = A.resolver(b);
 	cout << "res: " << R << endl;

@@ -83,10 +83,8 @@ Matriz Df(const Vn& y){
 	Matriz A12(3*N,3*N);
 	Matriz A21(3*N,3*N);
 
-	forn(i,N){
-
+	forn(i,N) forn(j,N) {
 		
-	
 	}
 	return res;
 }

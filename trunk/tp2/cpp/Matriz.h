@@ -10,6 +10,8 @@ using namespace std;
 #define forsn(i,s,n) for(int i=s;i<n;i++)
 #define forsnr(i,s,n) for(int i=n-1;s<=i;i--)
 
+#define IDENTITY -1
+
 void print(const double* M, int n, int m){
 	cout << '[';
 	forn(i,n){
@@ -73,6 +75,7 @@ class Matriz{
 		double& operator () (const int i, const int j);
 		const double& operator () (const int i, const int j) const;
 		Matriz operator + (const Matriz& B) const;
+		Matriz operator - (const Matriz& B) const;
 		Matriz operator * (const Matriz& B) const;
 		Matriz& operator += (const Matriz& B);
 		Matriz& operator *= (const Matriz& B);
@@ -99,7 +102,16 @@ class Matriz{
 
 Matriz::Matriz(const int _n, const int _m, const double& e){
 	n = _n; m = _m;
-	M = new double[n*m]; forn(i,n*m) M[i] = e;
+	M = new double[n*m];
+
+	if(e==IDENTITY)
+		forn(i,n) forn(j,m){
+			if(i==j) M[i*m+j] = 1;
+			else M[i*m+j] = 0;
+		}
+	else
+		forn(i,n*m) M[i] = e;
+
 	L = NULL; U = NULL; P = NULL;
 }
 
@@ -264,6 +276,13 @@ Matriz Matriz::operator + (const Matriz& B) const {
 	assert( n==B.n && m==B.m );
 	Matriz res(n,m);
 	forn(i,n) forn(j,m) res.def(i,j, elem(i,j)+B.elem(i,j));
+	return res;
+}
+
+Matriz Matriz::operator - (const Matriz& B) const {
+	assert( n==B.n && m==B.m );
+	Matriz res(n,m);
+	forn(i,n) forn(j,m) res.def(i,j, elem(i,j)-B.elem(i,j));
 	return res;
 }
 

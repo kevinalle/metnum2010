@@ -40,7 +40,7 @@ Cuerpo sistema[]={sol, mercurio};//, venus, tierra, marte, jupiter, saturno, ura
 int N=sizeof(sistema)/sizeof(Cuerpo);
 vector<Cuerpo> Cuerpos(sistema, sistema+N);
 
-Vn f(Vn y){
+Vn f(const Vn& y){
 	Vn res(6*N,0);
 	forn(i,N){
 		double sumx=0,sumy=0,sumz=0;
@@ -56,6 +56,28 @@ Vn f(Vn y){
 	}
 	forn(i,3*N) res[i+3*N]=y[i];
 	return res;
+}
+
+Matriz Df(const Vn& y){
+	int n = Vn.size();
+	Matriz res(6*n,6*n,0);
+
+	Matriz A12(3*n,3*n);
+	Matriz A21(3*n,3*n);
+
+	forn(i,n){
+
+		
+	
+	}
+
+}
+
+Matriz Taylor(const Vn& y){
+	Matriz Dfy = Df(y);
+	Matriz A( ID - dt*Dfy );
+	Vn b = y + dt*( f(y) - Dfy*y );
+	return A.resolver(b);
 }
 
 int main(int argc, char*argv[]){

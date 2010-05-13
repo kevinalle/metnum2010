@@ -62,7 +62,7 @@ class Matriz{
 
 		/* resuelve un sistema de ecuaciones con solucion b */
 		/* requiere factorizacion previa */
-		Matriz resolver(const Matriz& b) const;
+		Matriz resolver(const Matriz& b);
 
 		Matriz getL() const;
 		Matriz getU() const;
@@ -93,6 +93,7 @@ class Matriz{
 		void triangular(const int i);
 		void def(const int i, const int j, const double& e);
 		double& elem(const int i, const int j) const;
+		void desfactorizar();
 
 };
 
@@ -122,6 +123,7 @@ Matriz::~Matriz(){
 }
 
 void Matriz::def(const int i, const int j, const double& e){
+	desfactorizar();
 	assert( 0<=i && i<n && 0<=j && j<m );
 	M[m*i + j] = e;
 }
@@ -140,10 +142,11 @@ Matriz Matriz::T() const {
 
 void Matriz::factorizar(){
 	assert(n==m);
+	if(L!=NULL) desfactorizar();
 
-	delete[] L; L = new double[n*m];
-	delete[] U; U = new double[n*m];
-	delete[] P; P = new int[n];
+	L = new double[n*m];
+	U = new double[n*m];
+	P = new int[n];
 
 	forn(i,n*m) L[i] = 0;
 	forn(i,n*m) U[i] = M[i];
@@ -155,8 +158,9 @@ void Matriz::factorizar(){
 
 }
 
-Matriz Matriz::resolver(const Matriz& b) const{
+Matriz Matriz::resolver(const Matriz& b){
 	assert( b.n==n && b.m==1 );
+	if(L==NULL) factorizar();
 
 	double res[n];
 
@@ -264,12 +268,14 @@ Matriz Matriz::operator + (const Matriz& B) const {
 }
 
 Matriz& Matriz::operator += (const Matriz& B){
+	if(L!=NULL) desfactorizar();
 	assert( n==B.n && m==B.m );
 	forn(i,n) forn(j,m) def(i,j, elem(i,j)+B.elem(i,j));
 	return (*this);
 }
 
 Matriz& Matriz::operator *= (const Matriz& B){
+	if(L!=NULL) desfactorizar();
 	assert( n==B.n && m==B.m );
 	double* M2 = new double[n*m]; forn(i,n*m) M2[i] = 0;
 	forn(i,n) forn(j,m) forn(k,m) M2[i*m + j] += elem(i,k)*B.elem(k,j);
@@ -279,18 +285,25 @@ Matriz& Matriz::operator *= (const Matriz& B){
 }
 
 Matriz& Matriz::operator *= (const double& lambda){
+	if(L!=NULL) desfactorizar();
 	forn(i,n) forn(j,m) def(i,j,lambda*elem(i,j));
 	return (*this);
 }
 
 Matriz& Matriz::operator = (const Matriz& A){
 	if( this!=&A ){
+		if(L!=NULL) desfactorizar();
 		n = A.n;
 		m = A.m;
 		M = new double[n*m];
 		forn(i,n*m) M[i] = A.M[i];
 	}
 	return *this;
+}
+
+void Matriz::desfactorizar(){
+	delete[] L; delete[] U; delete[] P;
+	L = NULL; U = NULL; P = NULL;
 }
 
 Matriz operator * (const double& lambda, const Matriz& A){

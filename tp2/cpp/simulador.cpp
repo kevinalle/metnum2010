@@ -6,6 +6,11 @@
 using namespace std;
 #define G 0.0001488180711083514625549864281980165853856665309337938391
 #define F(i,j,x) (-G*Cuerpos[i].m*Cuerpos[j].m*(y[3*N+3*i+x]-y[3*N+3*j+x])/(dist*dist*dist))
+#define yX(i) y[3*N+3*i]
+#define yY(i) y[3*N+3*i+1]
+#define yZ(i) y[3*N+3*i+2]
+#define sq(x) ((x)*(x))
+#define ID(n) Matriz(n,n,0)
 
 #define PRINTPOS(y) {forn(pos,N) cout<<"("<<y[3*N+3*pos]<<","<<y[3*N+3*pos+1]<<","<<y[3*N+3*pos+2]<<")"<<" "; cout<<endl;}
 
@@ -58,24 +63,37 @@ Vn f(const Vn& y){
 	return res;
 }
 
+Matriz dFdx(int i, int j, Vn& y){
+	double d=sqrt( sq(yX(i)-yX(j)) + sq(yY(i)-yY(j)) + sq(yZ(i)-yZ(j)) );
+	double d3=1/(d*d*d);
+	double d5=3/(d*d*d*d*d);
+	double dx=yX(i)-yX(j);
+	double dy=yY(i)-yY(j);
+	double dz=yZ(i)-yZ(j);
+	Matriz dFdx(3,3,0);
+	dFdx(0,0)=d3-d5*dx*dx; dFdx(0,1) = -d5*dx*dy; dFdx(0,2) = -d5*dx*dz;
+	dFdx(1,0) = -d5*dx*dy; dFdx(1,1)=d3-d5*dy*dy; dFdx(1,2) = -d5*dy*dz;
+	dFdx(2,0) = -d5*dx*dz; dFdx(2,1) = -d5*dy*dz; dFdx(2,2)=d3-d5*dz*dz;
+	return -G*Cuerpos[i].m*Cuerpos[j].m*dFdx;
+}
+
 Matriz Df(const Vn& y){
-	int n = Vn.size();
-	Matriz res(6*n,6*n,0);
+	Matriz res(6*N,6*N,0);
 
-	Matriz A12(3*n,3*n);
-	Matriz A21(3*n,3*n);
+	Matriz A12(3*N,3*N);
+	Matriz A21(3*N,3*N);
 
-	forn(i,n){
+	forn(i,N){
 
 		
 	
 	}
-
+	return res;
 }
 
 Matriz Taylor(const Vn& y){
 	Matriz Dfy = Df(y);
-	Matriz A( ID - dt*Dfy );
+	Matriz A( ID(6*N) - dt*Dfy );
 	Vn b = y + dt*( f(y) - Dfy*y );
 	return A.resolver(b);
 }

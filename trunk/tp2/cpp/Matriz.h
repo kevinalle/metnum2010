@@ -77,7 +77,7 @@ class Matriz{
 		Matriz& operator += (const Matriz& B);
 		Matriz& operator *= (const Matriz& B);
 		Matriz& operator *= (const double& lambda);
-		Matriz& operator = (const Matriz& A){n = A.n; m = A.m;M = new double[n*m]; forn(i,n*m) M[i] = A.M[i];return *this;}
+		Matriz& operator = (const Matriz& A);
 		friend Matriz operator * (const double& lambda, const Matriz& A);
 		friend ostream& operator << (ostream& os, const Matriz& A);
 
@@ -281,6 +281,16 @@ Matriz& Matriz::operator *= (const Matriz& B){
 Matriz& Matriz::operator *= (const double& lambda){
 	forn(i,n) forn(j,m) def(i,j,lambda*elem(i,j));
 	return (*this);
+}
+
+Matriz& Matriz::operator = (const Matriz& A){
+	if( this!=&A ){
+		n = A.n;
+		m = A.m;
+		M = new double[n*m];
+		forn(i,n*m) M[i] = A.M[i];
+	}
+	return *this;
 }
 
 Matriz operator * (const double& lambda, const Matriz& A){

@@ -109,7 +109,7 @@ double Vector::Z() const {
 }
 
 double Vector::norm() const {
-	return sqrtf(x*x+y*y+z*z);
+	return sqrt(x*x+y*y+z*z);
 }
 
 Vector Vector::normalize() const {

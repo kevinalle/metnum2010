@@ -27,6 +27,9 @@ class Vector{
 		double X() const;
 		double Y() const;
 		double Z() const;
+		double& X(){return x;}
+		double& Y(){return y;}
+		double& Z(){return z;}
 
 		/* Devuelve la norma del vector */
 		double norm() const;

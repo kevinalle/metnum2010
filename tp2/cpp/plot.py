@@ -23,7 +23,7 @@ cuerpos=stdin.readline().split()
 N=min(len(cuerpos),len(argv)>1 and int(argv[1]) or len(cuerpos))
 colors=[(.8,.8,.0),(1.,.2,.2),(.3,.8,.7),(.1,.7,.2),(.7,.7,.7),(.7,.0,.0),(.5,.5,.0),(.3,.3,.0)]+[(random(),random(),random()) for _ in range(N-8)]
 posiciones=map(list,zip(*[map(eval,l.split()) for l in stdin.read().strip().split("\n")]))[:N]
-print posiciones
+
 for c in range(N):
         plot(*zip(*posiciones[c])[:2], label=cuerpos[c] , color=colors[c])
         plot(posiciones[c][-1][0],posiciones[c][-1][1], 'o', ms=8, color=colors[c], mew=0)

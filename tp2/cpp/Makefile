@@ -7,7 +7,7 @@ simulador: simulador.cpp Vector.h Matriz.h
 test: test.cpp Matriz.h
 	g++ -W -o $@ $<
 
-run: simulador
+run: simulador planetas.in plot.py
 	@echo "Running"
-	@./simulador
+	@./simulador < planetas.in | ./plot.py 4
 

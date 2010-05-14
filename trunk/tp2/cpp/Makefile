@@ -9,4 +9,4 @@ test: test.cpp Matriz.h
 
 run: simulador planetas.in plot.py
 	@echo "Running"
-	@./simulador < planetas.in 2> sim.log | ./plot.py 4
+	@./simulador 365 10000 10 < planetas.in 2> sim.log | ./plot.py

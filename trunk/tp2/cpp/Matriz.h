@@ -211,8 +211,8 @@ void Matriz::triangular(int k){
 
 	if(p==0){
 		clog << "SINGULAR!" << endl;
-		cout << "M: "; print(clog,M,n,m);
-		cout << "U: "; print(clog,U,n,m);
+		clog << "M: "; print(clog,M,n,m);
+		clog << "U: "; print(clog,U,n,m);
 	}
 
 	// swapeo las filas f y k en L y U

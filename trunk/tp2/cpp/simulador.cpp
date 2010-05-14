@@ -83,7 +83,7 @@ Matriz Df(const Vn& y){
 		}else{
 			S = (1/Cuerpos[i].m)*dFdx(i,j,y);
 		}
-		forn(ii,3) forn(jj,3) res(i+ii,j+jj) = (double)S(ii,jj);
+		forn(ii,3) forn(jj,3) res(3*i+ii,3*N+3*j+jj) = (double)S(ii,jj);
 	}
 
 	return res;
@@ -130,7 +130,8 @@ int main(int argc, char*argv[]){
 	
 	PRINTPOS(y);
 	forn(iter,resolution){
-		y=y+dt*f(y);
+		//y=y+dt*f(y);
+		y = Taylor(y);
 		if(iter%(resolution/(outresolution-2))==0) PRINTPOS(y);
 	}
 	PRINTPOS(y);

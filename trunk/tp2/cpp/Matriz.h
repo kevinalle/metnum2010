@@ -12,18 +12,23 @@ using namespace std;
 
 #define IDENTITY -1
 
-void print(const double* M, int n, int m){
-	cout << '[';
+double abs(const double& n){
+	return ( n<0 ? -n : n );
+}
+
+void print(ostream& os, const double* M, int n, int m){
+	os << "size: " << n << "x" << m << endl;
+	os << '[';
 	forn(i,n){
-		if(i!=0) cout << ';';
-		cout << '[';
+		if(i!=0) os << ';';
+		os << '[';
 		forn(j,m){
-			if(j!=0) cout << ',';
-			cout << M[m*i + j];
+			if(j!=0) os << ',';
+			os << M[m*i + j];
 		}
-		cout << ']';
+		os << ']' << endl;
 	}
-	cout << ']';
+	os << ']' << endl;
 }
 
 void print(const int* M, int n, int m){
@@ -142,7 +147,7 @@ void Matriz::def(const int i, const int j, const double& e){
 	assert( 0<=i && i<n && 0<=j && j<m );
 	M[m*i + j] = e;
 	// if(L!=NULL) cout << "QUEEE?" << endl;
-	// desfactorizar();
+	desfactorizar();
 }
 
 double& Matriz::elem(const int i, const int j) const {
@@ -160,6 +165,8 @@ Matriz Matriz::T() const {
 void Matriz::factorizar(){
 	assert(n==m);
 	if(L!=NULL) desfactorizar();
+
+	clog << "FACTORIZA!" << endl;
 
 	L = new double[n*m];
 	U = new double[n*m];
@@ -199,8 +206,14 @@ void Matriz::triangular(int k){
 	int f = k;
 	double p = U[f*m + k];
 
-	// elijo la fila pivote
-	forsn(i,k,n) if(U[i*m + k] > p){ f = i; p = U[f*m + k]; }
+	// elijo la fila pivote donde el k-esimo elem es maximo
+	forsn(i,k,n) if( abs(U[i*m + k]) > abs(p) ){ f = i; p = U[f*m + k]; }
+
+	if(p==0){
+		clog << "SINGULAR!" << endl;
+		cout << "M: "; print(clog,M,n,m);
+		cout << "U: "; print(clog,U,n,m);
+	}
 
 	// swapeo las filas f y k en L y U
 	forn(j,n){
@@ -237,11 +250,6 @@ void Matriz::triangular(int k){
 			U[ i*m + j ] -= a*U[ k*m + j ];
 
 	}
-
-//cout << "	L: "; print(L,n,m); cout << endl;
-//cout << "	U: "; print(U,n,m); cout << endl;
-//cout << "	Permutacion: "; print(P,1,n); cout << endl;
-
 }
 
 Matriz Matriz::getL() const{
@@ -254,8 +262,8 @@ Matriz Matriz::getU() const{
 
 void Matriz::printPLU() const{
 	cout << "P = "; print(P,1,n); cout << endl;
-	cout << "L = "; print(L,n,m); cout << endl;
-	cout << "U = "; print(U,n,m); cout << endl;
+	cout << "L = "; print(cout,L,n,m); cout << endl;
+	cout << "U = "; print(cout,U,n,m); cout << endl;
 }
 
 double& Matriz::operator () (const int i, const int j){
@@ -326,18 +334,22 @@ Matriz& Matriz::operator = (const Matriz& A){
 }
 
 void Matriz::desfactorizar(){
+/*
 cout << 0 << endl;
-	if(L!=NULL){
+	if(L)
+		delete[] L;
 		cout << "WTF?" << endl;
-		//delete[] L;
 	}
 cout << 1 << endl;
-	if(U!=NULL) delete[] U;
+	if(U!=NULL)
+		delete[] U;
 cout << 2 << endl;
-	if(P!=NULL) delete[] P;
+	if(P!=NULL)
+		delete[] P;
 cout << 3 << endl;
 	L = NULL; U = NULL; P = NULL;
 cout << 4 << endl;
+*/
 }
 
 Matriz operator * (const double& lambda, const Matriz& A){

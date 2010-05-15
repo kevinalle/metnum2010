@@ -12,17 +12,16 @@ using namespace std;
 #define yY(i) y[3*N+3*i+1]
 #define yZ(i) y[3*N+3*i+2]
 #define sq(x) ((x)*(x))
-#define ID(n) Matriz(n,n,0)
 
 #define PRINTPOS(y) {forn(pos,N) cout<<"("<<y[3*N+3*pos]<<","<<y[3*N+3*pos+1]<<","<<y[3*N+3*pos+2]<<")"<<" "; cout<<endl;}
 
-typedef Vector V;
-typedef VectorN Vn;
+typedef Vector3 V3;
+typedef Vector Vn;
 struct Cuerpo{
-	Cuerpo(string _name,double _m, V _x, V _v=V()):name(_name),m(_m),x(_x),v(_v){}
+	Cuerpo(string _name,double _m, V3 _x, V3 _v=V3()):name(_name),m(_m),x(_x),v(_v){}
 	string name;
 	double m;
-	V x,v;
+	V3 x,v;
 	friend ostream& operator<<(ostream&out,const Cuerpo& c){out<<c.name;return out;}
 };
 typedef Cuerpo Planeta;
@@ -41,7 +40,7 @@ Vn f(const Vn& y){
 	forn(i,N){
 		double sumx=0,sumy=0,sumz=0;
 		forn(j,N) if(j!=i){
-			double dist=(V(y[3*N+3*i],y[3*N+3*i+1],y[3*N+3*i+2])-V(y[3*N+3*j],y[3*N+3*j+1],y[3*N+3*j+2])).norm();
+			double dist=(V3(y[3*N+3*i],y[3*N+3*i+1],y[3*N+3*i+2])-V3(y[3*N+3*j],y[3*N+3*j+1],y[3*N+3*j+2])).norm();
 			sumx+=F(i,j,0);
 			sumy+=F(i,j,1);
 			sumz+=F(i,j,2);
@@ -90,10 +89,10 @@ Matriz Df(const Vn& y){
 }
 
 Matriz Taylor(const Vn& y){
+	assert( !isnan( y[0] ) );
 	Matriz Dfy = Df(y);
-	Matriz A( ID(6*N) - dt*Dfy );
-	Vn b = y + dt*( f(y) - Dfy*y );
-	return A.resolver(b);
+	Matriz A( Matriz::ID(6*N) - dt*Dfy );
+	return A.resolver( y + dt*( f(y) - Dfy*y ) );
 }
 
 int main(int argc, char*argv[]){
@@ -106,18 +105,16 @@ int main(int argc, char*argv[]){
 	//GET INPUT
 	string name;
 	double mass;
-	V x,v;
-	while(1){
-		cin >> name >> mass >> x.X()>>x.Y()>>x.Z() >> v.X()>>v.Y()>>v.Z();
-		if(cin){
-			Cuerpos.push_back(Cuerpo(name, mass, x, v));
-			cout << name << " ";
-		}else break;
+	V3 x,v;
+	while( cin >> name >> mass >> x.X() >> x.Y() >> x.Z() >> v.X() >> v.Y() >> v.Z() ){
+		Cuerpos.push_back(Cuerpo(name, mass, x, v));
+		cout << name << " ";
 	}
 	cout << endl;
 	N=Cuerpos.size();
 	
 	Vn y(6*N,0);
+
 	forn(i,N){
 		y[3*i]  	 = Cuerpos[i].v.X();
 		y[3*i+1]	 = Cuerpos[i].v.Y();
@@ -126,11 +123,11 @@ int main(int argc, char*argv[]){
 		y[3*i+1+3*N] = Cuerpos[i].x.Y();
 		y[3*i+2+3*N] = Cuerpos[i].x.Z();
 	}
+
 	// y=[v1,v2,...,vn,x1,x2,...,xn]
-	
+
 	PRINTPOS(y);
 	forn(iter,resolution){
-		//y=y+dt*f(y);
 		y = Taylor(y);
 		if(iter%(resolution/(outresolution-2))==0) PRINTPOS(y);
 	}

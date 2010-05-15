@@ -8,12 +8,12 @@
 using namespace std;
 #define G 0.0001488180711083514625549864281980165853856665309337938391
 #define F(i,j,x) (-G*Cuerpos[i].m*Cuerpos[j].m*(y[3*N+3*i+x]-y[3*N+3*j+x])/(dist*dist*dist))
-#define yX(i) y[3*N+3*i]
-#define yY(i) y[3*N+3*i+1]
-#define yZ(i) y[3*N+3*i+2]
+#define yX(i) y[3*N+3*(i)]
+#define yY(i) y[3*N+3*(i)+1]
+#define yZ(i) y[3*N+3*(i)+2]
 #define sq(x) ((x)*(x))
 
-#define PRINTPOS(y) {forn(pos,N) cout<<"("<<y[3*N+3*pos]<<","<<y[3*N+3*pos+1]<<","<<y[3*N+3*pos+2]<<")"<<" "; cout<<endl;}
+#define DEBUG 1
 
 typedef Vector3 V3;
 typedef Vector Vn;
@@ -34,6 +34,11 @@ double dt;
 //Cuerpo sistema[]={sol, mercurio, venus, tierra, marte, jupiter, saturno, urano, neptuno, pluton}; // Cuerpos a considerar en la simulacion
 int N;//=sizeof(sistema)/sizeof(Cuerpo);
 vector<Cuerpo> Cuerpos;//(sistema, sistema+N);
+
+void printPos(const Vn& y){
+	forn(i,N) cout << "(" << y[3*N+3*i] << "," << y[3*N+3*i+1] << "," << y[3*N+3*i+2] << ")" <<" ";
+	cout<<endl;
+}
 
 Vn f(const Vn& y){
 	Vn res(6*N,0);
@@ -89,13 +94,13 @@ Matriz Df(const Vn& y){
 }
 
 Matriz Taylor(const Vn& y){
-	assert( !isnan( y[0] ) );
 	Matriz Dfy = Df(y);
 	Matriz A( Matriz::ID(6*N) - dt*Dfy );
 	return A.resolver( y + dt*( f(y) - Dfy*y ) );
 }
 
 int main(int argc, char*argv[]){
+
 	//PARSE OPT
 	if(argc>1) days=atoi(argv[1]); else days=365;
 	if(argc>2) resolution=atoi(argv[2]); else resolution=10000;
@@ -126,11 +131,11 @@ int main(int argc, char*argv[]){
 
 	// y=[v1,v2,...,vn,x1,x2,...,xn]
 
-	PRINTPOS(y);
+	printPos(y);
 	forn(iter,resolution){
 		y = Taylor(y);
-		if(iter%(resolution/(outresolution-2))==0) PRINTPOS(y);
+		if(iter%(resolution/(outresolution-2))==0) printPos(y);
 	}
-	PRINTPOS(y);
+	printPos(y);
 	return 0;
 }

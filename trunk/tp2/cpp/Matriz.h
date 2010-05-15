@@ -106,8 +106,8 @@ class Matriz{
 
 		void triangular(Vector& res, double* U2, int* P2, const int k);
 		void triangularPLU(const int k);
-		void def(const int i, const int j, const double& e);
-		double& elem(const int i, const int j) const;
+//		void def(const int i, const int j, const double& e);
+//		double& elem(const int i, const int j) const;
 		void desfactorizar();
 
 };
@@ -131,7 +131,7 @@ Matriz::Matriz(const int _n, const int _m, const double& e){
 
 Matriz::Matriz(const Matriz& B){
 	n = B.n; m = B.m;
-	M = new double[n*m]; forn(i,n) forn(j,m) def(i,j,B.elem(i,j));
+	M = new double[n*m]; forn(i,n) forn(j,m) (*this)(i,j) = B(i,j);//def(i,j,B.elem(i,j));
 	L = NULL; U = NULL; P = NULL;
 }
 
@@ -148,27 +148,16 @@ Matriz::~Matriz(){
 	delete[] P;
 }
 
-void Matriz::def(const int i, const int j, const double& e){
-	assert( 0<=i && i<n && 0<=j && j<m );
-	M[m*i + j] = e;
-	// if(L!=NULL) cout << "QUEEE?" << endl;
-	desfactorizar();
-}
-
-double& Matriz::elem(const int i, const int j) const {
-	assert(0<=i); assert(i<n);
-	assert(0<=j); assert(j<m );
-	return M[m*i + j];
-}
-
 Matriz Matriz::T() const {
 	Matriz res(m,n);
-	forn(i,m) forn(j,n) res.def(i,j, elem(j,i));
+	forn(i,m) forn(j,n) res(i,j) = (*this)(j,i);
 	return res;
 }
 
 void Matriz::factorizar(){
-	assert(n==m);
+	#if DEBUG==1
+		assert(n==m);
+	#endif
 	if(L!=NULL) desfactorizar();
 
 	L = new double[n*m];
@@ -186,7 +175,9 @@ void Matriz::factorizar(){
 }
 
 Matriz Matriz::resolver(const Vector& b){
-	assert( b.n==n && b.m==1 );
+	#if DEBUG==1
+		assert( b.n==n && b.m==1 );
+	#endif
 
 	double U2[n*m]; forn(i,n*m) U2[i] = M[i];
 	int P2[n]; forn(i,n) P2[i] = i;
@@ -198,7 +189,9 @@ Matriz Matriz::resolver(const Vector& b){
 
 	fornr(i,n){
 		forsn(j,i+1,n) res[i] -= U2[i*m + j]*res[j];
-		assert(U2[i*m + i]);
+		#if DEBUG==1
+			assert(U2[i*m + i]);
+		#endif
 		res[i] /= U2[i*m + i];
 	}
 
@@ -213,10 +206,12 @@ void Matriz::triangular(Vector& res, double* U2, int* P2, const int k){
 	// elijo la fila pivote donde el k-esimo elem es maximo
 	forsn(i,k,n) if( abs(U2[i*m + k]) > abs(p) ){ f = i; p = U2[f*m + k]; }
 
-	if(p==0){
-		clog << "SINGULAR!" << endl;
-		assert(p!=0);
-	}
+	#if DEBUG==1
+		if(p==0){
+			clog << "SINGULAR!" << endl;
+			assert(p!=0);
+		}
+	#endif
 
 	// swapeo las filas f y k en U y res
 	forn(j,n){
@@ -250,18 +245,23 @@ void Matriz::triangular(Vector& res, double* U2, int* P2, const int k){
 }
 
 Matriz Matriz::resolverPLU(const Matriz& b){
-	assert( b.n==n && b.m==1 );
+	#if DEBUG==1
+		assert( b.n==n && b.m==1 );
+	#endif
+	
 	if(L==NULL) factorizar();
 
 	double res[n];
 
-	forn(i,n) res[i] = b.elem(P[i],0);
+	forn(i,n) res[i] = b(P[i],0);
 
 	forn(j,n-1) forsn(i,j+1,n) res[i] -= L[i*m + j]*res[j];
 
 	fornr(i,n){
 		forsn(j,i+1,n) res[i] -= U[i*m + j]*res[j];
-		assert(U[i*m + i]);
+		#if DEBUG==1
+			assert(U[i*m + i]);
+		#endif
 		res[i] /= U[i*m + i];
 	}
 
@@ -340,50 +340,64 @@ Matriz Matriz::ID(const int n){
 }
 
 double& Matriz::operator () (const int i, const int j){
-	assert(0<=i); assert(i<n);
-	assert(0<=j); assert(j<m );
+	#if DEBUG==1
+		assert(0<=i); assert(i<n);
+		assert(0<=j); assert(j<m );
+	#endif
 	return M[m*i + j];
 }
 
 const double& Matriz::operator () (const int i, const int j) const {
-	assert(0<=i); assert(i<n);
-	assert(0<=j); assert(j<m );
+	#if DEBUG==1
+		assert(0<=i); assert(i<n);
+		assert(0<=j); assert(j<m );
+	#endif
 	return M[m*i + j];
 }
 
 Matriz Matriz::operator * (const Matriz& B) const {
-	assert( m==B.n );
+	#if DEBUG==1
+		assert( m==B.n );
+	#endif
 	Matriz res(n,B.m,0);
-	forn(i,res.n) forn(j,res.m) forn(k,m) res.M[i*res.m + j] += elem(i,k)*B.elem(k,j);
+	forn(i,res.n) forn(j,res.m) forn(k,m) res.M[i*res.m + j] += (*this)(i,k)*B(k,j);
 	return res;
 }
 
 Matriz Matriz::operator + (const Matriz& B) const {
-	assert( n==B.n && m==B.m );
+	#if DEBUG==1
+		assert( n==B.n && m==B.m );
+	#endif
 	Matriz res(n,m);
-	forn(i,n) forn(j,m) res.def(i,j, elem(i,j)+B.elem(i,j));
+	forn(i,n) forn(j,m) res(i,j) = (*this)(i,j)+B(i,j);
 	return res;
 }
 
 Matriz Matriz::operator - (const Matriz& B) const {
-	assert( n==B.n && m==B.m );
+	#if DEBUG==1
+		assert( n==B.n && m==B.m );
+	#endif
 	Matriz res(n,m);
-	forn(i,n) forn(j,m) res.def(i,j, elem(i,j)-B.elem(i,j));
+	forn(i,n) forn(j,m) res(i,j) = (*this)(i,j)-B(i,j);
 	return res;
 }
 
 Matriz& Matriz::operator += (const Matriz& B){
 	if(L!=NULL) desfactorizar();
-	assert( n==B.n && m==B.m );
-	forn(i,n) forn(j,m) def(i,j, elem(i,j)+B.elem(i,j));
+	#if DEBUG==1
+		assert( n==B.n && m==B.m );
+	#endif
+	forn(i,n) forn(j,m) (*this)(i,j)+=B(i,j);
 	return (*this);
 }
 
 Matriz& Matriz::operator *= (const Matriz& B){
 	if(L!=NULL) desfactorizar();
-	assert( n==B.n && m==B.m );
+	#if DEBUG==1
+		assert( n==B.n && m==B.m );
+	#endif
 	double* M2 = new double[n*m]; forn(i,n*m) M2[i] = 0;
-	forn(i,n) forn(j,m) forn(k,m) M2[i*m + j] += elem(i,k)*B.elem(k,j);
+	forn(i,n) forn(j,m) forn(k,m) M2[i*m + j] += (*this)(i,j)*B(i,j);
 	delete M;
 	M = M2;
 	return (*this);
@@ -391,7 +405,7 @@ Matriz& Matriz::operator *= (const Matriz& B){
 
 Matriz& Matriz::operator *= (const double& lambda){
 	if(L!=NULL) desfactorizar();
-	forn(i,n) forn(j,m) def(i,j,lambda*elem(i,j));
+	forn(i,n) forn(j,m) (*this)(i,j) *= lambda;
 	return (*this);
 }
 
@@ -427,7 +441,7 @@ cout << 4 << endl;
 
 Matriz operator * (const double& lambda, const Matriz& A){
 	Matriz res(A);
-	forn(i,A.n) forn(j,A.m) res.def(i,j,lambda*res.elem(i,j));
+	forn(i,A.n) forn(j,A.m) res(i,j) *= lambda;
 	return res;
 }
 

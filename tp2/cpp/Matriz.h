@@ -10,6 +10,8 @@ using namespace std;
 #define forsn(i,s,n) for(int i=s;i<n;i++)
 #define forsnr(i,s,n) for(int i=n-1;s<=i;i--)
 
+class Vector;
+
 double abs(const double& n){
 	return ( n<0 ? -n : n );
 }
@@ -47,8 +49,6 @@ class Matriz{
 
 	public:
 
-//		Matriz();
-
 		/* Constructor. Toma filas - columnas - valor inicial de los campos */
 		Matriz(const int _n, const int _m, const double& e = 0);
 
@@ -69,7 +69,11 @@ class Matriz{
 
 		/* resuelve un sistema de ecuaciones con solucion b */
 		/* requiere factorizacion previa */
-		Matriz resolver(const Matriz& b);
+		Matriz resolver(const Vector& b);
+
+		/* resuelve un sistema de ecuaciones con solucion b */
+		/* requiere factorizacion previa */
+		Matriz resolverPLU(const Matriz& b);
 
 		Matriz getL() const;
 		Matriz getU() const;
@@ -100,11 +104,22 @@ class Matriz{
 		double* U;
 		int* P;
 
-		void triangular(const int i);
+		void triangular(Vector& res, double* U2, int* P2, const int k);
+		void triangularPLU(const int k);
 		void def(const int i, const int j, const double& e);
 		double& elem(const int i, const int j) const;
 		void desfactorizar();
 
+};
+
+class Vector: public Matriz{
+	public:
+		Vector(const int _n, const double& e) : Matriz(_n,1,e) {}
+		Vector(const Matriz& V) : Matriz(V) {}
+		Vector operator+(const Vector& B) const{return Vector(Matriz(*this)+B);}
+		double& operator[](const int i){ return M[i]; }
+		const double& operator[](const int i) const { return M[i]; }
+		friend ostream& operator<<(ostream& os, const Vector& V);
 };
 
 Matriz::Matriz(const int _n, const int _m, const double& e){
@@ -164,16 +179,79 @@ void Matriz::factorizar(){
 	forn(i,n*m) U[i] = M[i];
 	forn(i,n) P[i] = i;
 
-	forn(k,n-1) triangular(k);
+	forn(k,n-1) triangularPLU(k);
 
 	forn(i,n) L[i*m + i] = 1;
 
 }
 
-Matriz Matriz::resolver(const Matriz& b){
+Matriz Matriz::resolver(const Vector& b){
+	assert( b.n==n && b.m==1 );
+
+	double U2[n*m]; forn(i,n*m) U2[i] = M[i];
+	int P2[n]; forn(i,n) P2[i] = i;
+
+	//double res[n]; forn(i,n) res[i] = b.elem(i,0);
+	Vector res(b);
+
+	forn(k,n-1) triangular(res,U2,P2,k);
+
+	fornr(i,n){
+		forsn(j,i+1,n) res[i] -= U2[i*m + j]*res[j];
+		assert(U2[i*m + i]);
+		res[i] /= U2[i*m + i];
+	}
+
+	return res;
+}
+
+void Matriz::triangular(Vector& res, double* U2, int* P2, const int k){
+
+	int f = k;
+	double p = U2[f*m + k];
+
+	// elijo la fila pivote donde el k-esimo elem es maximo
+	forsn(i,k,n) if( abs(U2[i*m + k]) > abs(p) ){ f = i; p = U2[f*m + k]; }
+
+	if(p==0){
+		clog << "SINGULAR!" << endl;
+		assert(p!=0);
+	}
+
+	// swapeo las filas f y k en U y res
+	forn(j,n){
+		double temp_U2 = U2[f*m + j];
+		U2[f*m + j] = U2[k*m + j];
+		U2[k*m + j] = temp_U2;
+		double temp_r = res[f];
+		res[f] = res[k];
+		res[k] = temp_r;
+	}
+
+	// actualizo el vector de perumtación
+	int temp = P2[f];
+	P2[f] = P2[k];
+	P2[k] = temp;
+
+	// triangulo las filas k+1 -> n
+	forsn(i,k+1,n){
+
+		// elijo el m_ij
+		double a = U2[i*m+k]/p;
+
+		// la k-esima columna es 0
+		U2[i*m+k] = 0;
+
+		// calculo el valor de las columnas k+1 -> n
+		forsn(j,k+1,n) U2[i*m+j] -= a*U2[k*m+j];
+
+		res[i] -= a*res[k];
+	}
+}
+
+Matriz Matriz::resolverPLU(const Matriz& b){
 	assert( b.n==n && b.m==1 );
 	if(L==NULL) factorizar();
-//	cout << "U: "; print(cout,U,n,m);
 
 	double res[n];
 
@@ -184,14 +262,13 @@ Matriz Matriz::resolver(const Matriz& b){
 	fornr(i,n){
 		forsn(j,i+1,n) res[i] -= U[i*m + j]*res[j];
 		assert(U[i*m + i]);
-//		cout << "		" << U[i*m + i] << endl;
 		res[i] /= U[i*m + i];
 	}
 
 	return Matriz(res,n,1);;
 }
 
-void Matriz::triangular(int k){
+void Matriz::triangularPLU(const int k){
 
 	int f = k;
 	double p = U[f*m + k];
@@ -368,16 +445,6 @@ ostream& operator << (ostream& os, const Matriz& A){
 	os << ']';
 	return os;
 }
-
-class Vector: public Matriz{
-	public:
-		Vector(const int _n, const double& e) : Matriz(_n,1,e) {}
-		Vector(const Matriz& V) : Matriz(V) {}
-		Vector operator+(const Vector& B) const{return Vector(Matriz(*this)+B);}
-		double& operator[](const int i){ return M[i]; }
-		const double& operator[](const int i) const { return M[i]; }
-		friend ostream& operator<<(ostream& os, const Vector& V);
-};
 
 ostream& operator<<(ostream& os, const Vector& V){
 	os << '[';

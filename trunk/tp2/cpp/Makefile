@@ -9,4 +9,4 @@ test: test.cpp Matriz.h
 
 run: simulador planetas.in plot.py
 	@echo "Running"
-	@./simulador 365 10000 10000 < planetas2.in  | ./plot.py
+	@./simulador 365 14400 10000 < planetas4.in  | ./plot.py

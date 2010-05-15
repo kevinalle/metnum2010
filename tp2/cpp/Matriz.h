@@ -10,8 +10,6 @@ using namespace std;
 #define forsn(i,s,n) for(int i=s;i<n;i++)
 #define forsnr(i,s,n) for(int i=n-1;s<=i;i--)
 
-#define IDENTITY -1
-
 double abs(const double& n){
 	return ( n<0 ? -n : n );
 }
@@ -77,6 +75,8 @@ class Matriz{
 		Matriz getU() const;
 		void printPLU() const;
 
+		static Matriz ID(const int n);
+
 		/* Operadores varios */
 
 		double& operator () (const int i, const int j);
@@ -110,17 +110,7 @@ class Matriz{
 Matriz::Matriz(const int _n, const int _m, const double& e){
 	n = _n; m = _m;
 	M = new double[n*m];
-
-	if(e==IDENTITY)
-		forn(i,n) forn(j,m){
-			if(i==j) M[i*m+j] = 1;
-			else M[i*m+j] = 0;
-		}
-	else
-		forn(i,n*m){
-			M[i] = e;
-		}
-
+	forn(i,n*m) M[i] = e;
 	L = NULL; U = NULL; P = NULL;
 }
 
@@ -166,8 +156,6 @@ void Matriz::factorizar(){
 	assert(n==m);
 	if(L!=NULL) desfactorizar();
 
-	clog << "FACTORIZA!" << endl;
-
 	L = new double[n*m];
 	U = new double[n*m];
 	P = new int[n];
@@ -185,6 +173,7 @@ void Matriz::factorizar(){
 Matriz Matriz::resolver(const Matriz& b){
 	assert( b.n==n && b.m==1 );
 	if(L==NULL) factorizar();
+//	cout << "U: "; print(cout,U,n,m);
 
 	double res[n];
 
@@ -195,6 +184,7 @@ Matriz Matriz::resolver(const Matriz& b){
 	fornr(i,n){
 		forsn(j,i+1,n) res[i] -= U[i*m + j]*res[j];
 		assert(U[i*m + i]);
+//		cout << "		" << U[i*m + i] << endl;
 		res[i] /= U[i*m + i];
 	}
 
@@ -264,6 +254,12 @@ void Matriz::printPLU() const{
 	cout << "P = "; print(P,1,n); cout << endl;
 	cout << "L = "; print(cout,L,n,m); cout << endl;
 	cout << "U = "; print(cout,U,n,m); cout << endl;
+}
+
+Matriz Matriz::ID(const int n){
+	Matriz res(n,n,0);
+	forn(i,n) res(i,i) = 1;
+	return res;
 }
 
 double& Matriz::operator () (const int i, const int j){
@@ -367,23 +363,23 @@ ostream& operator << (ostream& os, const Matriz& A){
 			if(j!=0) os << ',';
 			os << A.M[A.m*i + j];
 		}
-		os << ']';
+		os << ']' << endl;
 	}
 	os << ']';
 	return os;
 }
 
-class VectorN: public Matriz{
+class Vector: public Matriz{
 	public:
-		VectorN(const int _n, const double& e) : Matriz(_n,1,e) {}
-		VectorN(const Matriz& V) : Matriz(V) {}
-		VectorN operator+(const VectorN& B) const{return VectorN(Matriz(*this)+B);}
+		Vector(const int _n, const double& e) : Matriz(_n,1,e) {}
+		Vector(const Matriz& V) : Matriz(V) {}
+		Vector operator+(const Vector& B) const{return Vector(Matriz(*this)+B);}
 		double& operator[](const int i){ return M[i]; }
 		const double& operator[](const int i) const { return M[i]; }
-		friend ostream& operator<<(ostream& os, const VectorN& V);
+		friend ostream& operator<<(ostream& os, const Vector& V);
 };
 
-ostream& operator<<(ostream& os, const VectorN& V){
+ostream& operator<<(ostream& os, const Vector& V){
 	os << '[';
 	forn(i,V.n){
 		if(i!=0) os << ',';

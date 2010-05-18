@@ -14,6 +14,7 @@ using namespace std;
 #define sq(x) ((x)*(x))
 
 #define DEBUG 1
+#define INF 2147483647
 
 typedef Vector3 V3;
 typedef Vector Vn;
@@ -89,7 +90,6 @@ Matriz Df(const Vn& y){
 		}
 		forn(ii,3) forn(jj,3) res(3*i+ii,3*N+3*j+jj) = (double)S(ii,jj);
 	}
-
 	return res;
 }
 
@@ -97,6 +97,38 @@ Matriz Taylor(const Vn& y){
 	Matriz Dfy = Df(y);
 	Matriz A( Matriz::ID(6*N) - dt*Dfy );
 	return A.resolver( y + dt*( f(y) - Dfy*y ) );
+}
+
+// funcion de "distancia" entre dos resultados
+double dist(const Vn& y){
+	double res = 0;
+	forn(i,6*N) res += sq(y[i]);
+	return sqrt(res);
+}
+
+Vn MetodoIterativo(const Vn& y, const double dx){
+	Vn w0 = y;
+	Vn w1 = y;
+	double d0 = INF;
+	double d1 = INF;
+//	int max_iter = 1000;
+	int i=0;
+	do{
+
+		w0 = w1;
+		Matriz Dfw = Df(w1);
+		Matriz A( Matriz::ID(6*N) - dt*Dfw );
+		w1 = A.resolver( y + dt*( f(w1) - Dfw*w1 ) );
+
+		d0 = d1;
+		d1 = dist(w1-w0);
+		i++;
+
+		if(d1<dx) return w1;
+
+		//clog << Vn(w0-w1) << endl;
+	}while( d1<d0 /*&& i<max_iter*/ );
+	return w0;
 }
 
 int main(int argc, char*argv[]){
@@ -129,11 +161,14 @@ int main(int argc, char*argv[]){
 		y[3*i+2+3*N] = Cuerpos[i].x.Z();
 	}
 
-	// y=[v1,v2,...,vn,x1,x2,...,xn]
-
 	printPos(y);
 	forn(iter,resolution){
-		y = Taylor(y);
+		// Metodo 1
+		// y = y + dt*f(y);
+		// Metodo 2
+		// y = Taylor(y);
+		// Metodo 3
+		y = MetodoIterativo(y,1e-4);
 		if(iter%(resolution/(outresolution-2))==0) printPos(y);
 	}
 	printPos(y);

@@ -78,7 +78,8 @@ class Matriz{
 
 		/* Operadores varios */
 
-		double operator () (const int i, const int j);
+		double& operator () (const int i, const int j);
+		const double& operator () (const int i, const int j) const;
 		Matriz operator + (const Matriz& B) const;
 		Matriz operator * (const Matriz& B) const;
 		Matriz& operator += (const Matriz& B);
@@ -241,7 +242,14 @@ void Matriz::printPLU() const{
 	cout << "U = "; print(U,n,m); cout << endl;
 }
 
-double Matriz::operator () (const int i, const int j){
+double& Matriz::operator () (const int i, const int j){
+	assert(0<=i); assert(i<n);
+	assert(0<=j); assert(j<m );
+	return M[m*i + j];
+}
+
+const double& Matriz::operator () (const int i, const int j) const {
+	cout << "const!!" << endl;
 	assert(0<=i); assert(i<n);
 	assert(0<=j); assert(j<m );
 	return M[m*i + j];

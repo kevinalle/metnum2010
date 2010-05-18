@@ -31,5 +31,5 @@ for c in range(N):
 #xs,ys=zip(*[posiciones[c][-1][:2] for c in N])
 axis('scaled')
 #legend(loc=0)
-#savefig('planetas.png',dpi=1200/8.)
-show()
+savefig('validacion_'+argv[1]+'_'+argv[2]+'.png',dpi=1200/8.)
+#show()

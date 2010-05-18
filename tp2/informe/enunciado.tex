@@ -1,0 +1,219 @@
+% \documentclass[11pt, a4paper]{article}
+% \usepackage{a4wide}
+% \usepackage{amssymb}
+% \usepackage{amsmath}
+% \usepackage{enumerate}
+% \usepackage[utf8]{inputenc}
+% \usepackage[spanish]{babel}
+% \parindent = 0 pt
+% \parskip = 11 pt
+% \usepackage[width=15.5cm, left=3cm, top=2.5cm, height= 24.5cm]{geometry}
+
+% \begin{document}
+
+\begin{centering}
+\bf Laboratorio de M\'etodos Num\'ericos - Primer cuatrimestre 2010 \\
+\bf Trabajo Pr\'actico N\'umero 2: Chocan los Planetas... \\
+\end{centering}
+
+\vskip 25pt
+\hrule
+\vskip 11pt
+
+\subsection*{Introducción}
+
+Nos encontramos nuevamente en el {\scshape C.O.L.L. -- Centro de Operaciones Logísticas Letales}. Atrás ha quedado la dramática XLII Guerra Intergaláctica, a partir de la cual, gracias al valor de héroes anónimos del pasado, el planeta Z-80 pudo gozar de un largo período de tranquilidad. Lamentablemente, nuestros equipos de monitoreo del espacio exterior revelan una nueva fuente de problemas que amenaza con interrumpir la paz.
+
+Desde un lejano planeta de un sistema solar de la vía lactea nos llegan emisiones similares a nuestros prehistóricos sistemas de televisión que de llegar a ser decifrados por las generaciones jóvenes de nuestra población destruirían su capacidad creativa e intelectual. El Honorable Consejo Supremo del Planeta ha decidido cortar de plano con esta amenaza. La orden es terminante: ``acabar con la fuente de dichas emisiones''.
+
+Para ello, se nos ha ordenado proporcionar las coordenadas y condiciones de lanzamiento de un proyectil que deberá impactar en el mencionado \emph{Planeta Tierra}, según lo denominan sus habitantes, a fin de enviarles un claro mensaje antes de continuar con hostilidades mayores.
+Esto se realizará desde una nave ubicada en la órbita del planeta denominado \emph{Neptuno}, lugar más próximo al que podemos acceder sin ser detectados.
+La supervivencia de nuestro planeta está en sus manos.
+
+\subsection*{La segunda Ley de Newton y el movimiento de cuerpos en el espacio}
+
+El movimiento de un cuerpo viene dado por la conocida ley de Newton (a quién se le ocurrió cuando una manzana impactó sobre su incipiente calva):
+\begin{equation*}
+ m \, {\bf a} = {\bf F},
+\end{equation*}
+donde $m$ es la masa del cuerpo, ${\bf a}$ es la aceleración del cuerpo y ${\bf F}$ es la resultante de la sumatoria de las fuerzas actuantes. La aceleración se relaciona con la velocidad del cuerpo y su posición por medio de las siguientes ecuaciones: ${\bf a} = \frac {d{\bf {v}}}{dt} = \frac {d^2 {\bf {x}}}{dt^2}$
+
+En el movimiento de cuerpos en el espacio (estrellas, planetas, lunas, asteroides, satelites, proyectiles, naves, etc.) las principales fuerzas presentes son las de atracción gravitatoria. La fuerza gravitatoria ejercida por un cuerpo $j$ de masa $m_j$ que se encuentra en una posición ${\bf x}_j = [\begin{array}{ccc} x_j & y_j & z_j \end{array}]^T$ sobre otro cuerpo $i$ de masa $m_i$ y posición ${\bf x}_i = [\begin{array}{ccc} x_i & y_i & z_i \end{array}]^T$ viene dada según la siguiente fórmula:
+\begin{equation*}
+ {\bf F}_{ij} = -G \, m_i \, m_j \frac{{\bf x}_i-{\bf x}_j}{\lvert {\bf x}_i-{\bf x}_j \rvert^3},
+\end{equation*}
+donde $G = 6.67428 \times 10^{-11} \ \mbox{m}^3 \ \mbox{kg}^{-1} \ \mbox{s}^{-2}$ es la constante de gravitación universal.
+
+Entonces, dado un conjunto de $N$ cuerpos interactuando entre sí en el espacio, las ecuaciones que describirán sus movimientos serán
+\begin{equation*}
+ m_i \, {\bf a}_i = \sum_{\substack{j=1 \\ j \neq i}}^N {\bf F}_{ij}, \qquad i = 1..N.
+\end{equation*}
+
+Este sistema de ecuaciones diferenciales de segundo orden se puede convertir en un sistema de primer orden escribiéndolo en términos de las velocidades y posiciones de los cuerpos, llegando a
+% \begin{align}
+%  \frac{d{\bf v}_i}{d\,t} &= \frac{1}{m_i}\sum_{\substack{j=1 \\ j \neq i}}^N {\bf F}_{ij},\nonumber \\
+%  \frac{d{\bf x}_i}{d\,t} &= {\bf v}_i, \qquad i = 1..N.
+%  \label{Sist1stOrd}
+% \end{align}
+\begin{equation}
+\left\lbrace
+\begin{aligned}
+\frac{d{\bf v}_i}{d\,t} &= \frac{1}{m_i}\sum_{\substack{j=1 \\ j \neq i}}^N {\bf F}_{ij},\\
+\frac{d{\bf x}_i}{d\,t} &= {\bf v}_i,
+\end{aligned}
+\right.
+\qquad i = 1..N.
+ \label{Sist1stOrd}
+\end{equation}
+
+\subsection*{Métodos para aproximar la solución}
+
+El sistema de la ecuación (\ref{Sist1stOrd}) puede pensarse como un sistema de la forma
+\begin{equation} \label{ODE}
+ \frac{d{\bf y}}{dt} = {\bf f}\left({\bf y}\right), % \left({\bf y},t\right)
+\end{equation}
+donde ${\bf y}^T = \left[
+\begin{array}{cccccccc}
+{\bf v}_1^T & {\bf v}_2^T & \dots & {\bf v}_N^T & {\bf x}_1^T & {\bf x}_2^T & \dots & {\bf x}_N^T
+\end{array}
+\right]$.
+
+Este tipo de sistemas puede resolverse discretizando $t$ en pasos de tiempo $t_n=t_0+n\Delta t$ y buscando calcular ${\bf y}^n = {\bf y}(t_n)$ aproximando la derivada temporal entre dos pasos de tiempo $n$ y $n+1$ en forma discreta como 
+\begin{equation*}
+ \frac{d{\bf y}}{dt} \approx \frac{{\bf y}^{n+1} - {\bf y}^n}{\Delta t}.
+\end{equation*}
+Reemplazando en \eqref{ODE} obtenemos una relación entre pasos sucesivos:
+\begin{equation}
+ {\bf y}^{n+1} = {\bf y}^n + \Delta t \, {\bf f}\left({\bf y}\right).
+ \label{SolucTemp}
+\end{equation}
+
+En este trabajo práctico vamos a estudiar tres técnicas para calcular el paso siguiente según la ecuación~(\ref{SolucTemp}):
+\begin{enumerate}[1)]
+ \item Utilizar ${\bf f}\left({\bf y}\right) = {\bf f}\left({\bf y}^n\right)$.
+
+ \item \label{Expl} Utilizar ${\bf f}\left({\bf y}\right) = {\bf f}\left({\bf y}^{n+1}\right)$,  aproximándola por medio de una expansión de Taylor como: ${\bf f}\left({\bf y}^{n+1}\right) \approx {\bf f}\left({\bf y}^{n}\right) + {\bf Df}\left({\bf y}^{n}\right) \, \left({\bf y}^{n+1} - {\bf y}^{n} \right)$, donde ${\bf Df}$ es la matriz que resulta de derivar cada componente del vector ${\bf f}$ respecto de las variables en el vector ${\bf y}$ (ver el apéndice para más detalles). De esta forma resulta la ecuación lineal
+  \begin{equation*}
+  \left[{\bf I} - \Delta t \, {\bf Df}\left({\bf y}^{n} \right) \right] \, {\bf y}^{n+1} = {\bf y}^n + \Delta t \, \left[ {\bf f}\left({\bf y}^{n}\right) - {\bf Df}\left({\bf y}^{n} \right) {\bf y}^{n} \right].
+  \end{equation*}
+
+ \item Realizar una corrección iterativa en cada paso de tiempo del método del ítem~\ref{Expl}: 
+\begin{quote} 
+	\noindent ${\bf w}^{0} = {\bf y}^{n}$ \\
+	\texttt{repetir} \\
+	\begin{quote} 
+		\noindent resolver \\
+		\begin{equation*}
+		\left[{\bf I} - \Delta t \, {\bf Df}\left({\bf w}^{k} \right) \right] \, {\bf w}^{k+1} = {\bf y}^n + \Delta t \, \left[ {\bf f}\left({\bf w}^{k} \right) - {\bf Df}\left({\bf w}^{k} \right) {\bf w}^{k} \right].
+		\end{equation*}		
+	\end{quote} 
+	\texttt{hasta que} la diferencia entre ${\bf w}^{k}$ y ${\bf w}^{k+1}$ sea pequeña \\
+	${\bf y}^{n+1} = {\bf w}^{k+1}$.
+\end{quote} 
+\end{enumerate}
+
+\subsection*{Enunciado}
+
+El objetivo de este trabajo práctico es la implementación de los modelos descriptos en la sección anterior para simular la interacción de un conjuntos de $N$ cuerpos en el espacio. Mediante el modelo que resulte más adecuado se realizará la simulación de la trayectoria del proyectil que debe impactar en la tierra, del cuál deberán indicar las condiciones iniciales para que esto ocurra.
+
+Experimentos obligatorios:
+\begin{enumerate}
+ \item Validación de los modelos mediante la simulación de la interacción Sol, Tierra, Luna  
+  (Período de tiempo: 30 días, 1 año y 5 años. $\Delta t=$1 día, y analizar fracciones y múltiplos).
+ \item Validación de los modelos mediante la simulación del Sistema Solar (sol, planetas) (Período y $\Delta t$ idem anterior).
+ \item Cálculo de las condiciones iniciales para impactar en la tierra y simulación de la trayectoria de los siguientes proyectiles: 
+	\begin{enumerate}
+	\item \emph{Torpedo de protones}, de masa despreciable y velocidad inicial 256 km$/$s.
+	\item \emph{Bomba Oscura}, de masa $50\times 10^{24}$ kg y velocidad inical 60 km$/$s.
+	\end{enumerate}
+Consideramos impacto que el proyectil esté a menos de $10^{-4} \ \mbox{AU}$ de la posición de la Tierra. Fecha de lanzamiento: 12 de junio de 2010, 11:00hs, UTC-3.
+\end{enumerate}
+
+Para realizar estos experimentos utilicen distintas técnicas para resolver sistemas de ecuaciones lineales. Analizar las ventajas y desventajas de cada una de las técnicas propuestas por ustedes para la aproximación de la solución.
+
+\subsection*{Datos astronómicos}
+Para obtener los datos astronómicos utilizaremos datos de una agencia espacial de los terrícolas. Usando la interfase web (http://ssd.jpl.nasa.gov/horizons.cgi),
+\begin{itemize}
+ \item cambiar \emph{Ephemeris Type} a {\bf VECTORS (Vector Table)},
+ \item cambiar \emph{Coordinate Origin} a {\bf Solar System Barycenter} (ingresando @0).
+ \item elegir \emph{Target Body} y \emph{Time Span} a gusto.
+ \item en \emph{Display Output} se puede elegir {\bf download} para guardar a archivo.
+\end{itemize}
+De esta forma se obtienen datos de las coordenadas ${\bf x} = [\begin{array}{ccc} x & y & z \end{array}]^T$, las velocidades ${\bf v} = [\begin{array}{ccc} v_x & v_y & v_z \end{array}]^T$ y las masas de los planetas, y mucho más.
+
+\vskip 15pt
+\hrule
+\vskip 11pt
+
+Fecha de entrega: 21 de mayo de 2010
+
+\newpage 
+\subsection*{Apéndice -- Una pequeña ayuda para calcular ${\bf Df}$}
+
+Dado ${\bf y}^T = \left[
+\begin{array}{cccccccc}
+{\bf v}_1^T & {\bf v}_2^T & \dots & {\bf v}_N^T & {\bf x}_1^T & {\bf x}_2^T & \dots & {\bf x}_N^T
+\end{array}
+\right]$ la matriz ${\bf Df}$ está formada por 4 submatrices de características particulares
+\begin{equation*}
+ {\bf Df} = \frac{\partial {\bf f}}{\partial {\bf y}} = \left[
+ \begin{array}{cc}
+ {\bf A}_{11} & {\bf A}_{12} \\
+ {\bf A}_{21} & {\bf A}_{22}
+\end{array} \right].
+\end{equation*}
+Las submatrices ${\bf A}_{11}$ y ${\bf A}_{22}$ son matrices de ceros de $\mathbb{R}^{3N \times 3N}$ y la submatriz ${\bf A}_{21}$ es la matriz identidad de $\mathbb{R}^{3N \times 3N}$. Entonces, la submatriz más compleja de calcular será ${\bf A}_{12}$ que viene dada por
+\begin{equation*}
+ {\bf A}_{12} = \left[
+ \begin{array}{ccccc}
+  \frac{1}{m_1} \sum_{j \neq 1} \frac{\partial {\bf F}_{1j}}{\partial {\bf x}_1} & \frac{1}{m_1} \frac{\partial {\bf F}_{12}}{\partial {\bf x}_2} & \frac{1}{m_1} \frac{\partial {\bf F}_{13}}{\partial {\bf x}_3} & \dots & \frac{1}{m_1} \frac{\partial {\bf F}_{1N}}{\partial {\bf x}_N} \\
+  \frac{1}{m_2} \frac{\partial {\bf F}_{21}}{\partial {\bf x}_1} & \frac{1}{m_2} \sum_{j \neq 2} \frac{\partial {\bf F}_{2j}}{\partial {\bf x}_2} & \frac{1}{m_2} \frac{\partial {\bf F}_{23}}{\partial {\bf x}_3} & \dots & \frac{1}{m_2} \frac{\partial {\bf F}_{2N}}{\partial {\bf x}_N} \\
+  \frac{1}{m_3} \frac{\partial {\bf F}_{31}}{\partial {\bf x}_1} & \frac{1}{m_3} \frac{\partial {\bf F}_{32}}{\partial {\bf x}_2} & \frac{1}{m_3} \sum_{j \neq 3} \frac{\partial {\bf F}_{3j}}{\partial {\bf x}_3} & \dots & \frac{1}{m_3} \frac{\partial {\bf F}_{3N}}{\partial {\bf x}_N} \\
+  \vdots & \vdots & \vdots & \ddots & \vdots \\
+  \frac{1}{m_N} \frac{\partial {\bf F}_{N1}}{\partial {\bf x}_1} & \frac{1}{m_N} \frac{\partial {\bf F}_{N2}}{\partial {\bf x}_2} & \frac{1}{m_N} \frac{\partial {\bf F}_{N3}}{\partial {\bf x}_3} & \dots & \frac{1}{m_N} \sum_{j \neq N} \frac{\partial {\bf F}_{Nj}}{\partial {\bf x}_N}
+ \end{array}
+ \right].
+\end{equation*}
+
+Las derivadas de las fuerzas ${\bf F}_{ij}$ son las matrices 
+\begin{equation}
+ \frac{\partial {\bf F}_{ij}}{\partial {\bf x}_i} = -G \, m_i \, m_j \left( \frac{1}{{d}^{3}} {\bf I} - \frac{3}{{d}^{5}} {\bf S} \right) \hspace{1cm} \text{y} \hspace{1cm}
+ \frac{\partial {\bf F}_{ij}}{\partial {\bf x}_j} = G \, m_i \, m_j \left( \frac{1}{{d}^{3}} {\bf I} - \frac{3}{{d}^{5}} {\bf S} \right)
+\label{DerF}
+\end{equation}
+donde ${\bf I}$ es la matriz identidad de $\mathbb{R}^{3 \times 3}$ y ${\bf S} = {\bf d} {\bf d}^T \, \in \mathbb{R}^{3 \times 3}$ con ${\bf d} = {\bf x}_i-{\bf x}_j$ y $d = \lvert {\bf d} \rvert$.
+
+Por ejemplo, en el caso de un problema de 3 cuerpos interactuando, la submatriz ${\bf A}_{12}$ tendrá dimensión $9 \times 9$ y estará compuesta por 9 matrices de $3 \times 3$, de la siguiente forma
+\begin{equation*}
+ {\bf A}_{12} = \left[
+ \begin{array}{ccc}
+  \frac{1}{m_1} \left(\frac{\partial {\bf F}_{12}}{\partial {\bf x}_1} + \frac{\partial {\bf F}_{13}}{\partial {\bf x}_1} \right) & \frac{1}{m_1} \frac{\partial {\bf F}_{12}}{\partial {\bf x}_2} & \frac{1}{m_1} \frac{\partial {\bf F}_{13}}{\partial {\bf x}_3} \\
+  \frac{1}{m_2} \frac{\partial {\bf F}_{21}}{\partial {\bf x}_1} & \frac{1}{m_2} \left(\frac{\partial {\bf F}_{21}}{\partial {\bf x}_2} + \frac{\partial {\bf F}_{23}}{\partial {\bf x}_2} \right) & \frac{1}{m_2} \frac{\partial {\bf F}_{23}}{\partial {\bf x}_3} \\
+  \frac{1}{m_3} \frac{\partial {\bf F}_{31}}{\partial {\bf x}_1} & \frac{1}{m_3} \frac{\partial {\bf F}_{32}}{\partial {\bf x}_2} & \frac{1}{m_3} \left(\frac{\partial {\bf F}_{31}}{\partial {\bf x}_3} + \frac{\partial {\bf F}_{32}}{\partial {\bf x}_3} \right)
+ \end{array}
+ \right].
+\end{equation*}
+A continuación se muestran algunas de las matrices de derivadas de fuerzas para ese caso:
+\begin{equation*}
+ \frac{\partial {\bf F}_{12}}{\partial {\bf x}_1} = -G \, m_1 \, m_2 
+\left[ \begin{array}{ccc}
+       {\frac{1}{{d}^{3}} - \frac{3}{{d}^{5}} (x_1 - x_2)^2} & {- \frac{3}{{d}^{5}} (x_1 - x_2) (y_1 - y_2)} & {- \frac{3}{{d}^{5}} (x_1 - x_2) (z_1 - z_2)} \\
+       {- \frac{3}{{d}^{5}} (x_1 - x_2) (y_1 - y_2)} & {\frac{1}{{d}^{3}} - \frac{3}{{d}^{5}} (y_1 - y_2)^2} & {- \frac{3}{{d}^{5}} (y_1 - y_2) (z_1 - z_2)} \\
+       {- \frac{3}{{d}^{5}} (x_1 - x_2) (z_1 - z_2)} & {- \frac{3}{{d}^{5}} (y_1 - y_2) (z_1 - z_2)} & {\frac{1}{{d}^{3}} - \frac{3}{{d}^{5}} (z_1 - z_2)^2}
+       \end{array} \right]
+\end{equation*}
+con $d = \sqrt{(x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2}$.
+
+
+
+\begin{equation*}
+ \frac{\partial {\bf F}_{13}}{\partial {\bf x}_3} = G \, m_1 \, m_3 
+\left[ \begin{array}{ccc}
+       {\frac{1}{{d}^{3}} - \frac{3}{{d}^{5}} (x_1 - x_3)^2} & {- \frac{3}{{d}^{5}} (x_1 - x_3) (y_1 - y_3)} & {- \frac{3}{{d}^{5}} (x_1 - x_3) (z_1 - z_3)} \\
+       {- \frac{3}{{d}^{5}} (x_1 - x_3) (y_1 - y_3)} & {\frac{1}{{d}^{3}} - \frac{3}{{d}^{5}} (y_1 - y_3)^2} & {- \frac{3}{{d}^{5}} (y_1 - y_3) (z_1 - z_3)} \\
+       {- \frac{3}{{d}^{5}} (x_1 - x_3) (z_1 - z_3)} & {- \frac{3}{{d}^{5}} (y_1 - y_3) (z_1 - z_3)} & {\frac{1}{{d}^{3}} - \frac{3}{{d}^{5}} (z_1 - z_3)^2}
+       \end{array} \right]
+\end{equation*}
+con $d = \sqrt{(x_1 - x_3)^2 + (y_1 - y_3)^2 + (z_1 - z_3)^2}$.
+
+% \end{document}

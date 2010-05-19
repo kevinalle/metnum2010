@@ -12,7 +12,7 @@
 # cat posiciones_iniciales | ./simulador [dias [resolucion_de_simulacion [resolucion_de_grafico]]] | ./plot.py [max_planetas]
 
 from sys import stdin,argv
-from pylab import plot, show, axis, legend, annotate, savefig, Axes
+from pylab import plot, show, axis, legend, annotate, savefig, Axes, axes
 from random import random
 
 def anota(pnt,txt,color=(1.0, 0.7, 0.7)):
@@ -26,10 +26,12 @@ posiciones=map(list,zip(*[map(eval,l.split()) for l in stdin.read().strip().spli
 
 for c in range(N):
         plot(*zip(*posiciones[c])[:2], label=cuerpos[c] , color=colors[c])
-        plot(posiciones[c][-1][0],posiciones[c][-1][1], 'o', ms=8, color=colors[c], mew=0)
-        anota(posiciones[c][-1][:2],cuerpos[c] ,colors[c])
-#xs,ys=zip(*[posiciones[c][-1][:2] for c in N])
-axis('scaled')
+        plot(posiciones[c][-1][0],posiciones[c][-1][1], 'o', ms=6, color=colors[c], mew=0)
+        #anota(posiciones[c][-1][:2],cuerpos[c] ,colors[c]) #nombres de los planetas
+
+axis([-1,1,-1,1], aspect='scaled') # ver solo el centro
+axes().set_aspect(1.)
+
 #legend(loc=0)
 #savefig('validacion_'+argv[1]+'_'+argv[2]+'.png',dpi=1200/8.)
 show()

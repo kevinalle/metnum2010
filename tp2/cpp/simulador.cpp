@@ -6,12 +6,21 @@
 #include "Matriz.h"
 #include <string>
 using namespace std;
+// UNIDADES
+// tiempo: 		dias
+// distancia: 	AU
+// masa: 		1e30 Kg
 #define G 0.0001488180711083514625549864281980165853856665309337938391
 #define F(i,j,x) (-G*Cuerpos[i].m*Cuerpos[j].m*(y[3*N+3*i+x]-y[3*N+3*j+x])/(dist*dist*dist))
 #define yX(i) y[3*N+3*(i)]
 #define yY(i) y[3*N+3*(i)+1]
 #define yZ(i) y[3*N+3*(i)+2]
+#define XYZ(i) V3(yX(i),yY(i),yZ(i))
 #define sq(x) ((x)*(x))
+#define NEXT(y) METODO1(y) // Eligo el metodo
+#define METODO1(y) y=y+dt*f(y)
+#define METODO2(y) y=Taylor(y)
+#define METODO3(y) y=MetodoIterativo(y,1e-4);
 
 #define DEBUG 1
 #define INF 2147483647
@@ -153,6 +162,20 @@ Vn makeY(){
 	return y;
 }
 
+double mindist(const Vn& y_in, int obj, int target){
+	// Devuelve la distancia minima que alcanzan los objetos obj y target mientras se esten acercando y mientras no supere el tiempo de simulacion
+	Vn y=y_in;
+	double d=(XYZ(obj)-XYZ(target)).norm();
+	double dans;
+	int i=0;
+	do{
+		dans=d;
+		NEXT(y);
+		d=(XYZ(obj)-XYZ(target)).norm();
+	}while(d<dans && ++i<resolution);
+	return dans;
+}
+
 int main(int argc, char*argv[]){
 
 	//PARSE OPT
@@ -167,20 +190,32 @@ int main(int argc, char*argv[]){
 		Cuerpos.push_back(Cuerpo(name, mass, x, v));
 	}
 	
+	double velocidad_proyectil=0.147852244; // 256 km/s = .14 AU/days
+	V3 x_p(-20., .005, 0.);
+	V3 v_p(velocidad_proyectil, 0., 0.);
+	Cuerpos.push_back(Cuerpo("proyectil", 1e-30, x_p, v_p));
+	
 	Vn y=makeY();
+	
+	int target=3;
+	int obj=N-1;
+	clog << "colisionando " << Cuerpos[obj].name << " contra " << Cuerpos[target].name << endl;
+	double min=1e100;
+	int intento=-1;while(true){intento++;double nmin=mindist(y,obj,target); if(nmin>min)break; min=nmin;
+	//forn(intento,5){
+		Cuerpos[obj].v+=V3(0,1e-5*intento,0);
+		y=makeY();
+		clog << min << endl;
+	}
+	clog << intento << endl;
 	
 	printNames();
 	printPos(y);
 	forn(iter,resolution){
-		// Metodo 1
-		y = y + dt*f(y);
-		// Metodo 2
-		// y = Taylor(y);
-		// Metodo 3
-		// y = MetodoIterativo(y,1e-4);
-		//if(iter%(resolution/(outresolution-2))==0) printPos(y);
-		printPos(y);
+		NEXT(y);
+		if(iter%(resolution/(outresolution-2))==0) printPos(y);
 	}
 	printPos(y);
+	
 	return 0;
 }

@@ -7,9 +7,9 @@ simulador: simulador.cpp Vector.h Matriz.h
 test: test.cpp Matriz.h
 	g++ -W -o $@ $<
 
-run: simulador planetas4.in plot.py
+run: simulador planetas.in plot.py
 	@echo "Running"
-	@./simulador 300 600 600 < planetas4.in | ./plot.py
+	@./simulador 150 10000 1000 < planetas.in | ./plot.py
 
 CONJ = validacion.in
 validar: simulador plot.py $(CONJ)

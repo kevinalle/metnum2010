@@ -66,7 +66,12 @@
 \integrante{Kevin Allekotte}{490/08}{kevinalle@gmail.com}
 
 \abstracto{
-	abs
+	El siguiente trabajo se propone la comparación entre distintos
+	métodos de simulación analítica de sistemas gravitatorios
+	de varios cuerpos. El objetivo final es calcular las coordenadas
+	para tirar un proyectil el 12 de junio del año 2010 a las 11:00hs,
+	UTC-3 desde la órbita del planeta Neptuno para que el mismo impacte
+	en la Tierra.
 }
 
 \palabraClave{}
@@ -78,11 +83,44 @@
 \newpage
 
 	\begin{usection}{Introducción teorica}
-		
+
+		En la mecánica classica o Newtoniana, el problema de lo $n$
+		cuerpos es el problema de predecir el movimiento de cuerpos
+		celestes en mutua interacción gravitatoria para cualquier
+		instante en el futuro o deducir su movimiento en cualquier
+		instante del pasado.
+
+		La acción gravitatoria entre los cuerpos depende de las
+		posiciones relativas entre ellos, por lo que las ecuaciones de
+		interacción gravitatoria quedan definidas en términos de
+		ecuaciones diferenciales.
+
+		El problema que surge al plantear el problema con $3 \leq n$ es
+		que las ecuaciones el sistema quedan definidas en función de
+		demasiadas variables como para aplicar los métodos de integración
+		conocidos hoy en día para resolver las ecuaciones.
+
+		Luego tenemos que encontrar otra forma de calcular las
+		variables. En nuestro caso elegimos el método de simulación,
+		el cuaĺ introduce errores analíticos por discretizar el tiempo y
+		por redondeo por trabajar con la aritmética finita de la
+		computadora.
+
+		Para minimizar estos errores implementamos distintos métodos de
+		cálculo numérico de aproximación que validamos con sistemas
+		familiares como el sistema solar, del cuál sabemos por ejemplo
+		que las órbitas son elípticas y bastante estables. Si dibujamos
+		las órbitas simuladas podemos ver si se comportan de manera
+		similar a lo esperado. Además, tenemos datos que se supone son
+		bastante precisos descargados de la web oficial de la NASA para
+		comparar.
+
 	\end{usection}
 	
 	\begin{usection}{Desarrollo}
+
 		
+
 	\end{usection}
 	
 	\begin{usection}{Resultados}

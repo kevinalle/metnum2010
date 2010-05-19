@@ -40,6 +40,9 @@ void printPos(const Vn& y){
 	forn(i,N) cout << "(" << y[3*N+3*i] << "," << y[3*N+3*i+1] << "," << y[3*N+3*i+2] << ")" <<" ";
 	cout<<endl;
 }
+void printNames(){
+	forn(i,N) cout << Cuerpos[i].name << " "; cout << endl;
+}
 
 Vn f(const Vn& y){
 	Vn res(6*N,0);
@@ -84,9 +87,9 @@ Matriz Df(const Vn& y){
 		Matriz S(3,3,0);
 		if(i==j){
 			forn(k,N) if(k!=i) S += dFdx(i,k,y);
-			S *= (1/Cuerpos[i].m);
+			S *= (1./Cuerpos[i].m);
 		}else{
-			S = (1/Cuerpos[i].m)*dFdx(i,j,y);
+			S = (1./Cuerpos[i].m)*dFdx(i,j,y);
 		}
 		forn(ii,3) forn(jj,3) res(3*i+ii,3*N+3*j+jj) = (double)S(ii,jj);
 	}
@@ -103,12 +106,13 @@ Matriz Taylor(const Vn& y){
 double dist(const Vn& y){
 	double res = 0;
 	forn(i,6*N) res += sq(y[i]);
-	return sqrt(res);
+	//return sqrt(res);
+	return res;
 }
 
 Vn MetodoIterativo(const Vn& y, const double dx){
-	Vn w0 = y;
-	Vn w1 = y;
+	Vn w0(y);
+	Vn w1(y);
 	double d0 = INF;
 	double d1 = INF;
 //	int max_iter = 1000;
@@ -116,38 +120,24 @@ Vn MetodoIterativo(const Vn& y, const double dx){
 	do{
 
 		w0 = w1;
-		Matriz Dfw = Df(w1);
+		Matriz Dfw = Df(w0);
 		Matriz A( Matriz::ID(6*N) - dt*Dfw );
-		w1 = A.resolver( y + dt*( f(w1) - Dfw*w1 ) );
+		Matriz B( y + dt*( f(w0) - Dfw*w0 ) );
+		//forn(iii,6*N) forn(jjj,6*N){ assert(!isnan(A(iii,jjj)));  assert(!isnan(B(iii,jjj)));}
+		w1 = A.resolver( B );
 
 		d0 = d1;
 		d1 = dist(w1-w0);
 		i++;
 
-		if(d1<dx) return w1;
+		//if(d1<dx) return w1;
 
 		//clog << Vn(w0-w1) << endl;
-	}while( d1<d0 /*&& i<max_iter*/ );
+	}while( d1<d0 && d1<dx /*&& i<max_iter*/ );
 	return w0;
 }
 
-int main(int argc, char*argv[]){
-
-	//PARSE OPT
-	if(argc>1) days=atoi(argv[1]); else days=365;
-	if(argc>2) resolution=atoi(argv[2]); else resolution=10000;
-	if(argc>3) outresolution=atoi(argv[3]); else outresolution=100;
-	dt=days/(float)resolution;
-	
-	//GET INPUT
-	string name;
-	double mass;
-	V3 x,v;
-	while( cin >> name >> mass >> x.X() >> x.Y() >> x.Z() >> v.X() >> v.Y() >> v.Z() ){
-		Cuerpos.push_back(Cuerpo(name, mass, x, v));
-		cout << name << " ";
-	}
-	cout << endl;
+Vn makeY(){
 	N=Cuerpos.size();
 	
 	Vn y(6*N,0);
@@ -160,16 +150,36 @@ int main(int argc, char*argv[]){
 		y[3*i+1+3*N] = Cuerpos[i].x.Y();
 		y[3*i+2+3*N] = Cuerpos[i].x.Z();
 	}
+	return y;
+}
 
+int main(int argc, char*argv[]){
+
+	//PARSE OPT
+	if(argc>1) days=atoi(argv[1]); else days=365;
+	if(argc>2) resolution=atoi(argv[2]); else resolution=10000;
+	if(argc>3) outresolution=atoi(argv[3]); else outresolution=100;
+	dt=days/(float)resolution;
+	
+	//GET INPUT
+	string name; double mass; V3 x,v;
+	while( cin >> name >> mass >> x.X() >> x.Y() >> x.Z() >> v.X() >> v.Y() >> v.Z() ){
+		Cuerpos.push_back(Cuerpo(name, mass, x, v));
+	}
+	
+	Vn y=makeY();
+	
+	printNames();
 	printPos(y);
 	forn(iter,resolution){
 		// Metodo 1
-		// y = y + dt*f(y);
+		y = y + dt*f(y);
 		// Metodo 2
 		// y = Taylor(y);
 		// Metodo 3
-		y = MetodoIterativo(y,1e-4);
-		if(iter%(resolution/(outresolution-2))==0) printPos(y);
+		// y = MetodoIterativo(y,1e-4);
+		//if(iter%(resolution/(outresolution-2))==0) printPos(y);
+		printPos(y);
 	}
 	printPos(y);
 	return 0;

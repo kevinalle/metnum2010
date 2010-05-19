@@ -9,7 +9,7 @@ test: test.cpp Matriz.h
 
 run: simulador planetas4.in plot.py
 	@echo "Running"
-	@./simulador 365 10000 365 < planetas4.in | ./plot.py
+	@./simulador 300 600 600 < planetas4.in | ./plot.py
 
 CONJ = validacion.in
 validar: simulador plot.py $(CONJ)

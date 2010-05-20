@@ -29,7 +29,7 @@ for c in range(N):
         plot(posiciones[c][-1][0],posiciones[c][-1][1], 'o', ms=6, color=colors[c], mew=0)
         #anota(posiciones[c][-1][:2],cuerpos[c] ,colors[c]) #nombres de los planetas
 
-axis([-1,1,-1,1], aspect='scaled') # ver solo el centro
+axis([-.8,1.2,-1,1], aspect='scaled') # ver solo el centro
 axes().set_aspect(1.)
 
 #legend(loc=0)

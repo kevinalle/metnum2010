@@ -18,10 +18,6 @@ using namespace std;
 #define yZ(i) y[3*N+3*(i)+2]
 #define XYZ(i) V3(yX(i),yY(i),yZ(i))
 #define sq(x) ((x)*(x))
-#define NEXT(y) METODO1(y) // Elijo el metodo
-#define METODO1(y) y+dt*f(y)
-#define METODO2(y) Taylor(y)
-#define METODO3(y) MetodoIterativo(y,1e-4);
 
 
 /* 0=OFF 1=ON */
@@ -44,10 +40,21 @@ struct Cuerpo{
 typedef Cuerpo Planeta;
 typedef pair<bool,int> Option;
 
+/* ------------------------------------------------------------ */
+/* OJO hay que setear todas estas variables pa que funque */
+
 int days;
 int resolution;
 int outresolution;
 double dt;
+int metodo;
+// sim_t simType;
+
+/* solo hacen falta si el tipo de simulacion es Misil */
+int target_index;
+// misile_t misilType; 
+
+/* ------------------------------------------------------------ */
 
 //Cuerpo sistema[]={sol, mercurio, venus, tierra, marte, jupiter, saturno, urano, neptuno, pluton}; // Cuerpos a considerar en la simulacion
 int N;//=sizeof(sistema)/sizeof(Cuerpo);
@@ -169,6 +176,16 @@ Vn makeY(){
 	return y;
 }
 
+Vn next(const Vn& y){
+	if(metodo==1){
+		return y+dt*f(y);
+	}else if(metodo==2){
+		return Taylor(y);
+	}else if(metodo==3){
+		return MetodoIterativo(y,1e-4);
+	}
+}
+
 pair<double,int> mindist(const Vn& y_in, int obj, int target){
 	// Devuelve la distancia minima que alcanzan los objetos obj y target mientras se esten acercando y mientras no supere el tiempo de simulacion
 	Vn y(y_in);
@@ -177,7 +194,7 @@ pair<double,int> mindist(const Vn& y_in, int obj, int target){
 	int i=0;
 	do{
 		dans=d;
-		y=NEXT(y);
+		y=next(y);
 		d=(XYZ(obj)-XYZ(target)).norm();
 	}while(d<dans && ++i<resolution);
 	return pair<double,int>(dans,i);
@@ -188,10 +205,13 @@ pair<double,int> mindist(const Vn& y_in, int obj, int target){
 void help(){
 	clog << "Modo de uso: ./simulador < inputfile [opciones]" << endl;
 	clog << "opciones:" << endl;
-	clog << "	-d | --days: es el tiempo de simulación en dias. default= 365." << endl;
-	clog << "	-dt: es el intervalo de tiempo discreto de simulación en dias. default: .41 (1 hora)" << endl;
-	clog << "	-or | --outresolution: es la cantidad de puntos que devuelve el programa distribuidos uniformemente en el el tiempo de simulación." << endl;
+	clog << "	-d | --days: es el tiempo de simulación en dias. defecto= 365." << endl;
+	clog << "	-dt: es el intervalo de tiempo discreto de simulación en dias. defecto: .41 (1 hora)" << endl;
+	clog << "	-or | --outresolution: es la cantidad de puntos que devuelve el programa distribuidos uniformemente en el el tiempo de simulación. defecto=100" << endl;
+	clog << "	-m | --metodo: Es el tipo de metodo utilizado en la simulacion. Acepta los valores 1, 2 y 3 referentes a los metodos propuestos en el enunciado. defecto=1" << endl;
+	clog << "	-t | --target: Es el indice del planeta a destruir. Por defecto es el primero de la lista de planetas recibida como entrada" << endl;
 	clog << "	-h | --help: muestra este mensaje de ayuda." << endl;
+	exit(0);
 }
 
 /* Se encarga de parsear las opciones de linea de comandos
@@ -201,6 +221,8 @@ void parse_options(int argc, char*argv[]){
 	bool opt_days; opt_days=false;
 	bool opt_dt; opt_dt=false;
 	bool opt_outres; opt_outres=false;
+	bool opt_met; opt_met=false;
+	bool opt_target; opt_target=false;
 
 	forsn(i,1,argc){
 		if(strcmp( argv[i],"--days")==0 || strcmp(argv[i],"-d")==0 ){
@@ -212,19 +234,35 @@ void parse_options(int argc, char*argv[]){
 		}else if( strcmp(argv[i],"--outresolution")==0 || strcmp(argv[i],"-or")==0 ){
 			opt_outres=true;
 			outresolution = atoi(argv[++i]);
+		}else if( strcmp(argv[i],"--metodo")==0 || strcmp(argv[i],"-m")==0 ){
+			metodo = atoi(argv[++i]);
+			if( metodo==1 || metodo==2 || metodo==3 ){
+				opt_met=true;
+			}else{
+				clog << metodo << " es un numero de metodo invalido" << endl;
+				help();
+			}
+		}else if( strcmp(argv[i],"--target")==0 || strcmp(argv[i],"-t")==0 ){
+			target_index = atoi(argv[++i]);
+			if(target_index<(int)Cuerpos.size()){
+				opt_target = true;
+			}else{
+				clog << metodo << " es un numero de target invalido" << endl;
+				help();
+			}
 		}else if( strcmp(argv[i],"--help")==0 || strcmp(argv[i],"-h")==0 ){
 			help();
-			exit(0);
 		}else{
 			clog << "invalid option: " << argv[i] << endl;
 			help();
-			exit(0);
 		}
 	}
 
 	if(!opt_days) days=365;
 	if(!opt_dt) dt=.041;
 	if(!opt_outres) outresolution=atoi(argv[3]); else outresolution=100;
+	if(!opt_met) metodo=1;
+	if(!opt_target) target_index=0;
 
 	resolution=days/dt;
 }
@@ -267,11 +305,11 @@ int main(int argc, char*argv[]){
 	parse_options(argc,argv);
 	init_misil(Cuerpos[3].x,Proyectil);
 
-	int target_index = 3;
 	int misil_index = Cuerpos.size()-1;
 
 	Vn y(makeY());
 
+	clog << "metodo: " << metodo << endl;
 	clog << "colisionando " << Cuerpos[misil_index].name << " contra " << Cuerpos[target_index].name << endl;
 	pair<double,int> min(1e100,0);
 	double span=.5;
@@ -295,7 +333,7 @@ int main(int argc, char*argv[]){
 	printNames();
 	printPos(y);
 	forn(iter,min.second/*resolution*/){
-		y=NEXT(y);
+		y=next(y);
 		if(iter%(resolution/(outresolution-2))==0) printPos(y);
 	}
 	printPos(y);

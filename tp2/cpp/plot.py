@@ -29,8 +29,8 @@ for c in range(N):
         plot(posiciones[c][-1][0],posiciones[c][-1][1], 'o', ms=6, color=colors[c], mew=0)
         anota(posiciones[c][-1][:2],cuerpos[c] ,colors[c]) #nombres de los planetas
 
-axis([-1.5,1.5,-1.5,1.5], aspect='scaled') # ver solo el centro
 axes().set_aspect(1.)
+axis([-1.5,1.5,-1.5,1.5], aspect='scaled') # ver solo el centro
 
 #legend(loc=0)
 #savefig('validacion_'+argv[1]+'_'+argv[2]+'.png',dpi=1200/8.)

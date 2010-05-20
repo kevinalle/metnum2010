@@ -17,12 +17,12 @@ using namespace std;
 #define yZ(i) y[3*N+3*(i)+2]
 #define XYZ(i) V3(yX(i),yY(i),yZ(i))
 #define sq(x) ((x)*(x))
-#define NEXT(y) METODO1(y) // Elijo el metodo
+#define NEXT(y) METODO3(y) // Elijo el metodo
 #define METODO1(y) y+dt*f(y)
 #define METODO2(y) Taylor(y)
 #define METODO3(y) MetodoIterativo(y,1e-4);
 
-#define DEBUG 1
+#define DEBUG 0
 #define INF 2147483647
 
 typedef Vector3 V3;
@@ -179,9 +179,9 @@ int main(int argc, char*argv[]){
 
 	//PARSE OPT
 	if(argc>1) days=atoi(argv[1]); else days=365;
-	if(argc>2) resolution=atoi(argv[2]); else resolution=10000;
+	if(argc>2) dt=atof(argv[2]); else dt=.08;
 	if(argc>3) outresolution=atoi(argv[3]); else outresolution=100;
-	dt=days/(float)resolution;
+	resolution=days/dt;
 	
 	//GET INPUT
 	string name; double mass; V3 x,v;
@@ -189,10 +189,16 @@ int main(int argc, char*argv[]){
 		Cuerpos.push_back(Cuerpo(name, mass, x, v));
 	}
 	
-	double velocidad_proyectil=0.147852244; // 256 km/s = .14 AU/days
 	V3 x_p(-20., .005, 0.);
-	V3 v_p(velocidad_proyectil, 0., 0.);
-	Cuerpos.push_back(Cuerpo("proyectil", 1e-30, x_p, v_p));
+	V3 v_p(0., 0., 0.);
+	
+	//Torpedo de protones
+	//double velocidad_proyectil=0.147852244; // 256 km/s = .14 AU/days
+	//Cuerpos.push_back(Cuerpo("proyectil", 1e-30, x_p, v_p));
+	
+	//Bomba oscura
+	double velocidad_proyectil=0.0346528697; // 60 km/s = .03 AU/days
+	Cuerpos.push_back(Cuerpo("bomba_oscura", 5e-5, x_p, v_p));
 	
 	Vn y=makeY();
 	
@@ -200,10 +206,10 @@ int main(int argc, char*argv[]){
 	int obj=N-1;
 	clog << "colisionando " << Cuerpos[obj].name << " contra " << Cuerpos[target].name << endl;
 	pair<double,int> min(1e100,0);
-	double span=.05;
+	double span=.5;
 	V3 pdir=velocidad_proyectil*(XYZ(target)-XYZ(obj)).normalize(); //direccion inicial: derecho al target
 	V3 mindir;
-	while(min.first>1e-3){
+	while(min.first>1e-1){
 		for(int ii=-1;ii<=1;ii++) for(int jj=-1;jj<=1;jj++){
 			Cuerpos[obj].v=pdir.rotate(ii*span,jj*span); // Calculo direccion
 			y=makeY(); // Rehago el vector y
@@ -215,7 +221,7 @@ int main(int argc, char*argv[]){
 		}
 		pdir=mindir;
 		span*=.5;
-		clog << "mindist: " << min.first << " span: " << span << " dir: " << pdir << endl;
+		clog << "mindist: " << min.first << " span: " << span << " dir: " << pdir << " it: " << min.second << endl;
 	}
 	
 	printNames();

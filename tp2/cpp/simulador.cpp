@@ -17,7 +17,7 @@ using namespace std;
 #define yZ(i) y[3*N+3*(i)+2]
 #define XYZ(i) V3(yX(i),yY(i),yZ(i))
 #define sq(x) ((x)*(x))
-#define NEXT(y) METODO3(y) // Elijo el metodo
+#define NEXT(y) METODO1(y) // Elijo el metodo
 #define METODO1(y) y+dt*f(y)
 #define METODO2(y) Taylor(y)
 #define METODO3(y) MetodoIterativo(y,1e-4);

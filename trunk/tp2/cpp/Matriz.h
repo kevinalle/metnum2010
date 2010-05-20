@@ -65,7 +65,7 @@ class Matriz{
 		Matriz T() const;
 
 		/* factoriza la matriz en PLU */
-		void factorizar();
+//		void factorizar();
 
 		/* resuelve un sistema de ecuaciones con solucion b */
 		/* requiere factorizacion previa */
@@ -73,11 +73,11 @@ class Matriz{
 
 		/* resuelve un sistema de ecuaciones con solucion b */
 		/* requiere factorizacion previa */
-		Matriz resolverPLU(const Matriz& b);
+//		Matriz resolverPLU(const Matriz& b);
 
-		Matriz getL() const;
-		Matriz getU() const;
-		void printPLU() const;
+//		Matriz getL() const;
+//		Matriz getU() const;
+//		void printPLU() const;
 
 		static Matriz ID(const int n);
 
@@ -100,15 +100,12 @@ class Matriz{
 		int n, m;
 
 		double* M;
-		double* L;
-		double* U;
-		int* P;
 
 		void triangular(Vector& res, double* U2, int* P2, const int k);
-		void triangularPLU(const int k);
+//		void triangularPLU(const int k);
 //		void def(const int i, const int j, const double& e);
 //		double& elem(const int i, const int j) const;
-		void desfactorizar();
+//		void desfactorizar();
 
 };
 
@@ -116,7 +113,7 @@ class Vector: public Matriz{
 	public:
 		Vector(const int _n, const double& e) : Matriz(_n,1,e) {}
 		Vector(const Matriz& V) : Matriz(V) {}
-		Vector operator+(const Vector& B) const{return Vector(Matriz(*this)+B);}
+		Vector operator+(const Vector& B) const{return (Vector)((Matriz)(*this)+B);}
 		double& operator[](const int i){ return M[i]; }
 		const double& operator[](const int i) const { return M[i]; }
 		friend ostream& operator<<(ostream& os, const Vector& V);
@@ -126,26 +123,20 @@ Matriz::Matriz(const int _n, const int _m, const double& e){
 	n = _n; m = _m;
 	M = new double[n*m];
 	forn(i,n*m) M[i] = e;
-	L = NULL; U = NULL; P = NULL;
 }
 
 Matriz::Matriz(const Matriz& B){
 	n = B.n; m = B.m;
 	M = new double[n*m]; forn(i,n) forn(j,m) (*this)(i,j) = B(i,j);//def(i,j,B.elem(i,j));
-	L = NULL; U = NULL; P = NULL;
 }
 
 Matriz::Matriz(const double* B, const int _n, const int _m){
 	n = _n; m = _m;
 	M = new double[n*m]; forn(i,n*m) M[i] = B[i];
-	L = NULL; U = NULL; P = NULL;
 }
 
 Matriz::~Matriz(){
 	delete[] M;
-	delete[] L;
-	delete[] U;
-	delete[] P;
 }
 
 Matriz Matriz::T() const {
@@ -154,6 +145,7 @@ Matriz Matriz::T() const {
 	return res;
 }
 
+/*
 void Matriz::factorizar(){
 	#if DEBUG==1
 		assert(n==m);
@@ -173,6 +165,7 @@ void Matriz::factorizar(){
 	forn(i,n) L[i*m + i] = 1;
 
 }
+*/
 
 Matriz Matriz::resolver(const Vector& b){
 	#if DEBUG==1
@@ -244,6 +237,7 @@ void Matriz::triangular(Vector& res, double* U2, int* P2, const int k){
 	}
 }
 
+/*
 Matriz Matriz::resolverPLU(const Matriz& b){
 	#if DEBUG==1
 		assert( b.n==n && b.m==1 );
@@ -332,6 +326,7 @@ void Matriz::printPLU() const{
 	cout << "L = "; print(cout,L,n,m); cout << endl;
 	cout << "U = "; print(cout,U,n,m); cout << endl;
 }
+*/
 
 Matriz Matriz::ID(const int n){
 	Matriz res(n,n,0);
@@ -383,7 +378,6 @@ Matriz Matriz::operator - (const Matriz& B) const {
 }
 
 Matriz& Matriz::operator += (const Matriz& B){
-	if(L!=NULL) desfactorizar();
 	#if DEBUG==1
 		assert( n==B.n && m==B.m );
 	#endif
@@ -392,7 +386,6 @@ Matriz& Matriz::operator += (const Matriz& B){
 }
 
 Matriz& Matriz::operator *= (const Matriz& B){
-	if(L!=NULL) desfactorizar();
 	#if DEBUG==1
 		assert( n==B.n && m==B.m );
 	#endif
@@ -404,39 +397,17 @@ Matriz& Matriz::operator *= (const Matriz& B){
 }
 
 Matriz& Matriz::operator *= (const double& lambda){
-	if(L!=NULL) desfactorizar();
 	forn(i,n) forn(j,m) (*this)(i,j) *= lambda;
 	return (*this);
 }
 
 Matriz& Matriz::operator = (const Matriz& A){
-	if( this!=&A ){
-		if(L!=NULL) desfactorizar();
-		n = A.n;
-		m = A.m;
-		M = new double[n*m];
+	#if DEBUG==1
+		assert( n==B.n && m==B.m );
+	#endif
+	if( this!=&A )
 		forn(i,n*m) M[i] = A.M[i];
-	}
 	return *this;
-}
-
-void Matriz::desfactorizar(){
-/*
-cout << 0 << endl;
-	if(L)
-		delete[] L;
-		cout << "WTF?" << endl;
-	}
-cout << 1 << endl;
-	if(U!=NULL)
-		delete[] U;
-cout << 2 << endl;
-	if(P!=NULL)
-		delete[] P;
-cout << 3 << endl;
-	L = NULL; U = NULL; P = NULL;
-cout << 4 << endl;
-*/
 }
 
 Matriz operator * (const double& lambda, const Matriz& A){

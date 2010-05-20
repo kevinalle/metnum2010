@@ -200,10 +200,10 @@ int main(int argc, char*argv[]){
 	int obj=N-1;
 	clog << "colisionando " << Cuerpos[obj].name << " contra " << Cuerpos[target].name << endl;
 	pair<double,int> min(1e100,0);
-	double span=.2;
-	V3 pdir=(XYZ(target)-XYZ(obj)).normalize(); //direccion inicial: derecho al target
+	double span=.05;
+	V3 pdir=velocidad_proyectil*(XYZ(target)-XYZ(obj)).normalize(); //direccion inicial: derecho al target
 	V3 mindir;
-	while(min.first>1e-4){
+	while(min.first>1e-3){
 		for(int ii=-1;ii<=1;ii++) for(int jj=-1;jj<=1;jj++){
 			Cuerpos[obj].v=pdir.rotate(ii*span,jj*span); // Calculo direccion
 			y=makeY(); // Rehago el vector y
@@ -214,8 +214,8 @@ int main(int argc, char*argv[]){
 			}
 		}
 		pdir=mindir;
-		span*=.7;
-		clog << min.first << " span: " << span << endl;
+		span*=.5;
+		clog << "mindist: " << min.first << " span: " << span << " dir: " << pdir << endl;
 	}
 	
 	printNames();

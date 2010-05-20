@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage{caratulaMetNum}
 \usepackage{float}
+\usepackage{subfigure}
 
  \usepackage{a4wide}
 % \usepackage{amssymb}
@@ -102,13 +103,14 @@
 
 		Luego tenemos que encontrar otra forma de calcular las
 		variables. En nuestro caso elegimos el método de simulación,
-		el cuaĺ introduce errores analíticos por discretizar el tiempo y
-		por redondeo por trabajar con la aritmética finita de la
-		computadora.
+		el cuál introduce errores analíticos por discretizar el tiempo y
+		de redondeo por trabajar con la aritmética finita de la
+		computadora, pero que tiene la ventaja que el sistema a resolver
+		es lineal, para lo cuál conocemos un método.
 
 		Para minimizar estos errores implementamos distintos métodos de
 		cálculo numérico de aproximación que validamos con sistemas
-		familiares como el sistema solar, del cuál sabemos por ejemplo
+		familiares como el sistema solar, del cual sabemos por ejemplo
 		que las órbitas son elípticas y bastante estables. Si dibujamos
 		las órbitas simuladas podemos ver si se comportan de manera
 		similar a lo esperado. Además, tenemos datos que se supone son
@@ -116,15 +118,95 @@
 		comparar.
 
 	\end{usection}
-	
+
 	\begin{usection}{Desarrollo}
 
 		
 
 	\end{usection}
-	
+
 	\begin{usection}{Resultados}
-		
+			\begin{figure}
+				\centering
+				\subfigure[$\delta t$ = 1 día]{
+				\includegraphics[scale=0.38]{img/ej1/metodo1/validacion_30_1.png}
+				\label{fig:ej1_m1_30_1}
+				}
+				\subfigure[$\delta t$ = 6 horas]{
+				\includegraphics[scale=0.38]{img/ej1/metodo1/validacion_30_4.png}
+				\label{fig:ej1_m1_30_4}
+				}
+				\\
+				\subfigure[$\delta t$ = 2 horas]{
+				\includegraphics[scale=0.38]{img/ej1/metodo1/validacion_30_12.png}
+				\label{fig:bej1_m1_30_12}
+				}
+				\subfigure[$\delta t$ = 1 hora]{
+				\includegraphics[scale=0.38]{img/ej1/metodo1/validacion_30_24.png}
+				\label{fig:cej1_m1_30_24}
+				}
+				\caption{
+					Simulación de validación del sistema sol$-$tierra$-$luna para un período de 30 días y distintos $\delta t$
+					con el método 1.
+					Observamos que el error no parece ser tan grande a simple vista para este período.
+				}
+				\label{ fig:res_ej1_m1_30 }
+			\end{figure}
+			\begin{figure}
+				\centering
+				\subfigure[$\delta t$ = 1 día]{
+				\includegraphics[scale=0.38]{img/ej1/metodo1/validacion_365_1.png}
+				\label{fig:ej1_m1_365_1}
+				}
+				\subfigure[$\delta t$ = 6 horas]{
+				\includegraphics[scale=0.38]{img/ej1/metodo1/validacion_365_4.png}
+				\label{fig:ej1_m1_365_4}
+				}
+				\\
+				\subfigure[$\delta t$ = 2 horas]{
+				\includegraphics[scale=0.38]{img/ej1/metodo1/validacion_365_12.png}
+				\label{fig:bej1_m1_365_12}
+				}
+				\subfigure[$\delta t$ = 1 hora]{
+				\includegraphics[scale=0.38]{img/ej1/metodo1/validacion_365_24.png}
+				\label{fig:cej1_m1_365_24}
+				}
+				\caption{
+					Simulación de validación del sistema sol$-$tierra$-$luna para un período de 1 año y distintos $\delta t$
+					con el método 1.
+					Para esta cantidad de tiempo, la simulación con un $\delta t$ de un día ya merece ser descartada.
+					Las otras todavía parecen comportarse razonablemente
+				}
+				\label{ fig:res_ej1_m1_365 }
+			\end{figure}
+			\begin{figure}
+				\centering
+				\subfigure[$\delta t$ = 1 día]{
+				\includegraphics[scale=0.38]{img/ej1/metodo1/validacion_1825_1.png}
+				\label{fig:ej1_m1_1825_1}
+				}
+				\subfigure[$\delta t$ = 6 horas]{
+				\includegraphics[scale=0.38]{img/ej1/metodo1/validacion_1825_4.png}
+				\label{fig:ej1_m1_1825_4}
+				}
+				\\
+				\subfigure[$\delta t$ = 2 horas]{
+				\includegraphics[scale=0.38]{img/ej1/metodo1/validacion_1825_12.png}
+				\label{fig:bej1_m1_1825_12}
+				}
+				\subfigure[$\delta t$ = 1 hora]{
+				\includegraphics[scale=0.38]{img/ej1/metodo1/validacion_1825_24.png}
+				\label{fig:cej1_m1_1825_24}
+				}
+				\caption{
+					Simulación de validación del sistema sol$-$tierra$-$luna para un período de 5 años y distintos $\delta t$
+					con el método 1.
+					Para esta cantidad de tiempo de simulación, las órbitas de los planetas ya comienzan a mostrar error al dar más de una vuelta.
+					El mejor método parece ser el de $\delta t$ de 2 horas, ya que para el de 1 hora la luna comienza a comportarse de una manera un poco mas extraña.
+				}
+				\label{ fig:res_ej1_m1_1825 }
+			\end{figure}
+
 	\end{usection}
 	
 	\begin{usection}{Discusión}

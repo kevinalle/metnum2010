@@ -27,9 +27,9 @@ posiciones=map(list,zip(*[map(eval,l.split()) for l in stdin.read().strip().spli
 for c in range(N):
         plot(*zip(*posiciones[c])[:2], label=cuerpos[c] , color=colors[c])
         plot(posiciones[c][-1][0],posiciones[c][-1][1], 'o', ms=6, color=colors[c], mew=0)
-        #anota(posiciones[c][-1][:2],cuerpos[c] ,colors[c]) #nombres de los planetas
+        anota(posiciones[c][-1][:2],cuerpos[c] ,colors[c]) #nombres de los planetas
 
-axis([-.8,1.2,-1,1], aspect='scaled') # ver solo el centro
+axis([-1.5,1.5,-1.5,1.5], aspect='scaled') # ver solo el centro
 axes().set_aspect(1.)
 
 #legend(loc=0)

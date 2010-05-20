@@ -17,6 +17,7 @@ using namespace std;
 #define yY(i) y[3*N+3*(i)+1]
 #define yZ(i) y[3*N+3*(i)+2]
 #define XYZ(i) V3(yX(i),yY(i),yZ(i))
+#define VEL(i) V3(y[3*(i)],y[3*(i)+1],y[3*(i)+2])
 #define sq(x) ((x)*(x))
 
 
@@ -192,6 +193,7 @@ Vn next(const Vn& y){
 
 pair<double,int> mindist(const Vn& y_in, int obj, int target){
 	// Devuelve la distancia minima que alcanzan los objetos obj y target mientras se esten acercando y mientras no supere el tiempo de simulacion
+	double dtbak=dt;
 	Vn y(y_in);
 	double d=(XYZ(obj)-XYZ(target)).norm();
 	double dans;
@@ -201,6 +203,8 @@ pair<double,int> mindist(const Vn& y_in, int obj, int target){
 		y=next(y);
 		d=(XYZ(obj)-XYZ(target)).norm();
 	}while(d<dans && ++i<resolution);
+	clog << "step: " << VEL(obj).norm() << endl;
+	dt=dtbak;
 	return pair<double,int>(dans,i);
 }
 

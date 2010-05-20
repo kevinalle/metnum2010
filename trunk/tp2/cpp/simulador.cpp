@@ -17,10 +17,10 @@ using namespace std;
 #define yZ(i) y[3*N+3*(i)+2]
 #define XYZ(i) V3(yX(i),yY(i),yZ(i))
 #define sq(x) ((x)*(x))
-#define NEXT(y) METODO1(y) // Eligo el metodo
-#define METODO1(y) y=y+dt*f(y)
-#define METODO2(y) y=Taylor(y)
-#define METODO3(y) y=MetodoIterativo(y,1e-4);
+#define NEXT(y) METODO1(y) // Elijo el metodo
+#define METODO1(y) y+dt*f(y)
+#define METODO2(y) Taylor(y)
+#define METODO3(y) MetodoIterativo(y,1e-4);
 
 #define DEBUG 1
 #define INF 2147483647
@@ -115,8 +115,7 @@ Matriz Taylor(const Vn& y){
 double dist(const Vn& y){
 	double res = 0;
 	forn(i,6*N) res += sq(y[i]);
-	//return sqrt(res);
-	return res;
+	return sqrt(res);
 }
 
 Vn MetodoIterativo(const Vn& y, const double dx){
@@ -162,7 +161,7 @@ Vn makeY(){
 	return y;
 }
 
-double mindist(const Vn& y_in, int obj, int target){
+pair<double,int> mindist(const Vn& y_in, int obj, int target){
 	// Devuelve la distancia minima que alcanzan los objetos obj y target mientras se esten acercando y mientras no supere el tiempo de simulacion
 	Vn y=y_in;
 	double d=(XYZ(obj)-XYZ(target)).norm();
@@ -170,10 +169,10 @@ double mindist(const Vn& y_in, int obj, int target){
 	int i=0;
 	do{
 		dans=d;
-		NEXT(y);
+		y=NEXT(y);
 		d=(XYZ(obj)-XYZ(target)).norm();
 	}while(d<dans && ++i<resolution);
-	return dans;
+	return pair<double,int>(dans,i);
 }
 
 int main(int argc, char*argv[]){
@@ -200,19 +199,29 @@ int main(int argc, char*argv[]){
 	int target=3;
 	int obj=N-1;
 	clog << "colisionando " << Cuerpos[obj].name << " contra " << Cuerpos[target].name << endl;
-	double min=1e100;
-	int intento=-1;while(true){intento++;double nmin=mindist(y,obj,target); if(nmin>min)break; min=nmin;
-	//forn(intento,5){
-		Cuerpos[obj].v+=V3(0,1e-5*intento,0);
-		y=makeY();
-		clog << min << endl;
+	pair<double,int> min(1e100,0);
+	double span=.2;
+	V3 pdir=(XYZ(target)-XYZ(obj)).normalize(); //direccion inicial: derecho al target
+	V3 mindir;
+	while(min.first>1e-4){
+		for(int ii=-1;ii<=1;ii++) for(int jj=-1;jj<=1;jj++){
+			Cuerpos[obj].v=pdir.rotate(ii*span,jj*span); // Calculo direccion
+			y=makeY(); // Rehago el vector y
+			pair<double,int> nmin=mindist(y,obj,target);
+			if(nmin.first<min.first){
+				min=nmin;
+				mindir=Cuerpos[obj].v;
+			}
+		}
+		pdir=mindir;
+		span*=.7;
+		clog << min.first << " span: " << span << endl;
 	}
-	clog << intento << endl;
 	
 	printNames();
 	printPos(y);
-	forn(iter,resolution){
-		NEXT(y);
+	forn(iter,min.second/*resolution*/){
+		y=NEXT(y);
 		if(iter%(resolution/(outresolution-2))==0) printPos(y);
 	}
 	printPos(y);

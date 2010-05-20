@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <list>
+#include <string.h>
 #include <vector>
 #include "Vector.h"
 #include "Matriz.h"
@@ -28,6 +29,9 @@ using namespace std;
 
 #define INF 2147483647
 
+enum sim_t{ Simulacion, Misil };
+enum misil_t{ Proyectil, BombaOscura };
+
 typedef Vector3 V3;
 typedef Vector Vn;
 struct Cuerpo{
@@ -38,6 +42,7 @@ struct Cuerpo{
 	friend ostream& operator<<(ostream&out,const Cuerpo& c){out<<c.name;return out;}
 };
 typedef Cuerpo Planeta;
+typedef pair<bool,int> Option;
 
 int days;
 int resolution;
@@ -178,48 +183,108 @@ pair<double,int> mindist(const Vn& y_in, int obj, int target){
 	return pair<double,int>(dans,i);
 }
 
-int main(int argc, char*argv[]){
+/* Muestra un menu de ayuda de opciones de linea de comandos
+ * Es invocado con la opcion -h o al parsear una opcion extraña */
+void help(){
+	clog << "Modo de uso: ./simulador < inputfile [opciones]" << endl;
+	clog << "opciones:" << endl;
+	clog << "	-d | --days: es el tiempo de simulación en dias. default= 365." << endl;
+	clog << "	-dt: es el intervalo de tiempo discreto de simulación en dias. default: .41 (1 hora)" << endl;
+	clog << "	-or | --outresolution: es la cantidad de puntos que devuelve el programa distribuidos uniformemente en el el tiempo de simulación." << endl;
+	clog << "	-h | --help: muestra este mensaje de ayuda." << endl;
+}
 
-	//PARSE OPT
-	if(argc>1) days=atoi(argv[1]); else days=365;
-	if(argc>2) dt=atof(argv[2]); else dt=.08;
-	if(argc>3) outresolution=atoi(argv[3]); else outresolution=100;
+/* Se encarga de parsear las opciones de linea de comandos
+ * e inicializar las variables correspondientes */
+void parse_options(int argc, char*argv[]){
+
+	bool opt_days; opt_days=false;
+	bool opt_dt; opt_dt=false;
+	bool opt_outres; opt_outres=false;
+
+	forsn(i,1,argc){
+		if(strcmp( argv[i],"--days")==0 || strcmp(argv[i],"-d")==0 ){
+			opt_days=true;
+			days = atoi(argv[++i]);
+		}else if(strcmp(argv[i],"-dt")==0){
+			opt_dt=true;
+			dt = atof(argv[++i]);
+		}else if( strcmp(argv[i],"--outresolution")==0 || strcmp(argv[i],"-or")==0 ){
+			opt_outres=true;
+			outresolution = atoi(argv[++i]);
+		}else if( strcmp(argv[i],"--help")==0 || strcmp(argv[i],"-h")==0 ){
+			help();
+			exit(0);
+		}else{
+			clog << "invalid option: " << argv[i] << endl;
+			help();
+			exit(0);
+		}
+	}
+
+	if(!opt_days) days=365;
+	if(!opt_dt) dt=.041;
+	if(!opt_outres) outresolution=atoi(argv[3]); else outresolution=100;
+
 	resolution=days/dt;
-	
-	//GET INPUT
+}
+
+/* Se encarga de leer de la entrada estandard los planetas a simular
+ * junto con sus valores iniciales */
+void init_planets(){
 	string name; double mass; V3 x,v;
 	while( cin >> name >> mass >> x.X() >> x.Y() >> x.Z() >> v.X() >> v.Y() >> v.Z() ){
 		Cuerpos.push_back(Cuerpo(name, mass, x, v));
 	}
-	
-	V3 x_p(-20., .005, 0.);
-	V3 v_p(0., 0., 0.);
+}
 
-	//Torpedo de protones
-	double velocidad_proyectil=0.147852244; // 256 km/s = .14 AU/days
-	Cuerpos.push_back(Cuerpo("proyectil", 1e-30, x_p, v_p));
-	
-	//Bomba oscura
-	//double velocidad_proyectil=0.0346528697; // 60 km/s = .03 AU/days
-	//Cuerpos.push_back(Cuerpo("bomba_oscura", 5e-5, x_p, v_p));
-	
+/* Inicializa los datos necesarios del misil elegido */
+void init_misil(const V3& target_pos, const misil_t type){
+
+	double v_p_ini, m_p; string name;
+
+	if(type==Proyectil){
+		// Si quiero un Torpedo de protones
+		v_p_ini=0.147852244; // 256 km/s = .14 AU/days
+		m_p = 1e-30;
+		name = "Proyectil";
+	}else{
+		// Si quiero una Bomba oscura
+		v_p_ini=0.0346528697; // 60 km/s = .03 AU/days
+		m_p = 5e-5;
+		name = "Bomba oscura";
+	}
+
+	V3 x_p(-20., .005, 0.);
+	V3 v_p( v_p_ini*(target_pos-x_p).normalize() );
+
+	Cuerpos.push_back(Cuerpo(name, m_p, x_p, v_p));
+}
+
+int main(int argc, char*argv[]){
+
+	init_planets();
+	parse_options(argc,argv);
+	init_misil(Cuerpos[3].x,Proyectil);
+
+	int target_index = 3;
+	int misil_index = Cuerpos.size()-1;
+
 	Vn y(makeY());
-	
-	int target=3;
-	int obj=N-1;
-	clog << "colisionando " << Cuerpos[obj].name << " contra " << Cuerpos[target].name << endl;
+
+	clog << "colisionando " << Cuerpos[misil_index].name << " contra " << Cuerpos[target_index].name << endl;
 	pair<double,int> min(1e100,0);
 	double span=.5;
-	V3 pdir=velocidad_proyectil*(XYZ(target)-XYZ(obj)).normalize(); //direccion inicial: derecho al target
+	V3 pdir = Cuerpos[misil_index].v; //direccion inicial: derecho al target
 	V3 mindir;
-	while(min.first>1e-3){
+	while(min.first>1e-4){
 		for(int ii=-1;ii<=1;ii++) for(int jj=-1;jj<=1;jj++){
-			Cuerpos[obj].v=pdir.rotate(ii*span,jj*span); // Calculo direccion
+			Cuerpos[misil_index].v=pdir.rotate(ii*span,jj*span); // Calculo direccion
 			y=makeY(); // Rehago el vector y
-			pair<double,int> nmin=mindist(y,obj,target);
+			pair<double,int> nmin=mindist(y,misil_index,target_index);
 			if(nmin.first<min.first){
 				min=nmin;
-				mindir=Cuerpos[obj].v;
+				mindir=Cuerpos[misil_index].v;
 			}
 		}
 		pdir=mindir;

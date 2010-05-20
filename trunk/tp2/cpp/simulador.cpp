@@ -212,7 +212,7 @@ int main(int argc, char*argv[]){
 	double span=.5;
 	V3 pdir=velocidad_proyectil*(XYZ(target)-XYZ(obj)).normalize(); //direccion inicial: derecho al target
 	V3 mindir;
-	while(min.first>1e-1){
+	while(min.first>1e-3){
 		for(int ii=-1;ii<=1;ii++) for(int jj=-1;jj<=1;jj++){
 			Cuerpos[obj].v=pdir.rotate(ii*span,jj*span); // Calculo direccion
 			y=makeY(); // Rehago el vector y

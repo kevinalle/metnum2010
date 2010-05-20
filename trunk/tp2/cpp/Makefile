@@ -9,7 +9,7 @@ test: test.cpp Matriz.h
 
 run: simulador planetas.in plot.py
 	@echo "Running"
-	@./simulador 750 .04 1000 < planetas.in > lastrun.out
+	@./simulador 750 .02 1000 < planetas.in > lastrun.out
 	@./plot.py < lastrun.out
 
 plot: plot.py lastrun.out

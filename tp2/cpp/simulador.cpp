@@ -22,7 +22,10 @@ using namespace std;
 #define METODO2(y) Taylor(y)
 #define METODO3(y) MetodoIterativo(y,1e-4);
 
-#define DEBUG 0
+
+/* 0=OFF 1=ON */
+#define DEBUG 1
+
 #define INF 2147483647
 
 typedef Vector3 V3;
@@ -163,7 +166,7 @@ Vn makeY(){
 
 pair<double,int> mindist(const Vn& y_in, int obj, int target){
 	// Devuelve la distancia minima que alcanzan los objetos obj y target mientras se esten acercando y mientras no supere el tiempo de simulacion
-	Vn y=y_in;
+	Vn y(y_in);
 	double d=(XYZ(obj)-XYZ(target)).norm();
 	double dans;
 	int i=0;
@@ -191,16 +194,16 @@ int main(int argc, char*argv[]){
 	
 	V3 x_p(-20., .005, 0.);
 	V3 v_p(0., 0., 0.);
-	
+
 	//Torpedo de protones
-	//double velocidad_proyectil=0.147852244; // 256 km/s = .14 AU/days
-	//Cuerpos.push_back(Cuerpo("proyectil", 1e-30, x_p, v_p));
+	double velocidad_proyectil=0.147852244; // 256 km/s = .14 AU/days
+	Cuerpos.push_back(Cuerpo("proyectil", 1e-30, x_p, v_p));
 	
 	//Bomba oscura
-	double velocidad_proyectil=0.0346528697; // 60 km/s = .03 AU/days
-	Cuerpos.push_back(Cuerpo("bomba_oscura", 5e-5, x_p, v_p));
+	//double velocidad_proyectil=0.0346528697; // 60 km/s = .03 AU/days
+	//Cuerpos.push_back(Cuerpo("bomba_oscura", 5e-5, x_p, v_p));
 	
-	Vn y=makeY();
+	Vn y(makeY());
 	
 	int target=3;
 	int obj=N-1;

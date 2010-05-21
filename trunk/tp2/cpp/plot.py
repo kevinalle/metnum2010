@@ -14,6 +14,16 @@
 from sys import stdin,argv
 from pylab import plot, show, axis, legend, annotate, savefig, Axes, axes
 from random import random
+from optparse import OptionParser
+
+parser = OptionParser()
+parser.add_option("-o", "--out", dest="filename", help="Save PNG to file")
+parser.add_option("-q", action="store_false", dest="show", default=True, help="Don't show output")
+parser.add_option("-z", "--zoom", dest="zoom", default="all", help="Zoom del plot (ancho, en AU)")
+parser.add_option("-c", "--center", type="int", dest="center", default=0, help="Cuerpo para centrar zoom (-1 es el ultimo)")
+parser.add_option("-t", "--title", dest="title",help="Titulo del Grafico")
+parser.add_option("-n", "--sinnombres", action="store_false", default=True, dest="nombres", help="Poner labels a los planetas")
+(options, args) = parser.parse_args()
 
 def anota(pnt,txt,color=(1.0, 0.7, 0.7)):
         annotate(txt, xy=pnt,  xycoords='data',xytext=(15, 0), textcoords='offset points',size=8,va="center",bbox=dict(boxstyle="round", fc=color, ec="none"), arrowprops=dict(arrowstyle="wedge,tail_width=.5", fc=color, ec="none",patchA=None, relpos=(0.2, 0.7), connectionstyle="arc3,rad=-0.1"))
@@ -27,12 +37,17 @@ posiciones=map(list,zip(*[map(eval,l.split()) for l in stdin.read().strip().spli
 for c in range(N):
         plot(*zip(*posiciones[c])[:2], label=cuerpos[c] , color=colors[c])
         plot(posiciones[c][-1][0],posiciones[c][-1][1], 'o', ms=6, color=colors[c], mew=0)
-        anota(posiciones[c][-1][:2],cuerpos[c] ,colors[c]) #nombres de los planetas
+        if options.nombres: anota(posiciones[c][-1][:2],cuerpos[c] ,colors[c]) #nombres de los planetas
 
 axes().set_aspect(1.)
 #axis([-1.2,1.2,-1.2,1.2], aspect='scaled') # ver solo el centro
-axis([-.25,-.15,.95,1.05], aspect='scaled') # ver el misil
 
+(misilx,misily)=(posiciones[options.center][-1][0],posiciones[options.center][-1][1])
+if options.zoom!="all":
+	z=float(options.zoom)
+	axis([misilx-z/2.,misilx+z/2.,misily-z/2.,misily+z/2.], aspect='scaled') # ver el misil
+
+if options.title: title(options.title)
 #legend(loc=0)
-#savefig('validacion_'+argv[1]+'_'+argv[2]+'.png',dpi=1200/8.)
-show()
+if options.filename: savefig(options.filename+'.png',dpi=1200/8.)
+if options.show: show()

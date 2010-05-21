@@ -204,7 +204,7 @@ pair<long double,int> mindist(const Vn& y_in, int obj, int target){
 		dans=d;
 		y=next(y);
 		d=(XYZ(obj)-XYZ(target)).norm();
-		if(VEL(obj).norm()*dt>d*.1){ dt*=.5; /*clog << "dt: " << dt << endl;*/}
+		if(VEL(obj).norm()*dt>d*.005){ dt*=.5; /*clog << "dt: " << dt << endl;*/}
 	}while(d<dans && ++i<resolution);
 	dt=dtbak;
 	return pair<long double,int>(dans,i);
@@ -322,8 +322,11 @@ void init_misil(const V3& target_pos, const misil_t type){
 
 //	V3 x_p(-20., .005, 0.);
 	V3 x_p(-3.006156840890750E+01, -3.527355570193992E+00, 7.654917553651108E-01);
-	V3 x_t(-1.318337528265208E-01, 9.758010776162782E-01, -7.325864694430641E-06); // pos de la tierra ~200 dias despues del lanzamiento
+	x_p=V3(0,30,0);
+	//V3 x_t(-1.318337528265208E-01, 9.758010776162782E-01, -7.325864694430641E-06); // pos de la tierra ~200 dias despues del lanzamiento
+	V3 x_t(1.3,0,0);
 	V3 v_p( v_p_ini*(x_t-x_p).normalize() );
+	//V3 v_p(0.0342612,0.00512656,-0.000842205);
 
 	clog << "V MISIL " << v_p << endl;
 
@@ -337,7 +340,7 @@ int main(int argc, char*argv[]){
 	
 	if(simType!=MinDist){
 
-		if(simType==Misil) init_misil(Cuerpos[target_index].x,Proyectil);
+		if(simType==Misil) init_misil(Cuerpos[target_index].x,BombaOscura/*Proyectil*/);
 
 		Vn y(makeY());
 
@@ -348,18 +351,18 @@ int main(int argc, char*argv[]){
 		 * Bajo la resolucion de span y tiro alrededor de esta ultima resolucion
 		 * Repito hasta que le pego a la tierra */
 	
+			int misil_index = Cuerpos.size()-1;
 		if(simType==Misil){
 
-			int misil_index = Cuerpos.size()-1;
 			pair<long double,int> min(numeric_limits<long double>::infinity(),0);
-			long double span=0.000976562;
+			long double span=.001;//0.000976562;
 			V3 pdir = Cuerpos[misil_index].v; //direccion inicial: derecho al target
 			V3 mindir;
 
 			clog << "Lanzando " << Cuerpos[misil_index].name << " contra " << Cuerpos[target_index].name << endl;
 
 			int intento=0;
-			while(min.first>1e-4/* && intento<15*/){
+			while(min.first>1e-4 && intento<26){
 				intento++;
 				for(int ii=-1;ii<=1;ii++) for(int jj=-1;jj<=1;jj++){
 					Cuerpos[misil_index].v = pdir.rotate(ii*span,jj*span); // Calculo direccion
@@ -372,7 +375,7 @@ int main(int argc, char*argv[]){
 				}
 
 				pdir=mindir;
-				span*=.5;
+				span*=.6;
 				clog << "mindist: " << min.first << " span: " << span << " dir: " << pdir << " it: " << min.second << endl;
 			}
 			resolution = min.second;
@@ -384,8 +387,8 @@ int main(int argc, char*argv[]){
 		forn(iter,resolution){
 			y=next(y);
 			if(simType==Misil){
-				d=(XYZ(N-1)-XYZ(3)).norm();
-				if(VEL(N-1).norm()*dt>d*.1){ dt*=.5; /*clog << "dt: " << dt << endl;*/}
+				d=(XYZ(misil_index)-XYZ(3)).norm();
+				if(VEL(misil_index).norm()*dt>d*.005){ dt*=.5; /*clog << "dt: " << dt << endl;*/}
 			}
 			if(iter%(resolution/(outresolution-2))==0) printPos(y);
 		}

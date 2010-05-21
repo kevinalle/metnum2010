@@ -73,8 +73,9 @@
 	\caption{
 		Simulación de validación del sistema sol$-$tierra$-$luna para un período de 5 años y distintos $\delta t$
 		con el método 1.
-		Para esta cantidad de tiempo de simulación, las órbitas de los planetas ya comienzan a mostrar error al dar más de una vuelta.
-		El mejor método parece ser el de $\delta t$ de 2 horas, ya que para el de 1 hora la luna comienza a comportarse de una manera un poco mas extraña.
+		Para esta cantidad de tiempo de simulación, las órbitas de los planetas ya comienzan a mostrar un movimiento espiral en vez de elíptico más de una vuelta.
+		El mejor método parece ser el de $\delta t$ de 2 horas, ya que para el de 1 hora la luna comienza a comportarse de una manera un poco mas extraña,
+		comportamiento que atribuímos a errores de redondeo por tratar con numeros muy chicos o muy grandes al multiplicar o dividir respectivamente por un $\delta t$ muy chico.
 	}
 	\label{ fig:res_ej1_m1_1825 }
 \end{figure}

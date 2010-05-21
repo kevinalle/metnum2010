@@ -20,6 +20,9 @@
 	\caption{
 		Simulación de validación del sistema sol$-$tierra$-$luna para un período de 30 días y distintos $\delta t$
 		con el método 2.
+		Al parecer el método 2 tiende a ser mas sensible a los errores por discretizacion del tiempo que el 1,
+		ya que para un intervalo de tiempo pequeño, como lo es 1 mes,
+		notamos cambios importantes en la precision con un $\delta t$ grande (1 día) con respecto al método 1.
 	}
 	\label{ fig:res_ej1_m2_30 }
 \end{figure}
@@ -45,6 +48,9 @@
 	\caption{
 		Simulación de validación del sistema sol$-$tierra$-$luna para un período de 1 año y distintos $\delta t$
 		con el método 2.
+		Para este método en este tiempo de simulación ya podemos descartar el $\delta t$ de 6 horas como simulación razonable,
+		cuando con el método 1 para este período de tiemnpo solo descartabamos el $\delta t$ de 1 día.
+		Sigue manifestandose entonces la alta sensibilidad a los errores por discretizacion del tiempo.
 	}
 	\label{ fig:res_ej1_m2_365 }
 \end{figure}
@@ -70,6 +76,8 @@
 	\caption{
 		Simulación de validación del sistema sol$-$tierra$-$luna para un período de 5 años y distintos $\delta t$
 		con el método 2.
+		Acá ya vemos que el único $\delta t$ razonable que queda es el de 1 hora,
+		pero vale la pena notar que es el mejor de los resultados obtenidos hasta ahora en este período de tiempo.
 	}
 	\label{ fig:res_ej1_m2_1825 }
 \end{figure}

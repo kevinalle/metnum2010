@@ -123,11 +123,12 @@
 
 		En primer lugar el desarrollo consistio en implementar módulos
 		para las operaciones con y entre Matrices y Vectores que
-		sirviesen para resolver sistemas lineales. Esto implicaba
-		también implementar el algoritmo de eliminación Gaussiana con
-		pivoteo parcial para resolver el sistema lineal del segundo
-		método de resolución. Los módulos fueron implementados en el
-		lenguaje \texttt{C++} para garantizar una buena performance.
+		fuesen necesarios para resolver sistemas lineales. Esto
+		implicaba también implementar el algoritmo de eliminación
+		Gaussiana con pivoteo parcial para resolver el sistema lineal
+		del segundo método de resolución. Los módulos fueron
+		implementados en el lenguaje \texttt{C++} para garantizar una
+		buena performance.
 
 		Luego procedimos a implementar un entorno de simulación
 		(\texttt{C++}) y un pequeño script para plotear y poder
@@ -135,10 +136,10 @@
 
 		Con todo el backend funcionando, procedimos a implementar
 		gradualmente los distintos algoritmos de solución de sistemas
-		lineales, intercalando la producción de cada uno con fases de
+		lineales, intercalando la producción de cada uno, con fases de
 		validación que consistían en simular los sistemas propuestos
 		en el enunciado, y cuyos resultados se pueden observar en la
-		sección RESULTADOS.
+		sección \textbf{resultados} \ref{sec:res}.
 
 		Validados los métodos de simulación, tuvimos que idear un
 		algoritmo para calcular el vector de velocidad inicial de
@@ -150,21 +151,26 @@
 		búsqueda de la solución a un espacio localizado cerca de la
 		primera. Con un espacio o una trayectoria nos referimos a una
 		velocidad inicial, la que en nuestro código esta determinada por
-		dos ángulos de disparo. Uno sobre el eje $z$ y otro sobre el
-		plano $xy$.
+		dos ángulos de disparo. Uno alrededor el eje $\hat{z}$, sobre el
+		plano $\hat{x}\hat{y}$ y otro alrededor del eje $\hat{y}$, sobre
+		el plano $\hat{x}\hat{z}$.
 
-		para cada trayectoria inicial, definimos una grilla de $3x3$
+		para cada trayectoria inicial, definimos una grilla de $3 \times 3$
 		puntos, donde el punto central era ella misma, y los otros
 		puntos son las rotaciones de la velocidad sobre los ejes
-		anteriormente mencionados por un ángulo que se reduce a la
-		mitad en cada iteración de la búsqueda, y luego disparámos
-		misiles en todas las 9 direcciónes.
+		anteriormente mencionados por dos ángulos, respectivamente, de
+		un módulo inicial que se reduce a la mitad en cada iteración de
+		la búsqueda, y luego disparámos misiles en todas las 9
+		direcciónes.
 		Así, aunque en algunos casos asintóticamente,
-		revisamos todo el espacio contenido en la grilla de la primera
-		iteración, a la cuál le ponemos un ancho inicial grosero, de
-		manera de incluír necesariamente a una solución.
-		En la imágencontinuación se puede ver como evoluciona la grilla
-		de la búsqueda en las sucesivas iteraciones.
+		podemos llegar a cualquier punto del espacio
+		contenido en la grilla inicial (la definida en la primera
+		iteración) si alli se encuentra una solución.
+		A la grilla inicial le ponemos un ancho inicial grosero, de
+		manera de incluír casi necesariamente a alguna solución.
+
+		En la imágen a continuación se puede ver como evoluciona la grilla
+		de la búsqueda a medida queavanza el algoritmo.
 
 		\begin{figure}[H]
 			\centering
@@ -178,11 +184,30 @@
 			\label{fig:grilla}
 		\end{figure}		
 
-		
+		Para elegir la trayectoria inicial del algoritmo, calculamos
+		primero aproximadamente (simulando y visualizando) cuanto
+		tiempo tardaba el misil en llegar hasta la órbita terrestre
+		desde la órbita de neptuno. Luego calculamos aproximadamente
+		la posición de la Tierra en esa cantidad de tiempo después de la
+		fecha inicial de lanzamiento, tomando los datos de la posición
+		de ese día de la información que provee la NASA.
+
+		También de esos datos, elegimos un punto aproximado en la
+		órbita de Neptuno de manera que el misil se encontrase de frente
+		o desde atrás con la dirección de la órbita terrestre, ya que si
+		se encontrase de costado con ésta, sería mucho mas dificil
+		pegarle por estar en movimiento.
+
+		Como dirección de la velocidad inicial del misil, elegimos el
+		vector resultante de restar la posición inicial del misil a la
+		posición aproximada del impacto sobre la órbita terrestre.
+		El módulo de la velocidad inicial, es el propuesto por el
+		enunciado del problema.
 
 	\end{usection}
 
 	\begin{usection}{Resultados}
+	\label{sec:res}
 
 		%\input{resultados_ej1_m1.tex}
 		%\input{resultados_ej1_m2.tex}

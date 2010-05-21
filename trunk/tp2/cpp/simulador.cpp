@@ -6,6 +6,7 @@
 #include "Vector.h"
 #include "Matriz.h"
 #include <string>
+#include <limits>
 using namespace std;
 // UNIDADES
 // tiempo: 		dias
@@ -26,15 +27,15 @@ using namespace std;
 
 #define INF 2147483647
 
-enum sim_t{ Simulacion, Misil };
+enum sim_t{ Validacion, Misil };
 enum misil_t{ Proyectil, BombaOscura };
 
 typedef Vector3 V3;
 typedef Vector Vn;
 struct Cuerpo{
-	Cuerpo(string _name,double _m, V3 _x, V3 _v=V3()):name(_name),m(_m),x(_x),v(_v){}
+	Cuerpo(string _name,long double _m, V3 _x, V3 _v=V3()):name(_name),m(_m),x(_x),v(_v){}
 	string name;
-	double m;
+	long double m;
 	V3 x,v;
 	friend ostream& operator<<(ostream&out,const Cuerpo& c){out<<c.name;return out;}
 };
@@ -47,9 +48,9 @@ typedef pair<bool,int> Option;
 int days;
 int resolution;
 int outresolution;
-double dt;
+long double dt;
 int metodo;
-// sim_t simType;
+sim_t simType;
 
 /* solo hacen falta si el tipo de simulacion es Misil */
 int target_index;
@@ -72,9 +73,9 @@ void printNames(){
 Vn f(const Vn& y){
 	Vn res(6*N,0);
 	forn(i,N){
-		double sumx=0,sumy=0,sumz=0;
+		long double sumx=0,sumy=0,sumz=0;
 		forn(j,N) if(j!=i){
-			double dist=(V3(y[3*N+3*i],y[3*N+3*i+1],y[3*N+3*i+2])-V3(y[3*N+3*j],y[3*N+3*j+1],y[3*N+3*j+2])).norm();
+			long double dist=(V3(y[3*N+3*i],y[3*N+3*i+1],y[3*N+3*i+2])-V3(y[3*N+3*j],y[3*N+3*j+1],y[3*N+3*j+2])).norm();
 			sumx+=F(i,j,0);
 			sumy+=F(i,j,1);
 			sumz+=F(i,j,2);
@@ -88,12 +89,12 @@ Vn f(const Vn& y){
 }
 
 Matriz dFdx(int i, int j, const Vn& y){
-	double d=sqrt( sq(yX(i)-yX(j)) + sq(yY(i)-yY(j)) + sq(yZ(i)-yZ(j)) );
-	double d3=1/(d*d*d);
-	double d5=3/(d*d*d*d*d);
-	double dx=yX(i)-yX(j);
-	double dy=yY(i)-yY(j);
-	double dz=yZ(i)-yZ(j);
+	long double d=sqrt( sq(yX(i)-yX(j)) + sq(yY(i)-yY(j)) + sq(yZ(i)-yZ(j)) );
+	long double d3=1/(d*d*d);
+	long double d5=3/(d*d*d*d*d);
+	long double dx=yX(i)-yX(j);
+	long double dy=yY(i)-yY(j);
+	long double dz=yZ(i)-yZ(j);
 	Matriz dFdx(3,3,0);
 	dFdx(0,0)=d3-d5*dx*dx; dFdx(0,1) = -d5*dx*dy; dFdx(0,2) = -d5*dx*dz;
 	dFdx(1,0) = -d5*dx*dy; dFdx(1,1)=d3-d5*dy*dy; dFdx(1,2) = -d5*dy*dz;
@@ -116,7 +117,7 @@ Matriz Df(const Vn& y){
 		}else{
 			S = (1./Cuerpos[i].m)*dFdx(i,j,y);
 		}
-		forn(ii,3) forn(jj,3) res(3*i+ii,3*N+3*j+jj) = (double)S(ii,jj);
+		forn(ii,3) forn(jj,3) res(3*i+ii,3*N+3*j+jj) = (long double)S(ii,jj);
 	}
 	return res;
 }
@@ -129,17 +130,17 @@ Matriz Taylor(const Vn& y){
 
 /* funcion de "distancia" entre dos resultados
  * como condicion de parada del metodo iterativo (3) */
-double dist(const Vn& y){
-	double res = 0;
+long double dist(const Vn& y){
+	long double res = 0;
 	forn(i,6*N) res += sq(y[i]);
 	return sqrt(res);
 }
 
-Vn MetodoIterativo(const Vn& y, const double dx){
+Vn MetodoIterativo(const Vn& y, const long double dx){
 	Vn w0(y);
 	Vn w1(y);
-	double d0 = INF;
-	double d1 = INF;
+	long double d0 = INF;
+	long double d1 = INF;
 //	int max_iter = 1000;
 	int i=0;
 	do{
@@ -191,12 +192,13 @@ Vn next(const Vn& y){
 	}
 }
 
-pair<double,int> mindist(const Vn& y_in, int obj, int target){
+/* Calcula la minima distancia a la que le pasa el proyectil a la tierra */
+pair<long double,int> mindist(const Vn& y_in, int obj, int target){
 	// Devuelve la distancia minima que alcanzan los objetos obj y target mientras se esten acercando y mientras no supere el tiempo de simulacion
 	double dtbak=dt;
 	Vn y(y_in);
-	double d=(XYZ(obj)-XYZ(target)).norm();
-	double dans;
+	long double d=(XYZ(obj)-XYZ(target)).norm();
+	long double dans;
 	int i=0;
 	do{
 		dans=d;
@@ -205,7 +207,7 @@ pair<double,int> mindist(const Vn& y_in, int obj, int target){
 	}while(d<dans && ++i<resolution);
 	clog << "step: " << VEL(obj).norm() << endl;
 	dt=dtbak;
-	return pair<double,int>(dans,i);
+	return pair<long double,int>(dans,i);
 }
 
 /* Muestra un menu de ayuda de opciones de linea de comandos
@@ -231,6 +233,7 @@ void parse_options(int argc, char*argv[]){
 	bool opt_outres; opt_outres=false;
 	bool opt_met; opt_met=false;
 	bool opt_target; opt_target=false;
+	bool opt_simtype; opt_simtype=false;
 
 	forsn(i,1,argc){
 		if(strcmp( argv[i],"--days")==0 || strcmp(argv[i],"-d")==0 ){
@@ -258,6 +261,18 @@ void parse_options(int argc, char*argv[]){
 				clog << metodo << " es un numero de target invalido" << endl;
 				help();
 			}
+		}else if( strcmp(argv[i],"--simtype")==0 || strcmp(argv[i],"-s")==0 ){
+			const char* s = argv[++i];
+			if( strcmp(s,"Misil")==0 ){
+				simType = Misil;
+				opt_simtype=true;
+			}else if( strcmp(argv[i],"Validacion")==0 ){
+				simType = Validacion;
+				opt_simtype=true;
+			}else{
+				clog << "Tipo de simulacion invalida" << endl;
+				help();
+			}
 		}else if( strcmp(argv[i],"--help")==0 || strcmp(argv[i],"-h")==0 ){
 			help();
 		}else{
@@ -271,6 +286,7 @@ void parse_options(int argc, char*argv[]){
 	if(!opt_outres) outresolution=100;
 	if(!opt_met) metodo=1;
 	if(!opt_target) target_index=0;
+	if(!opt_simtype) simType=Validacion;
 
 	resolution=days/dt;
 }
@@ -278,7 +294,7 @@ void parse_options(int argc, char*argv[]){
 /* Se encarga de leer de la entrada estandard los planetas a simular
  * junto con sus valores iniciales */
 void init_planets(){
-	string name; double mass; V3 x,v;
+	string name; long double mass; V3 x,v;
 	while( cin >> name >> mass >> x.X() >> x.Y() >> x.Z() >> v.X() >> v.Y() >> v.Z() ){
 		Cuerpos.push_back(Cuerpo(name, mass, x, v));
 	}
@@ -287,22 +303,26 @@ void init_planets(){
 /* Inicializa los datos necesarios del misil elegido */
 void init_misil(const V3& target_pos, const misil_t type){
 
-	double v_p_ini, m_p; string name;
+	long double v_p_ini, m_p; string name;
 
 	if(type==Proyectil){
 		// Si quiero un Torpedo de protones
 		v_p_ini=0.147852244; // 256 km/s = .14 AU/days
 		m_p = 1e-30;
-		name = "Proyectil";
+		name = "TorpedoDeProtones";
 	}else{
 		// Si quiero una Bomba oscura
 		v_p_ini=0.0346528697; // 60 km/s = .03 AU/days
 		m_p = 5e-5;
-		name = "Bomba oscura";
+		name = "BombaOscura";
 	}
 
-	V3 x_p(-20., .005, 0.);
-	V3 v_p( v_p_ini*(target_pos-x_p).normalize() );
+//	V3 x_p(-20., .005, 0.);
+	V3 x_p(-3.006156840890750E+01, -3.527355570193992E+00, 7.654917553651108E-01);
+	V3 x_t(-1.318337528265208E-01, 9.758010776162782E-01, -7.325864694430641E-06); // pos de la tierra ~200 dias despues del lanzamiento
+	V3 v_p( v_p_ini*(x_t-x_p).normalize() );
+
+	clog << "V MISIL " << v_p << endl;
 
 	Cuerpos.push_back(Cuerpo(name, m_p, x_p, v_p));
 }
@@ -312,13 +332,11 @@ int main(int argc, char*argv[]){
 	init_planets();
 	parse_options(argc,argv);
 
-	sim_t simType = Simulacion;
-
 	if(simType==Misil) init_misil(Cuerpos[target_index].x,Proyectil);
 
 	Vn y(makeY());
 
-	clog << "metodo: " << metodo << " out res: " << outresolution << endl;
+	clog << "metodo: " << metodo << " outres: " << outresolution << " days: " << days << " res: " << resolution << " dt: " << dt << endl;
 
 	/* Voy tirando misiles en toda la grilla de 3x3 de ancho 'span'.
 	 * Me quedo con la direccion para la cual el misil paso mas cerca de la tierra.
@@ -328,28 +346,28 @@ int main(int argc, char*argv[]){
 	if(simType==Misil){
 
 		int misil_index = Cuerpos.size()-1;
-		pair<double,int> min(INFINITY,0);
-		double span=.5;
+		pair<long double,int> min(numeric_limits<long double>::infinity(),0);
+		long double span=0.000976562;
 		V3 pdir = Cuerpos[misil_index].v; //direccion inicial: derecho al target
 		V3 mindir;
 
-		clog << "colisionando " << Cuerpos[misil_index].name << " contra " << Cuerpos[target_index].name << endl;
+		clog << "Lanzando " << Cuerpos[misil_index].name << " contra " << Cuerpos[target_index].name << endl;
 
-		while(min.first>1e-4){
+		while(min.first>1e-3){
 			for(int ii=-1;ii<=1;ii++) for(int jj=-1;jj<=1;jj++){
-				Cuerpos[misil_index].v=pdir.rotate(ii*span,jj*span); // Calculo direccion
+				Cuerpos[misil_index].v = pdir.rotate(ii*span,jj*span); // Calculo direccion
 				y=makeY(); // Rehago el vector y
-				pair<double,int> nmin=mindist(y,misil_index,target_index);
-				if(nmin.first<min.first){
-					min=nmin;
-					mindir=Cuerpos[misil_index].v;
+				pair<long double,int> new_min = mindist(y,misil_index,target_index);
+				if( new_min.first<min.first || ( new_min.first==min.first && new_min.second<min.second ) ){
+					min = new_min;
+					mindir = Cuerpos[misil_index].v;
 				}
 			}
+
 			pdir=mindir;
 			span*=.5;
 			clog << "mindist: " << min.first << " span: " << span << " dir: " << pdir << " it: " << min.second << endl;
 		}
-
 		resolution = min.second;
 	}
 

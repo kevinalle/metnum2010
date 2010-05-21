@@ -7,6 +7,8 @@
 \usepackage{caratulaMetNum}
 \usepackage{float}
 \usepackage{subfigure}
+\usepackage{listings}
+\lstset{language=C,basicstyle=\small\tt,keywordstyle=\bf,tabsize=3,breaklines=true,linewidth=16cm,postbreak={\mbox{$\rightsquigarrow$}},prebreak={\mbox{$\rightsquigarrow$}}}
 
  \usepackage{a4wide}
 % \usepackage{amssymb}
@@ -258,7 +260,208 @@
 		
 		\newpage
 		\begin{usubsection}{Apéndice B: Codigos Fuente}
-			
+
+\textbf{Algunos defines}
+\begin{lstlisting}
+#define G 0.000148818071108351462554986428198016585385
+#define F(i,j,x) (-G*Cuerpos[i].m*Cuerpos[j].m*(y[3*N+3*i+x]-y[3*N+3*j+x])/(dist*dist*dist))
+#define AC(i,j,x) (-G*Cuerpos[j].m*(y[3*N+3*i+x]-y[3*N+3*j+x])/(dist*dist*dist))
+#define yX(i) y[3*N+3*(i)]
+#define yY(i) y[3*N+3*(i)+1]
+#define yZ(i) y[3*N+3*(i)+2]
+#define XYZ(i) V3(yX(i),yY(i),yZ(i))
+#define VEL(i) V3(y[3*(i)],y[3*(i)+1],y[3*(i)+2])
+#define sq(x) ((x)*(x))
+\end{lstlisting}
+
+\bigskip
+\textbf{Extracto de \texttt{main}, que minimiza \texttt{mindist}}
+\begin{lstlisting}
+int intento=0;
+while(min.first>1e-4 && intento<26){
+	intento++;
+	for(int ii=-1;ii<=1;ii++) for(int jj=-1;jj<=1;jj++){
+		Cuerpos[misil_index].v = pdir.rotate(ii*span,jj*span); // Calculo direccion
+		y=makeY(); // Rehago el vector y
+		pair<long double,int> new_min = mindist(y,misil_index,target_index);
+		if( new_min.first<min.first || ( new_min.first==min.first && new_min.second<min.second ) ){
+			min = new_min;
+			mindir = Cuerpos[misil_index].v;
+		}
+	}
+
+	pdir=mindir;
+	span*=.6;
+	clog << "mindist: " << min.first << " span: " << span << " dir: " << pdir << " it: " << min.second << endl;
+}
+\end{lstlisting}
+
+\bigskip
+\textbf{Función \texttt{mindist}}
+\begin{lstlisting}
+pair<long double,int> mindist(const Vn& y_in, int obj, int target){
+	/* Calcula la minima distancia a la que le pasa el proyectil a la tierra */
+	// Devuelve la distancia minima que alcanzan los objetos obj y target mientras se esten acercando y mientras no supere el tiempo de simulacion
+	double dtbak=dt;
+	Vn y(y_in);
+	long double d=(XYZ(obj)-XYZ(target)).norm();
+	long double dans;
+	int i=0;
+	do{
+		dans=d;
+		y=next(y);
+		d=(XYZ(obj)-XYZ(target)).norm();
+		if(VEL(obj).norm()*dt>d*.005){ dt*=.5; /*clog << "dt: " << dt << endl;*/}
+	}while(d<dans && ++i<resolution);
+	dt=dtbak;
+	return pair<long double,int>(dans,i);
+}
+\end{lstlisting}
+
+\bigskip
+\textbf{Funciones que calculan la matriz Df}
+\begin{lstlisting}
+Matriz dFdx(int i, int j, const Vn& y){
+	long double d=sqrt( sq(yX(i)-yX(j)) + sq(yY(i)-yY(j)) + sq(yZ(i)-yZ(j)) );
+	long double d3=1/(d*d*d);
+	long double d5=3/(d*d*d*d*d);
+	long double dx=yX(i)-yX(j);
+	long double dy=yY(i)-yY(j);
+	long double dz=yZ(i)-yZ(j);
+	Matriz dFdx(3,3,0);
+	dFdx(0,0)=d3-d5*dx*dx; dFdx(0,1) = -d5*dx*dy; dFdx(0,2) = -d5*dx*dz;
+	dFdx(1,0) = -d5*dx*dy; dFdx(1,1)=d3-d5*dy*dy; dFdx(1,2) = -d5*dy*dz;
+	dFdx(2,0) = -d5*dx*dz; dFdx(2,1) = -d5*dy*dz; dFdx(2,2)=d3-d5*dz*dz;
+	return -G*Cuerpos[i].m*Cuerpos[j].m*dFdx;
+}
+
+Matriz Df(const Vn& y){
+	Matriz res(6*N,6*N,0);
+	// lleno A21
+	forn(i,3*N) forn(j,3*N) if(i==j) res(3*N+i,j) = 1;
+	// lleno A12
+	forn(i,N) forn(j,N) {
+		Matriz S(3,3,0);
+		if(i==j){
+			forn(k,N) if(k!=i) S += dFdx(i,k,y);
+			S *= (1./Cuerpos[i].m);
+		}else{
+			S = (1./Cuerpos[i].m)*dFdx(i,j,y);
+		}
+		forn(ii,3) forn(jj,3) res(3*i+ii,3*N+3*j+jj) = (long double)S(ii,jj);
+	}
+	return res;
+}
+\end{lstlisting}
+
+\bigskip
+\textbf{Funcion f(y) ($\frac{\delta y}{\delta t}$)}
+\begin{lstlisting}
+Vn f(const Vn& y){
+	Vn res(6*N,0);
+	forn(i,N){
+		long double sumx=0,sumy=0,sumz=0;
+		forn(j,N) if(j!=i){
+			long double dist=(V3(y[3*N+3*i],y[3*N+3*i+1],y[3*N+3*i+2])-V3(y[3*N+3*j],y[3*N+3*j+1],y[3*N+3*j+2])).norm();
+			sumx+=AC(i,j,0);
+			sumy+=AC(i,j,1);
+			sumz+=AC(i,j,2);
+		}
+		res[3*i]  =sumx;
+		res[3*i+1]=sumy;
+		res[3*i+2]=sumz;
+	}
+	forn(i,3*N) res[i+3*N]=y[i];
+	return res;
+}
+\end{lstlisting}
+
+\bigskip
+\textbf{Método 2 (Taylor)}
+\begin{lstlisting}
+Matriz Taylor(const Vn& y){
+	Matriz Dfy = Df(y);
+	Matriz A( Matriz::ID(6*N) - dt*Dfy );
+	return A.resolver( y + dt*( f(y) - Dfy*y ) );
+}
+\end{lstlisting}
+
+\bigskip
+\textbf{Método 3 (Iterativo)}
+\begin{lstlisting}
+Vn MetodoIterativo(const Vn& y, const long double dx){
+	Vn w0(y); Vn w1(y);
+	long double d0 = INF; long double d1 = INF;
+	int i=0;
+	do{
+		w0 = w1;
+		Matriz Dfw = Df(w0);
+		Matriz A( Matriz::ID(6*N) - dt*Dfw );
+		Matriz B( y + dt*( f(w0) - Dfw*w0 ) );
+		w1 = A.resolver( B );
+
+		d0 = d1;
+		d1 = dist(w1-w0);
+		i++;
+	}while( d1<d0 && d1<dx );
+	return w0;
+}
+\end{lstlisting}
+
+\bigskip
+\textbf{Resolucion de sistemas lineales (Gauss)}
+\begin{lstlisting}
+Matriz Matriz::resolver(const Vector& b){
+	double U2[n*m]; forn(i,n*m) U2[i] = M[i];
+	int P2[n]; forn(i,n) P2[i] = i;
+
+	//double res[n]; forn(i,n) res[i] = b.elem(i,0);
+	Vector res(b);
+
+	forn(k,n-1) triangular(res,U2,P2,k);
+
+	fornr(i,n){
+		forsn(j,i+1,n) res[i] -= U2[i*m + j]*res[j];
+		res[i] /= U2[i*m + i];
+	}
+	return res;
+}
+
+void Matriz::triangular(Vector& res, double* U2, int* P2, const int k){
+	int f = k;
+	double p = U2[f*m + k];
+
+	// elijo la fila pivote donde el k-esimo elem es maximo
+	forsn(i,k,n) if( abs(U2[i*m + k]) > abs(p) ){ f = i; p = U2[f*m + k]; }
+
+	// swapeo las filas f y k en U y res
+	forn(j,n){
+		double temp_U2 = U2[f*m + j];
+		U2[f*m + j] = U2[k*m + j];
+		U2[k*m + j] = temp_U2;
+		double temp_r = res[f];
+		res[f] = res[k];
+		res[k] = temp_r;
+	}
+
+	// actualizo el vector de perumtacion
+	int temp = P2[f];
+	P2[f] = P2[k];
+	P2[k] = temp;
+
+	// triangulo las filas k+1 -> n
+	forsn(i,k+1,n){
+		// elijo el m_ij
+		double a = U2[i*m+k]/p;
+		// la k-esima columna es 0
+		U2[i*m+k] = 0;
+		// calculo el valor de las columnas k+1 -> n
+		forsn(j,k+1,n) U2[i*m+j] -= a*U2[k*m+j];
+		res[i] -= a*res[k];
+	}
+}
+\end{lstlisting}
+
 		\end{usubsection}
 	\end{usection}
 	

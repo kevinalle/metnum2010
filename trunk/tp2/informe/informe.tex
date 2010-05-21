@@ -173,10 +173,8 @@
 		\end{figure}	
 
 	\end{usection}
-
 	\begin{usection}{Resultados}
 	\label{sec:res}
-
 		\input{resultados_ej1_m1.tex}
 		\input{resultados_ej1_m2.tex}
 		\input{resultados_ej1_m3.tex}
@@ -184,7 +182,6 @@
 		\input{resultados_ej2_m2.tex}
 		\input{resultados_misil.tex}
 		\input{resultados_bomba.tex}
-
 	\end{usection}
 	
 	\begin{usection}{Discusión}
@@ -256,6 +253,21 @@
 		los otros solo resultaban muy buenos (mejores incluso en cuanto a los resultados finales que el método 1)
 		si el $\Delta t$ era significativamente muy alto,
 		lo que para nuestro algoritmo de búsqueda local era muy malo en cuanto a tiempo de ejecución.
+
+		No obstante, más alla de la sensibilidad del método 2 a los $\Delta t$ altos,
+		el método de triangulación resulto ser bastante mas rápido de lo que esperabamos, en la práctica.
+
+		Un detalle que notamos fue que la precisión relativa entre el método 1 y 2 de la simulación, a medida que el $\Delta t$ se iba haciendo mas chico,
+		era muy similar. Lo que concluímos fue que a pesar de que los 2 algoritmos son bastante distintos,
+		y el segundo pareciera ser mucho más sofisticado, las aproximaciones que hacemos en ambos casos son siempre lineales,
+		lo que parece justificar nuestras observaciones sobre la similitud de los métodos antes mencionada,
+		y nos dice que a partir de un cierto $\Delta t$ suficientemente chico (ya que el método 2 es mas sensible con $\Delta t$ grande) las aproximaciónes del segundo método
+		no van a ser mejores que las del primero.
+
+		El método 3 parece arreglar este problema, aproximando varias derivadas en un mismo $\Delta t$,
+		hasta que la diferencia entre dos derivadas sucesivas se haga mas chica que un umbral.
+		Sin embargo esto es muy parecido, y practicamente igual de eficiente que achicar todavía mas el $\Delta t$ para los métodos anteriores.
+		
 
 	\end{usection}
 	

@@ -378,8 +378,10 @@ int main(int argc, char*argv[]){
 	double d;
 	forn(iter,resolution){
 		y=next(y);
-		d=(XYZ(N-1)-XYZ(3)).norm();
-		if(VEL(N-1).norm()*dt>d*.1){ dt*=.5; /*clog << "dt: " << dt << endl;*/}
+		if(simType==Misil){
+			d=(XYZ(N-1)-XYZ(3)).norm();
+			if(VEL(N-1).norm()*dt>d*.1){ dt*=.5; /*clog << "dt: " << dt << endl;*/}
+		}
 		if(iter%(resolution/(outresolution-2))==0) printPos(y);
 	}
 	printPos(y);

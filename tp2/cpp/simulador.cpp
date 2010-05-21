@@ -204,8 +204,8 @@ pair<long double,int> mindist(const Vn& y_in, int obj, int target){
 		dans=d;
 		y=next(y);
 		d=(XYZ(obj)-XYZ(target)).norm();
+		if(VEL(obj).norm()*dt>d*.1){ dt*=.5; /*clog << "dt: " << dt << endl;*/}
 	}while(d<dans && ++i<resolution);
-	clog << "step: " << VEL(obj).norm() << endl;
 	dt=dtbak;
 	return pair<long double,int>(dans,i);
 }
@@ -353,7 +353,9 @@ int main(int argc, char*argv[]){
 
 		clog << "Lanzando " << Cuerpos[misil_index].name << " contra " << Cuerpos[target_index].name << endl;
 
-		while(min.first>1e-3){
+		int intento=0;
+		while(min.first>1e-4/* && intento<15*/){
+			intento++;
 			for(int ii=-1;ii<=1;ii++) for(int jj=-1;jj<=1;jj++){
 				Cuerpos[misil_index].v = pdir.rotate(ii*span,jj*span); // Calculo direccion
 				y=makeY(); // Rehago el vector y
@@ -373,8 +375,11 @@ int main(int argc, char*argv[]){
 
 	printNames();
 	printPos(y);
+	double d;
 	forn(iter,resolution){
 		y=next(y);
+		d=(XYZ(N-1)-XYZ(3)).norm();
+		if(VEL(N-1).norm()*dt>d*.1){ dt*=.5; /*clog << "dt: " << dt << endl;*/}
 		if(iter%(resolution/(outresolution-2))==0) printPos(y);
 	}
 	printPos(y);

@@ -157,10 +157,11 @@
 		
 		Dada las condiciones iniciales de un sistema (posiciones y velocidades de todos los cuerpos), podemos simular este sistema con alguno de los métodos y calcular las posiciones para algun tiempo en el futuro.
 		Nuestro objetivo es encontrar la velocidad inicial de nuestro misil para que esté a menos de $10^{-4}$ AU de la tierra en algun instante futuro.
-		Definimos entonces una función que dadas las condiciones iniciales, un cuerpo \textt{misil} y un cuerpo \texttt{target}, nos devuelva la distancia mínima a la que se encontrarán estos cuerpos en algun futuro acotado.
+		Definimos entonces una función (\texttt{mindist}) que dadas las condiciones iniciales, un cuerpo \texttt{misil} y un cuerpo \texttt{target}, nos devuelva la distancia mínima a la que se encontrarán estos cuerpos en algun futuro acotado.
 		Nos restringimos a los casos en los que la distancia es monótonamente decreciente, y consideramos sólo los tiempos para los cuales los cuerpos se acercan. (Esto es una desicion de implementación, ya que no estaríamos encontrando las soluciones en las que el misil se aleja y luego se vuelve a acercar).
 		
-		%aca escribo yo
+		Tenemos entonces que minimizar esta función (o encontrar un valor para el cual sea menor que $10^{-4}$).
+		Para esto elegimos una velocidad inicial a mano (aproximadamente hacia el cuerpo \texttt{target}) y corremos un algoritmo que va ajustando la velocidad para minimizar la función \texttt{mindist}.
 
 	\end{usection}
 

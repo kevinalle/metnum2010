@@ -1,0 +1,1 @@
+sed '5507,5540 d' horizons_results.txt | sed '1,25 d' | sed '/A.D./ d' > archivo

@@ -30,7 +30,7 @@ for c in range(N):
         anota(posiciones[c][-1][:2],cuerpos[c] ,colors[c]) #nombres de los planetas
 
 axes().set_aspect(1.)
-axis([-1.5,1.5,-1.5,1.5], aspect='scaled') # ver solo el centro
+axis([-5,5,-5,5], aspect='scaled') # ver solo el centro
 
 #legend(loc=0)
 #savefig('validacion_'+argv[1]+'_'+argv[2]+'.png',dpi=1200/8.)

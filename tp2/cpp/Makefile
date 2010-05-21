@@ -9,7 +9,7 @@ test: test.cpp Matriz.h
 
 run: simulador planetas.in plot.py
 	@echo "Running"
-	@./simulador -d 750 -dt .02 -or 1000 -m 1 -t 3 < planetas.in > lastrun.out
+	@./simulador -d 365 -dt .02 -m 1 -t 3 -s Misil < horizon/100612.in > lastrun.out
 	@./plot.py < lastrun.out
 
 plot: plot.py lastrun.out

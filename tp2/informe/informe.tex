@@ -152,16 +152,23 @@
 		primera. Con un espacio o una trayectoria nos referimos a una
 		velocidad inicial, la que en nuestro código esta determinada por
 		dos ángulos de disparo. Uno alrededor el eje $\hat{z}$, sobre el
-		plano $\hat{x}\hat{y}$ y otro alrededor del eje $\hat{y}$, sobre
-		el plano $\hat{x}\hat{z}$.
+		plano $\hat{x}\hat{y}$ ($\phi$) y otro alrededor del eje $\hat{y}$, sobre
+		el plano $\hat{x}\hat{z}$ ($\theta$).
 		
-		Dada las condiciones iniciales de un sistema (posiciones y velocidades de todos los cuerpos), podemos simular este sistema con alguno de los métodos y calcular las posiciones para algun tiempo en el futuro.
+		Dadas las condiciones iniciales de un sistema (posiciones y velocidades de todos los cuerpos), podemos simular este sistema con alguno de los métodos y calcular las posiciones para algun tiempo en el futuro.
 		Nuestro objetivo es encontrar la velocidad inicial de nuestro misil para que esté a menos de $10^{-4}$ AU de la tierra en algun instante futuro.
 		Definimos entonces una función (\texttt{mindist}) que dadas las condiciones iniciales, un cuerpo \texttt{misil} y un cuerpo \texttt{target}, nos devuelva la distancia mínima a la que se encontrarán estos cuerpos en algun futuro acotado.
 		Nos restringimos a los casos en los que la distancia es monótonamente decreciente, y consideramos sólo los tiempos para los cuales los cuerpos se acercan. (Esto es una desicion de implementación, ya que no estaríamos encontrando las soluciones en las que el misil se aleja y luego se vuelve a acercar).
 		
 		Tenemos entonces que minimizar esta función (o encontrar un valor para el cual sea menor que $10^{-4}$).
-		Para esto elegimos una velocidad inicial a mano (aproximadamente hacia el cuerpo \texttt{target}) y corremos un algoritmo que va ajustando la velocidad para minimizar la función \texttt{mindist}.
+		Para esto elegimos una velocidad inicial a mano (aproximadamente hacia el cuerpo \texttt{target}) y corremos un algoritmo que va ajustando la velocidad para minimizar la función \texttt{mindist}. [Más detalles en \textbf{Discusión}]
+		
+		\begin{figure}[H]
+			\centering
+			\includegraphics[scale=0.6]{mindist3.png}
+			\caption{Esta es la forma de la función \texttt{mindist} para ciertas condiciones iniciales, donde el dominio es $\phi\times\theta$ (la velocidad inicial del proyectil) y la imagen es la distancia mínima.}
+			\label{fig:mindist}
+		\end{figure}	
 
 	\end{usection}
 
@@ -178,7 +185,7 @@
 	\begin{usection}{Discusión}
 		
 		
-		
+		\begin{usubsection}{Algoritmo de búsqueda del mínimo \texttt{mindist}}
 		Para cada trayectoria inicial, definimos una grilla de $3 \times 3$
 		puntos, donde el punto central era ella misma, y los otros
 		puntos son las rotaciones de la velocidad sobre los ejes
@@ -232,6 +239,7 @@
 		iniciales distintas, encontramos soluciones donde pudimos
 		destruír la tierra. Las mismas están detalladas en la sección
 		siguiente.
+		\end{usubsection}
 
 		
 	\end{usection}

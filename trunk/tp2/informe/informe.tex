@@ -121,14 +121,73 @@
 
 	\begin{usection}{Desarrollo}
 
+		En primer lugar el desarrollo consistio en implementar módulos
+		para las operaciones con y entre Matrices y Vectores que
+		sirviesen para resolver sistemas lineales. Esto implicaba
+		también implementar el algoritmo de eliminación Gaussiana con
+		pivoteo parcial para resolver el sistema lineal del segundo
+		método de resolución. Los módulos fueron implementados en el
+		lenguaje \texttt{C++} para garantizar una buena performance.
+
+		Luego procedimos a implementar un entorno de simulación
+		(\texttt{C++}) y un pequeño script para plotear y poder
+		visualizar los resultados (\texttt{Python}). 
+
+		Con todo el backend funcionando, procedimos a implementar
+		gradualmente los distintos algoritmos de solución de sistemas
+		lineales, intercalando la producción de cada uno con fases de
+		validación que consistían en simular los sistemas propuestos
+		en el enunciado, y cuyos resultados se pueden observar en la
+		sección RESULTADOS.
+
+		Validados los métodos de simulación, tuvimos que idear un
+		algoritmo para calcular el vector de velocidad inicial de
+		nuestro misil dirigido a la tierra, de tal manera que le pegase.
+		La idea fue hacer una especie de búsqueda local, ya que
+		suponíamos que de no colisionar con otro planeta en la
+		trayectoria hasta la tierra, si pasabamos con una trayectoría
+		mas cerca de la tierra que con otra, podíamos reducir la
+		búsqueda de la solución a un espacio localizado cerca de la
+		primera. Con un espacio o una trayectoria nos referimos a una
+		velocidad inicial, la que en nuestro código esta determinada por
+		dos ángulos de disparo. Uno sobre el eje $z$ y otro sobre el
+		plano $xy$.
+
+		para cada trayectoria inicial, definimos una grilla de $3x3$
+		puntos, donde el punto central era ella misma, y los otros
+		puntos son las rotaciones de la velocidad sobre los ejes
+		anteriormente mencionados por un ángulo que se reduce a la
+		mitad en cada iteración de la búsqueda, y luego disparámos
+		misiles en todas las 9 direcciónes.
+		Así, aunque en algunos casos asintóticamente,
+		revisamos todo el espacio contenido en la grilla de la primera
+		iteración, a la cuál le ponemos un ancho inicial grosero, de
+		manera de incluír necesariamente a una solución.
+		En la imágencontinuación se puede ver como evoluciona la grilla
+		de la búsqueda en las sucesivas iteraciones.
+
+		\begin{figure}[H]
+			\centering
+			\includegraphics[scale=0.5]{img/grid.png}
+			\caption{
+				En la imagen vemos una representación gráfica de los
+				sucesivos espacios de búsqueda local. el orden de las
+				iteraciones es rojo $\rightarrow$ azul
+				$\rightarrow$ verde.
+			}
+			\label{fig:grilla}
+		\end{figure}		
+
+		
+
 	\end{usection}
 
 	\begin{usection}{Resultados}
 
-		\input{resultados_ej1_m1.tex}
-		\input{resultados_ej1_m2.tex}
-		\input{resultados_ej2_m1.tex}
-		\input{resultados_ej2_m2.tex}
+		%\input{resultados_ej1_m1.tex}
+		%\input{resultados_ej1_m2.tex}
+		%\input{resultados_ej2_m1.tex}
+		%\input{resultados_ej2_m2.tex}
 
 	\end{usection}
 	

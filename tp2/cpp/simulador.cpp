@@ -14,6 +14,7 @@ using namespace std;
 // masa: 		1e30 Kg
 #define G 0.0001488180711083514625549864281980165853856665309337938391
 #define F(i,j,x) (-G*Cuerpos[i].m*Cuerpos[j].m*(y[3*N+3*i+x]-y[3*N+3*j+x])/(dist*dist*dist))
+#define AC(i,j,x) (-G*Cuerpos[j].m*(y[3*N+3*i+x]-y[3*N+3*j+x])/(dist*dist*dist))
 #define yX(i) y[3*N+3*(i)]
 #define yY(i) y[3*N+3*(i)+1]
 #define yZ(i) y[3*N+3*(i)+2]
@@ -76,13 +77,19 @@ Vn f(const Vn& y){
 		long double sumx=0,sumy=0,sumz=0;
 		forn(j,N) if(j!=i){
 			long double dist=(V3(y[3*N+3*i],y[3*N+3*i+1],y[3*N+3*i+2])-V3(y[3*N+3*j],y[3*N+3*j+1],y[3*N+3*j+2])).norm();
-			sumx+=F(i,j,0);
-			sumy+=F(i,j,1);
-			sumz+=F(i,j,2);
+			//sumx+=F(i,j,0);
+			//sumy+=F(i,j,1);
+			//sumz+=F(i,j,2);
+			sumx+=AC(i,j,0);
+			sumy+=AC(i,j,1);
+			sumz+=AC(i,j,2);
 		}
-		res[3*i]  =sumx/Cuerpos[i].m;
-		res[3*i+1]=sumy/Cuerpos[i].m;
-		res[3*i+2]=sumz/Cuerpos[i].m;
+		//res[3*i]  =sumx/Cuerpos[i].m;
+		//res[3*i+1]=sumy/Cuerpos[i].m;
+		//res[3*i+2]=sumz/Cuerpos[i].m;
+		res[3*i]  =sumx;
+		res[3*i+1]=sumy;
+		res[3*i+2]=sumz;
 	}
 	forn(i,3*N) res[i+3*N]=y[i];
 	return res;
@@ -311,11 +318,15 @@ void init_misil(const V3& target_pos, const misil_t type){
 	if(type==Proyectil){
 		// Si quiero un Torpedo de protones
 		v_p_ini=0.147852244; // 256 km/s = .14 AU/days
+		//x_p = V3(2.772385393557003E+01, -1.137059424333013E+01, -4.047605958972074E-01);
+		//x_t = V3(-9.605635859173592E-01, -2.947290055946153E-01, 2.403041620186315E-05);
 		m_p = 1e-30;
 		name = "TorpedoDeProtones";
 	}else{
 		// Si quiero una Bomba oscura
 		v_p_ini=0.0346528697; // 60 km/s = .03 AU/days
+		//x_p = V3(-9.750437387771557E+00, -2.868191787696953E+01, 8.154140486622358E-01); // 12/06/2100
+		//x_t = V3(9.672724269315196E-01, -2.665507272686728E-01, 2.027264279188550E-05);
 		m_p = 5e-5;
 		name = "BombaOscura";
 	}

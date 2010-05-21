@@ -61,8 +61,8 @@
 \begin{document}
 
 \materia{Métodos Numéricos}
-\titulo{Trabajo Práctico Nº1}
-\subtitulo{``Perdidos'' en el Pacífico}
+\titulo{Trabajo Práctico Nº2}
+\subtitulo{Chocan los Planetas...}
 %\grupo{Grupo x}
 \integrante{Pablo Herrero}{332/07}{pablodherrero@gmail.com}
 \integrante{Thomas Fischer}{489/08}{tfischer@dc.uba.ar}
@@ -70,14 +70,17 @@
 
 \abstracto{
 	El siguiente trabajo se propone la comparación entre distintos
-	métodos de simulación analítica de sistemas gravitatorios
-	de varios cuerpos. El objetivo final es calcular las coordenadas
-	para tirar un proyectil el 12 de junio del año 2010 a las 11:00hs,
-	UTC-3 desde la órbita del planeta Neptuno para que el mismo impacte
-	en la Tierra.
+	métodos de simulación de sistemas gravitatorios
+	de varios cuerpos usando resolución de sistemas lineales.
+	El objetivo final es calcular las coordenadas para tirar
+	un proyectil desde la órbita del planeta Neptuno para
+	que el mismo impacte	en la Tierra.
 }
 
-\palabraClave{}
+\palabraClave{Simulación}
+\palabraClave{Gravitación}
+\palabraClave{Sistemas Lineales}
+\palabraClave{Proyectil}
 
 \begin{titlepage}
 \maketitle
@@ -145,7 +148,7 @@
 
 		Validados los métodos de simulación, tuvimos que idear un
 		algoritmo para calcular el vector de velocidad inicial de
-		nuestro misil dirigido a la tierra, de tal manera que le pegase.
+		nuestro proyectil dirigido a la tierra, de tal manera que le pegase.
 		La idea fue hacer una especie de búsqueda local, ya que
 		suponíamos que de no colisionar con otro planeta en la
 		trayectoria hasta la tierra, si pasabamos con una trayectoría
@@ -158,9 +161,9 @@
 		el plano $\hat{x}\hat{z}$ ($\theta$).
 		
 		Dadas las condiciones iniciales de un sistema (posiciones y velocidades de todos los cuerpos), podemos simular este sistema con alguno de los métodos y calcular las posiciones para algun tiempo en el futuro.
-		Nuestro objetivo es encontrar la velocidad inicial de nuestro misil para que esté a menos de $10^{-4}$ AU de la tierra en algun instante futuro.
-		Definimos entonces una función (\texttt{mindist}) que dadas las condiciones iniciales, un cuerpo \texttt{misil} y un cuerpo \texttt{target}, nos devuelva la distancia mínima a la que se encontrarán estos cuerpos en algun futuro acotado.
-		Nos restringimos a los casos en los que la distancia es monótonamente decreciente, y consideramos sólo los tiempos para los cuales los cuerpos se acercan. (Esto es una desicion de implementación, ya que no estaríamos encontrando las soluciones en las que el misil se aleja y luego se vuelve a acercar).
+		Nuestro objetivo es encontrar la velocidad inicial de nuestro proyectil para que esté a menos de $10^{-4}$ AU de la tierra en algun instante futuro.
+		Definimos entonces una función (\texttt{mindist}) que dadas las condiciones iniciales, un cuerpo \texttt{proyectil} y un cuerpo \texttt{target}, nos devuelva la distancia mínima a la que se encontrarán estos cuerpos en algun futuro acotado.
+		Nos restringimos a los casos en los que la distancia es monótonamente decreciente, y consideramos sólo los tiempos para los cuales los cuerpos se acercan. (Esto es una desicion de implementación, ya que no estaríamos encontrando las soluciones en las que el proyectil se aleja y luego se vuelve a acercar).
 		
 		Tenemos entonces que minimizar esta función (o encontrar un valor para el cual sea menor que $10^{-4}$).
 		Para esto elegimos una velocidad inicial a mano (aproximadamente hacia el cuerpo \texttt{target}) y corremos un algoritmo que va ajustando la velocidad para minimizar la función \texttt{mindist}. [Más detalles en \textbf{Discusión}]
@@ -193,7 +196,7 @@
 		puntos son las rotaciones de la velocidad sobre los ejes
 		anteriormente mencionados por dos ángulos, respectivamente, de
 		un módulo inicial que se reduce a la mitad en cada iteración de
-		la búsqueda, y luego disparámos misiles en todas las 9
+		la búsqueda, y luego disparámos proyectiles en todas las 9
 		direcciónes.
 		Así, aunque en algunos casos asintóticamente,
 		podemos llegar a cualquier punto del espacio
@@ -201,9 +204,6 @@
 		iteración) si alli se encuentra una solución.
 		A la grilla inicial le ponemos un ancho inicial grosero, de
 		manera de incluír casi necesariamente a alguna solución.
-
-		En la imágen a continuación se puede ver como evoluciona la grilla
-		de la búsqueda a medida queavanza el algoritmo.
 
 		\begin{figure}[H]
 			\centering
@@ -219,20 +219,16 @@
 
 		Para elegir la trayectoria inicial del algoritmo, calculamos
 		primero aproximadamente (simulando y visualizando) cuanto
-		tiempo tardaba el misil en llegar hasta la órbita terrestre
+		tiempo tardaba el proyectil en llegar hasta la órbita terrestre
 		desde la órbita de neptuno. Luego calculamos aproximadamente
 		la posición de la Tierra en esa cantidad de tiempo después de la
 		fecha inicial de lanzamiento, tomando los datos de la posición
 		de ese día de la información que provee la NASA.
 
-		También de esos datos, elegimos un punto aproximado en la
-		órbita de Neptuno de manera que el misil se encontrase de frente
-		o desde atrás con la dirección de la órbita terrestre, ya que si
-		se encontrase de costado con ésta, sería mucho mas dificil
-		pegarle por estar en movimiento.
-
-		Como dirección de la velocidad inicial del misil, elegimos el
-		vector resultante de restar la posición inicial del misil a la
+		También de esos datos, elegimos un punto arbitrario en la
+		órbita de Neptuno para el lanzamiento del proyectil. Como
+		dirección de la velocidad inicial del proyectil, elegimos el
+		vector resultante de restar la posición inicial del proyectil a la
 		posición aproximada del impacto sobre la órbita terrestre.
 		El módulo de la velocidad inicial, es el propuesto por el
 		enunciado del problema.
@@ -242,16 +238,26 @@
 		destruír la tierra. Las mismas están detalladas en la sección
 		siguiente.
 		\end{usubsection}
+		
+		\begin{usubsection}{Gauss}
+			Elegimos resolver los sistemas lineales usando el método de Gauss porque es fácil de implementar y es un poco más eficiente que los métodos de factorización.
+			No se justifica usar \texttt{LU} porque la ventaja principal es que hay que factorizar la matriz una sola vez para resolver muchos sistemas, pero nosotros resolvemos siempre sistemas con diferentes matrices.
+		\end{usubsection}
 
+		\begin{usubsection}{$\Delta t$}
+			Un problema que observamos durante las simulaciones, cuando tratábamos de pegarle con el proyectil a la tierra, es que el $\Delta t$ no era lo suficientemente chico para lograr la presicion de impacto requerida.
+			De un instante de tiempo al otro, el proyectil estaba adelante y luego atrás de la tierra, siendo la distancia entre los cuerpos nunca suficientemente chica.
+			Por esto en la función \texttt{mindist} alteramos el $\Delta t$ dinámicamente a medida que el proyectil se acercaba al \texttt{target}, para tener más presicion cuando se encontraban cerca.
+		\end{usubsection}
 		
 	\end{usection}
 	
-	\begin{usection}{Conclusiones}
+	\begin{section}*{Conclusiones}	\addcontentsline{toc}{section}{Conclusiones}
 
 		Llegamos a la conclusión que, dados los métodos implementados,
 		el mejor en la práctica para el ejercicio de destruír la tierra, resulto ser el método 1, ya que,
 		los otros solo resultaban muy buenos (mejores incluso en cuanto a los resultados finales que el método 1)
-		si el $\Delta t$ era significativamente muy alto,
+		si el $\Delta t$ era significativamente muy bajo,
 		lo que para nuestro algoritmo de búsqueda local era muy malo en cuanto a tiempo de ejecución.
 
 		No obstante, más alla de la sensibilidad del método 2 a los $\Delta t$ altos,
@@ -269,7 +275,7 @@
 		Sin embargo esto es muy parecido, y practicamente igual de eficiente que achicar todavía mas el $\Delta t$ para los métodos anteriores.
 		
 
-	\end{usection}
+	\end{section}
 	
 	\begin{usection}{Apéndices}
 		\begin{usubsection}{Apéndice A: Enunciado}
@@ -486,7 +492,8 @@ void Matriz::triangular(Vector& res, double* U2, int* P2, const int k){
 	\begin{usection}{Referencias}
 
 	\begin{enumerate}
-		\item \label{ref:label} \texttt{http://url} \\ Descripcion
+		\item \label{ref:nasa} \texttt{http://ssd.jpl.nasa.gov/horizons.cgi} \\ Datos de la NASA sobre las posiciones y velocidades de los planetas
+		\item \label{ref:matplotlib} \texttt{http://matplotlib.sourceforge.net/contents.html} \\ Referencia de matplotlib, para los gráficos
 	\end{enumerate}	
 	
 	\end{usection}

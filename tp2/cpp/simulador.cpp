@@ -51,6 +51,7 @@ int resolution;
 int outresolution;
 long double dt;
 int metodo;
+misil_t misiltype=BombaOscura/*Proyectil*/;
 sim_t simType;
 
 /* solo hacen falta si el tipo de simulacion es Misil */
@@ -314,6 +315,7 @@ void init_planets(){
 void init_misil(const V3& target_pos, const misil_t type){
 
 	long double v_p_ini, m_p; string name;
+	V3 x_p,v_p;
 
 	if(type==Proyectil){
 		// Si quiero un Torpedo de protones
@@ -321,23 +323,19 @@ void init_misil(const V3& target_pos, const misil_t type){
 		//x_p = V3(2.772385393557003E+01, -1.137059424333013E+01, -4.047605958972074E-01);
 		//x_t = V3(-9.605635859173592E-01, -2.947290055946153E-01, 2.403041620186315E-05);
 		m_p = 1e-30;
+		x_p = V3(-30., .005, 0.);
+		V3 x_t(-1.318337528265208E-01, 9.758010776162782E-01, -7.325864694430641E-06); // pos de la tierra ~200 dias despues del lanzamiento
+		v_p = V3( v_p_ini*(x_t-x_p).normalize() );
 		name = "TorpedoDeProtones";
 	}else{
 		// Si quiero una Bomba oscura
 		v_p_ini=0.0346528697; // 60 km/s = .03 AU/days
-		//x_p = V3(-9.750437387771557E+00, -2.868191787696953E+01, 8.154140486622358E-01); // 12/06/2100
-		//x_t = V3(9.672724269315196E-01, -2.665507272686728E-01, 2.027264279188550E-05);
 		m_p = 5e-5;
+		x_p=V3(0,30,0);
+		V3 x_t(1.3,0,0);
+		v_p = V3( v_p_ini*(x_t-x_p).normalize() );
 		name = "BombaOscura";
 	}
-
-//	V3 x_p(-20., .005, 0.);
-	V3 x_p(-3.006156840890750E+01, -3.527355570193992E+00, 7.654917553651108E-01);
-	x_p=V3(0,30,0);
-	//V3 x_t(-1.318337528265208E-01, 9.758010776162782E-01, -7.325864694430641E-06); // pos de la tierra ~200 dias despues del lanzamiento
-	V3 x_t(1.3,0,0);
-	V3 v_p( v_p_ini*(x_t-x_p).normalize() );
-	//V3 v_p(0.0342612,0.00512656,-0.000842205);
 
 	clog << "V MISIL " << v_p << endl;
 
@@ -351,7 +349,7 @@ int main(int argc, char*argv[]){
 	
 	if(simType!=MinDist){
 
-		if(simType==Misil) init_misil(Cuerpos[target_index].x,BombaOscura/*Proyectil*/);
+		if(simType==Misil) init_misil(Cuerpos[target_index].x,misiltype/*BombaOscura/*Proyectil*/);
 
 		Vn y(makeY());
 
@@ -366,7 +364,7 @@ int main(int argc, char*argv[]){
 		if(simType==Misil){
 
 			pair<long double,int> min(numeric_limits<long double>::infinity(),0);
-			long double span=.001;//0.000976562;
+			long double span=.01;//0.000976562;
 			V3 pdir = Cuerpos[misil_index].v; //direccion inicial: derecho al target
 			V3 mindir;
 

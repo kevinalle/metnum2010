@@ -7,7 +7,7 @@ simulador: simulador.cpp Vector.h Matriz.h
 test: test.cpp Matriz.h
 	g++ -W -o $@ $<
 
-run: simulador planetas.in plot.py
+run: simulador plot.py horizon/100612.in
 	@echo "Running"
 	@./simulador -d 365 -dt .05 -m 1 -t 3 -s Misil < horizon/100612.in > lastrun.out
 	@make plot
@@ -16,6 +16,9 @@ plot: plot.py lastrun.out
 	./plot.py --sinnombres --zoom all --center -1 < lastrun.out
 	./plot.py --sinnombres --zoom 2.2 --center  0 < lastrun.out
 	./plot.py --sinnombres --zoom .2  --center -1 < lastrun.out
+
+mindist: simulador horizon/100612.in
+	./simulador -d 365 -dt .05 -m 1 -t 3 -s MinDist < horizon/100612.in > mindist.out
 
 CONJ = validacion.in
 validar: simulador plot.py $(CONJ)

@@ -27,7 +27,7 @@ using namespace std;
 
 #define INF 2147483647
 
-enum sim_t{ Validacion, Misil };
+enum sim_t{ Validacion, Misil, MinDist };
 enum misil_t{ Proyectil, BombaOscura };
 
 typedef Vector3 V3;
@@ -269,6 +269,9 @@ void parse_options(int argc, char*argv[]){
 			}else if( strcmp(argv[i],"Validacion")==0 ){
 				simType = Validacion;
 				opt_simtype=true;
+			}else if( strcmp(argv[i],"MinDist")==0 ){
+				simType = MinDist;
+				opt_simtype=true;
 			}else{
 				clog << "Tipo de simulacion invalida" << endl;
 				help();
@@ -331,60 +334,75 @@ int main(int argc, char*argv[]){
 
 	init_planets();
 	parse_options(argc,argv);
+	
+	if(simType!=MinDist){
 
-	if(simType==Misil) init_misil(Cuerpos[target_index].x,Proyectil);
+		if(simType==Misil) init_misil(Cuerpos[target_index].x,Proyectil);
 
-	Vn y(makeY());
+		Vn y(makeY());
 
-	clog << "metodo: " << metodo << " outres: " << outresolution << " days: " << days << " res: " << resolution << " dt: " << dt << endl;
+		clog << "metodo: " << metodo << " outres: " << outresolution << " days: " << days << " res: " << resolution << " dt: " << dt << endl;
 
-	/* Voy tirando misiles en toda la grilla de 3x3 de ancho 'span'.
-	 * Me quedo con la direccion para la cual el misil paso mas cerca de la tierra.
-	 * Bajo la resolucion de span y tiro alrededor de esta ultima resolucion
-	 * Repito hasta que le pego a la tierra */
-
-	if(simType==Misil){
-
-		int misil_index = Cuerpos.size()-1;
-		pair<long double,int> min(numeric_limits<long double>::infinity(),0);
-		long double span=0.000976562;
-		V3 pdir = Cuerpos[misil_index].v; //direccion inicial: derecho al target
-		V3 mindir;
-
-		clog << "Lanzando " << Cuerpos[misil_index].name << " contra " << Cuerpos[target_index].name << endl;
-
-		int intento=0;
-		while(min.first>1e-4/* && intento<15*/){
-			intento++;
-			for(int ii=-1;ii<=1;ii++) for(int jj=-1;jj<=1;jj++){
-				Cuerpos[misil_index].v = pdir.rotate(ii*span,jj*span); // Calculo direccion
-				y=makeY(); // Rehago el vector y
-				pair<long double,int> new_min = mindist(y,misil_index,target_index);
-				if( new_min.first<min.first || ( new_min.first==min.first && new_min.second<min.second ) ){
-					min = new_min;
-					mindir = Cuerpos[misil_index].v;
-				}
-			}
-
-			pdir=mindir;
-			span*=.5;
-			clog << "mindist: " << min.first << " span: " << span << " dir: " << pdir << " it: " << min.second << endl;
-		}
-		resolution = min.second;
-	}
-
-	printNames();
-	printPos(y);
-	double d;
-	forn(iter,resolution){
-		y=next(y);
+		/* Voy tirando misiles en toda la grilla de 3x3 de ancho 'span'.
+		 * Me quedo con la direccion para la cual el misil paso mas cerca de la tierra.
+		 * Bajo la resolucion de span y tiro alrededor de esta ultima resolucion
+		 * Repito hasta que le pego a la tierra */
+	
 		if(simType==Misil){
-			d=(XYZ(N-1)-XYZ(3)).norm();
-			if(VEL(N-1).norm()*dt>d*.1){ dt*=.5; /*clog << "dt: " << dt << endl;*/}
+
+			int misil_index = Cuerpos.size()-1;
+			pair<long double,int> min(numeric_limits<long double>::infinity(),0);
+			long double span=0.000976562;
+			V3 pdir = Cuerpos[misil_index].v; //direccion inicial: derecho al target
+			V3 mindir;
+
+			clog << "Lanzando " << Cuerpos[misil_index].name << " contra " << Cuerpos[target_index].name << endl;
+
+			int intento=0;
+			while(min.first>1e-4/* && intento<15*/){
+				intento++;
+				for(int ii=-1;ii<=1;ii++) for(int jj=-1;jj<=1;jj++){
+					Cuerpos[misil_index].v = pdir.rotate(ii*span,jj*span); // Calculo direccion
+					y=makeY(); // Rehago el vector y
+					pair<long double,int> new_min = mindist(y,misil_index,target_index);
+					if( new_min.first<min.first || ( new_min.first==min.first && new_min.second<min.second ) ){
+						min = new_min;
+						mindir = Cuerpos[misil_index].v;
+					}
+				}
+
+				pdir=mindir;
+				span*=.5;
+				clog << "mindist: " << min.first << " span: " << span << " dir: " << pdir << " it: " << min.second << endl;
+			}
+			resolution = min.second;
 		}
-		if(iter%(resolution/(outresolution-2))==0) printPos(y);
+
+		printNames();
+		printPos(y);
+		double d;
+		forn(iter,resolution){
+			y=next(y);
+			if(simType==Misil){
+				d=(XYZ(N-1)-XYZ(3)).norm();
+				if(VEL(N-1).norm()*dt>d*.1){ dt*=.5; /*clog << "dt: " << dt << endl;*/}
+			}
+			if(iter%(resolution/(outresolution-2))==0) printPos(y);
+		}
+		printPos(y);
+	
+	}else{ // MinDist
+		init_misil(Cuerpos[target_index].x,Proyectil);
+		Vn y(makeY());
+		int misil_index = Cuerpos.size()-1;
+		V3 pdir = Cuerpos[misil_index].v;
+		long double span=1.;
+		for(float ii=-.1;ii<=.1;ii+=.01) for(float jj=-1;jj<=1;jj+=.1){
+			Cuerpos[misil_index].v = pdir.rotate(ii*span,jj*span); // Calculo direccion
+			y=makeY(); // Rehago el vector y
+			cout << ii << " " << jj << " " << mindist(y,misil_index,target_index).first << endl;
+		}
 	}
-	printPos(y);
 	
 	return 0;
 }

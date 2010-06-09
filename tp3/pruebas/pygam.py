@@ -22,20 +22,40 @@ class App:
 	def clear(self):
 		self.screen.fill(self.bg)
 	
-	def drawdot(self,pos):
-		pygame.gfxdraw.aacircle(self.screen,pos[0],pos[1],2,self.black)
-		pygame.gfxdraw.filled_circle(self.screen,pos[0],pos[1],2,self.black)
+	def drawdot(self,pos,col=None):
+		if not col: col=self.black
+		pygame.gfxdraw.aacircle(self.screen,pos[0],pos[1],2,col)
+		pygame.gfxdraw.filled_circle(self.screen,pos[0],pos[1],2,col)
+	
+	def dbg(self,li,col=(0,0,0)):
+		for i in range(len(li)):
+			self.drawdot((i*10+50,int(li[i]*2+150)),col)
 	
 	def do(self):
 		xs,ys=zip(*self.dots)
-		print [xs[i]-xs[i-1] for i in range(1,len(xs))]
+		#print [xs[i]-xs[i-1] for i in range(1,len(xs))]
 		dx=[xs[i]-xs[i-1] for i in range(1,len(xs))]
 		dy=[ys[i]-ys[i-1] for i in range(1,len(ys))]
-		avgdx=sum(dx)/len(dx)
-		avgdy=sum(dy)/len(dy)
+		self.dbg(dx)
+		#cuadrados minimos para x=at+b
+		n=len(dx)
+		sum2=n*(n+1)*(2*n+1)/6
+		suma=n*(n+1)/2
+		sumxi=sum(i*dx[i] for i in range(n))
+		sumx=sum(dx)
+		sumyi=sum(i*dy[i] for i in range(n))
+		sumy=sum(dy)
+		xa=(suma*sumx-n*sumxi)/float(suma*suma-n*sum2)
+		xb=(sumx-xa*suma)/float(n)
+		ya=(suma*sumy-n*sumyi)/float(suma*suma-n*sum2)
+		yb=(sumy-ya*suma)/float(n)
+		#avgdx=sum(dx)/len(dx)
+		#avgdy=sum(dy)/len(dy)
+		self.dbg([xa*t+xb for t in range(len(dx))],(255,0,0))
 		next=[self.dots[-1]]
-		for i in range(10):
-			next.append((next[-1][0]+avgdx,next[-1][1]+avgdy))
+		for t in range(len(xs),len(xs)+10):
+			#next.append((next[-1][0]+avgdx,next[-1][1]+avgdy))
+			next.append((next[-1][0]+xa*t+xb,next[-1][1]+ya*t+yb))
 		return next
 
 app=App()
@@ -59,7 +79,7 @@ class EventListener(Thread):
 			elif event.type ==  pygame.MOUSEMOTION:
 				app.mousepos=event.pos
 			elif event.type == pygame.USEREVENT and event.name=="EnterFrame":
-				if app.mousedown and app.framecount%10==0:
+				if app.mousedown and app.framecount%3==0:
 					app.drawdot(app.mousepos)
 					app.dots.append(app.mousepos)
 					if len(app.dots)>1: pygame.draw.aaline(app.screen,app.black,app.dots[-2],app.dots[-1])

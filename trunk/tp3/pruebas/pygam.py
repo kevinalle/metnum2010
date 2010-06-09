@@ -4,6 +4,7 @@ import pygame
 from pygame.time import Clock
 import pygame.gfxdraw
 from threading import Thread
+import sys
 
 class App:
 	screen = pygame.display.set_mode((640, 480))
@@ -32,32 +33,34 @@ class App:
 			self.drawdot((i*10+50,int(li[i]*2+150)),col)
 	
 	def do(self):
-		xs,ys=zip(*self.dots)
-		#print [xs[i]-xs[i-1] for i in range(1,len(xs))]
-		dx=[xs[i]-xs[i-1] for i in range(1,len(xs))]
-		dy=[ys[i]-ys[i-1] for i in range(1,len(ys))]
-		self.dbg(dx)
-		#cuadrados minimos para x=at+b
-		n=len(dx)
-		sum2=n*(n+1)*(2*n+1)/6
-		suma=n*(n+1)/2
-		sumxi=sum(i*dx[i] for i in range(n))
-		sumx=sum(dx)
-		sumyi=sum(i*dy[i] for i in range(n))
-		sumy=sum(dy)
-		xa=(suma*sumx-n*sumxi)/float(suma*suma-n*sum2)
-		xb=(sumx-xa*suma)/float(n)
-		ya=(suma*sumy-n*sumyi)/float(suma*suma-n*sum2)
-		yb=(sumy-ya*suma)/float(n)
-		#avgdx=sum(dx)/len(dx)
-		#avgdy=sum(dy)/len(dy)
-		self.dbg([xa*t+xb for t in range(len(dx))],(255,0,0))
-		next=[self.dots[-1]]
-		for t in range(len(xs),len(xs)+10):
-			#next.append((next[-1][0]+avgdx,next[-1][1]+avgdy))
-			next.append((next[-1][0]+xa*t+xb,next[-1][1]+ya*t+yb))
-		return next
-
+		if len(self.dots)>2:
+			xs,ys=zip(*self.dots)
+			#print [xs[i]-xs[i-1] for i in range(1,len(xs))]
+			dx=[xs[i]-xs[i-1] for i in range(1,len(xs))]
+			dy=[ys[i]-ys[i-1] for i in range(1,len(ys))]
+			self.dbg(dx)
+			#cuadrados minimos para x=at+b
+			n=len(dx)
+			sum2=n*(n-1)*(2*(n-1)+1)/6
+			suma=n*(n-1)/2
+			sumxi=sum(i*dx[i] for i in range(n))
+			sumx=sum(dx)
+			sumyi=sum(i*dy[i] for i in range(n))
+			sumy=sum(dy)
+			xa=(suma*sumx-n*sumxi)/float(suma*suma-n*sum2)
+			xb=(sumx-xa*suma)/float(n)
+			ya=(suma*sumy-n*sumyi)/float(suma*suma-n*sum2)
+			yb=(sumy-ya*suma)/float(n)
+			#avgdx=sum(dx)/len(dx)
+			#avgdy=sum(dy)/len(dy)
+			self.dbg([xa*t+xb for t in range(len(dx))],(255,0,0))
+			#print dx,[xa*t+xb for t in range(len(dx))]
+			next=[self.dots[-1]]
+			for t in range(len(xs),len(xs)+40):
+				#next.append((next[-1][0]+avgdx,next[-1][1]+avgdy))
+				next.append((next[-1][0]+xa*t+xb,next[-1][1]+ya*t+yb))
+			return next
+		else: return [(0,0),(0,0)]
 app=App()
 
 class EventListener(Thread):
@@ -88,6 +91,13 @@ class EventListener(Thread):
 
 
 EventListener().start()
+
+if len(sys.argv)>1:
+	tests=map(lambda x:map(lambda y:float(y)*50+200,x.split()[1:]),open(sys.argv[1]).read().split("\n")[:-1])
+	print tests
+	app.dots=tests
+	pygame.draw.aalines(app.screen,app.black,False,app.dots)
+	pygame.event.post(pygame.event.Event(pygame.MOUSEBUTTONUP,button=1))
 
 timer=Clock()
 while app.running:

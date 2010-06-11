@@ -6,7 +6,11 @@ import pygame.gfxdraw
 from threading import Thread
 import sys
 from math import sqrt
+import cuadmin
 
+def poli(coef,x):
+	return sum(coef[i]*x**i for i in range(len(coef)))
+	
 class App:
 	screen = pygame.display.set_mode((640, 480))
 	running=True
@@ -32,8 +36,22 @@ class App:
 	
 	def dbg(self,li,col=(0,0,0)):
 		for i in range(len(li)):
-			self.drawdot((i*10+50,int(li[i]*2+150)),col)
+			self.drawdot((i*10+50,int(li[i]*.2+150)),col)
 	
+	def do(self,cant=0):
+		if len(self.dots)>2:
+			xs,ys=zip(*self.dots[:cant or len(self.dots)])
+			n=len(xs)
+			
+			xa=cuadmin.cuadmin(range(n),xs,3)
+			ya=cuadmin.cuadmin(range(n),ys,3)
+			
+			self.dbg([poli(xa,t) for t in range(n+10)], col=(255,0,0))
+			self.dbg(xs)
+			return [(poli(xa,t),poli(ya,t)) for t in range(n+20)]
+		else: return [(0,0),(0,0)]
+	
+	"""
 	def do(self,cant=0):
 		if len(self.dots)>2:
 			xs,ys=zip(*self.dots[:cant or len(self.dots)])
@@ -72,6 +90,7 @@ class App:
 				next.append((next[-1][0]+xa*t+xb,next[-1][1]+ya*t+yb))
 			return next
 		else: return [(0,0),(0,0)]
+		"""
 app=App()
 
 class EventListener(Thread):
@@ -79,7 +98,7 @@ class EventListener(Thread):
 		global app
 		while True:
 			event=pygame.event.wait()
-			if event.type == pygame.QUIT:
+			if event.type == pygame.QUIT or event.type==pygame.KEYDOWN and event.key==pygame.K_ESCAPE:
 				app.running = False
 				break
 			elif event.type ==  pygame.MOUSEBUTTONDOWN and event.button==1:
@@ -112,7 +131,7 @@ EventListener().start()
 if len(sys.argv)>1:
 	tests=map(lambda x:map(lambda y:float(y)*50+200,x.split()[1:]),open(sys.argv[1]).read().split("\n")[:-1])
 	print tests
-	app.fromfile=3
+	app.fromfile=4
 	app.dots=tests
 	pygame.event.post(pygame.event.Event(pygame.KEYDOWN,key=pygame.K_SPACE))
 	#pygame.draw.aalines(app.screen,app.black,False,app.dots)

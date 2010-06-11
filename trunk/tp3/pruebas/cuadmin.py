@@ -46,9 +46,9 @@ def mvmul(A,x):
 	m=len(x)
 	return [sum(A[i][j]*x[j] for j in range(m)) for i in range(n)]
 
-def cuadmin(x,y):
-	"""devuelve coeficiontes (a0··an) para cuadrados minimos"""
-	M=[[xx**j for j in reversed(range(5))] for xx in x]
+def cuadmin(x,y,grado):
+	"""devuelve coeficiontes (a0..an) para cuadrados minimos"""
+	M=[[xx**j for j in reversed(range(grado+1))] for xx in x]
 	A=mmmul(transposed(M),M)
 	b=mvmul(transposed(M),y)
 	return [e for e in reversed(linsolve(A,b))]

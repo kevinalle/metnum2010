@@ -8,6 +8,26 @@ import sys
 from math import sqrt
 import cuadmin
 
+def spline(data):
+	n=len(data)-1
+	x,y=zip(*data)
+	a=y[:]
+	h=[x[i+1]-x[i] for i in range(n)]
+	alfa=[0]+[(3./h[i])*(a[i+1]-a[i])-(3./h[i-1])*(a[i]-a[i-1]) for i in range(1,n)]
+	b,d=[0]*n,[0]*n
+	c,l,mu,z=[0]*(n+1),[0]*(n+1),[0]*(n+1),[0]*(n+1)
+	l[0],mu[0],z[0]=1,0,0
+	for i in range(1,n):
+		l[i]=2*(x[i+1]-x[i-1])-h[i-1]*mu[i-1]
+		mu[i]=h[i]/l[i]
+		z[i]=(alfa[i]-h[i-1]*z[i-1])/l[i]
+	l[n],z[n],c[n]=1,0,1
+	for j in reversed(range(n)):
+		c[j]=z[j]-mu[j]/c[j+1]
+		b[j]=(a[j+1]-a[j])/h[j]-h[j]*(c[j+1]+2*c[j])/3.
+		d[j]=(c[j+1]-c[j])/(3*h[j])
+	return zip(a,b,c,d,x)
+
 def poli(coef,x):
 	return sum(coef[i]*x**i for i in range(len(coef)))
 	
@@ -43,12 +63,17 @@ class App:
 			xs,ys=zip(*self.dots[:cant or len(self.dots)])
 			n=len(xs)
 			
-			xa=cuadmin.cuadmin(range(n),xs,3)
+			"""xa=cuadmin.cuadmin(range(n),xs,3)
 			ya=cuadmin.cuadmin(range(n),ys,3)
 			
 			self.dbg([poli(xa,t) for t in range(n+10)], col=(255,0,0))
 			self.dbg(xs)
-			return [(poli(xa,t),poli(ya,t)) for t in range(n+20)]
+			return [(poli(xa,t),poli(ya,t)) for t in range(n+20)]"""
+		try:
+			Sx=spline(zip(range(n),xs))[-1]
+			Sy=spline(zip(range(n),ys))[-1]
+			return [(poli(Sx[:-1],t-Sx[-1]),poli(Sy[:-1],t-Sy[-1])) for t in range(n-1,n+20)]
+		except: print "ups";return [(0,0),(0,0)]
 		else: return [(0,0),(0,0)]
 	
 	"""
@@ -123,7 +148,6 @@ class EventListener(Thread):
 				next=app.do(app.fromfile)
 				pygame.draw.aalines(app.screen,app.black,False,app.dots[:app.fromfile])
 				pygame.draw.aalines(app.screen,app.red,False,next)
-
 
 
 EventListener().start()

@@ -15,6 +15,7 @@ red=(200,50,50)
 screen.fill(bg)
 pygame.display.flip()
 
+
 tests=[
 'test_recto1.txt',
 'test_recto2.txt',
@@ -26,9 +27,16 @@ tests=[
 'test_comba_ruido1.txt',
 'test_comba_ruido2.txt',
 'test_comba_ruido3.txt',
-'test_comba_ruido4.txt']
+'test_comba_ruido4.txt',
+'test_corner1.txt',
+'test_corner2.txt',
+'test_corner3.txt',
+'test_ruido1.txt',
+'test_ruido2.txt',
+'test_ruido3.txt',
+'test_ruido4.txt']
 carpeta='../Tp_3_Mundial2010v1/tests/'
-test=5
+test=11
 pnts=map(lambda x: map(lambda y: float(y) if '.' in y else int(y),x.split()),open(carpeta+tests[test]).read().split("\n")[:-1])
 
 n=1

@@ -6,6 +6,7 @@ import sys
 from spline import spline
 from cuadmin import cuadmin
 
+pygame.font.init()
 size=(640, 500)
 screen = pygame.display.set_mode(size)
 running=True
@@ -14,7 +15,6 @@ black=(50,50,50)
 red=(200,50,50)
 screen.fill(bg)
 pygame.display.flip()
-
 
 tests=[
 'test_recto1.txt',
@@ -36,7 +36,7 @@ tests=[
 'test_ruido3.txt',
 'test_ruido4.txt']
 carpeta='../Tp_3_Mundial2010v1/tests/'
-test=11
+test=7
 pnts=map(lambda x: map(lambda y: float(y) if '.' in y else int(y),x.split()),open(carpeta+tests[test]).read().split("\n")[:-1])
 
 n=1
@@ -66,6 +66,11 @@ def plot(ps,col=None):
 	if not col: col=(50,50,50)
 	pygame.draw.aalines(screen,col,False,pst)
 
+def text(txt,size=20,pos=(0,0),color=None):
+	if not color: color=(50,50,50)
+	font=pygame.font.Font(None,size).render(txt,True,color)
+	screen.blit(font,(pos[0]-font.get_width()/2.,pos[1]-font.get_height()/2.))
+
 def poli(coef,x):
 	return sum(coef[i]*x**i for i in range(len(coef)))
 
@@ -77,7 +82,32 @@ def render():
 	drawdot((arq,0))
 	for t,x,y in pnts[:n+1]: drawdot((x,y),red)
 	pygame.display.flip()
+
+
+def metodo_spline(ts,xs,ys):
+	global arq,lastdir
+	cx=cuadmin(ts,xs,3)
+	cy=cuadmin(ts,ys,3)
+	xs=[poli(cx,t) for t in ts]
+	ys=[poli(cy,t) for t in ts]
+	plot(zip([poli(cx,t) for t in ts+range(ts[-1],ts[-1]+40)], [poli(cy,t) for t in ts+range(ts[-1],ts[-1]+40)]),red)
+	Sx=spline(zip(ts,xs))[-2]
+	Sy=spline(zip(ts,ys))[-2]
+	plot([(poli(Sx[:-1],t-Sx[-1]),poli(Sy[:-1],t-Sy[-1])) for t in range(n+40)])
 	
+	t=ts[-1]
+	y=ys[-1]
+	yans=ys[-2]
+	while y>0 and t<200:
+		t+=1
+		yans=y
+		y=poli(Sy[:-1],t-Sy[-1])
+		#if yans<y: text("whops",pos=(100,100)); break;
+	gol=poli(Sx[:-1],t-Sx[-1]+y/(yans-y))
+	if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2: arq+=step; lastdir=1
+	elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1: arq-=step; lastdir=-1
+	else: lastdir=0
+
 def do():
 	screen.fill(bg)
 	global arq,lastdir
@@ -85,7 +115,8 @@ def do():
 	#ts,xs,ys=map(list,zip(*pnts[n-3>0 and n-3 or 0:n+1]))
 	ts,xs,ys=map(list,zip(*pnts[0:n+1]))
 	
-	#coef_x=cuadmin(ts+[ts[-1]+1],xs+[arq],4)
+	metodo_spline(ts,xs,ys)
+	"""#coef_x=cuadmin(ts+[ts[-1]+1],xs+[arq],4)
 	coef_x=cuadmin(ts,xs,3)
 	xxs=[poli(coef_x,t) for t in range(n+20)]
 	
@@ -105,7 +136,11 @@ def do():
 	gol=poli(coef_x,t+y/(yans-y))
 	if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2: arq+=step; lastdir=1
 	elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1: arq-=step; lastdir=-1
-	else: lastdir=0
+	else: lastdir=0"""
+	
+	if pnts[n][2]<=0.:
+		if abs(arq-pnts[n][1])<step: text("atajada :)",size=100,pos=map(lambda x:x/2.,size))
+		else: text("gool!",size=200,pos=map(lambda x:x/2.,size))
 	
 	render()
 
@@ -113,6 +148,7 @@ render()
 while running:
 	event=pygame.event.wait()
 	if event.type==pygame.QUIT or (event.type==pygame.KEYDOWN and event.key==pygame.K_ESCAPE):
+		pygame.quit()
 		running = False
 		break
 	elif (event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE) or event.type==pygame.MOUSEBUTTONDOWN:

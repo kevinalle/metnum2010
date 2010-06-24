@@ -15,13 +15,25 @@ red=(200,50,50)
 screen.fill(bg)
 pygame.display.flip()
 
-test='../Tp_3_Mundial2010v1/tests/test_comba1.txt'
-test='../Tp_3_Mundial2010v1/tests/test_comba2.txt'
-test='../Tp_3_Mundial2010v1/tests/test_comba3.txt'
-pnts=map(lambda x: map(lambda y: float(y) if '.' in y else int(y),x.split()),open(test).read().split("\n")[:-1])
+tests=[
+'test_recto1.txt',
+'test_recto2.txt',
+'test_recto3.txt',
+'test_comba1.txt',
+'test_comba2.txt',
+'test_comba3.txt',
+'test_comba4.txt',
+'test_comba_ruido1.txt',
+'test_comba_ruido2.txt',
+'test_comba_ruido3.txt',
+'test_comba_ruido4.txt']
+carpeta='../Tp_3_Mundial2010v1/tests/'
+test=5
+pnts=map(lambda x: map(lambda y: float(y) if '.' in y else int(y),x.split()),open(carpeta+tests[test]).read().split("\n")[:-1])
 
-n=3
+n=1
 arq=0
+lastdir=0
 step=.05
 view=(0,2.3,2.5) #x,y,width
 
@@ -60,17 +72,17 @@ def render():
 	
 def do():
 	screen.fill(bg)
-	global arq
-	#if pnts[n][1]>arq: arq+=step
-	#elif pnts[n][1]<arq: arq-=step
-	ts,xs,ys=map(list,zip(*pnts[n-3>0 and n-3 or 0:n+1]))
+	global arq,lastdir
+	
+	#ts,xs,ys=map(list,zip(*pnts[n-3>0 and n-3 or 0:n+1]))
+	ts,xs,ys=map(list,zip(*pnts[0:n+1]))
 	
 	#coef_x=cuadmin(ts+[ts[-1]+1],xs+[arq],4)
-	coef_x=cuadmin(ts,xs,2)
+	coef_x=cuadmin(ts,xs,3)
 	xxs=[poli(coef_x,t) for t in range(n+20)]
 	
 	#coef_y=cuadmin(ts+[ts[-1]+1],ys+[0],4)
-	coef_y=cuadmin(ts,ys,2)
+	coef_y=cuadmin(ts,ys,3)
 	yys=[poli(coef_y,t) for t in range(n+20)]
 	plot(zip(xxs,yys))
 	
@@ -83,8 +95,9 @@ def do():
 		y=poli(coef_y,t)
 		if yans<y: break
 	gol=poli(coef_x,t+y/(yans-y))
-	if gol>arq: arq+=step
-	elif gol<arq: arq-=step
+	if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2: arq+=step; lastdir=1
+	elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1: arq-=step; lastdir=-1
+	else: lastdir=0
 	
 	render()
 
@@ -94,7 +107,7 @@ while running:
 	if event.type==pygame.QUIT or (event.type==pygame.KEYDOWN and event.key==pygame.K_ESCAPE):
 		running = False
 		break
-	elif (event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE):
+	elif (event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE) or event.type==pygame.MOUSEBUTTONDOWN:
 		n+=1
 		if n<len(pnts): do()
 

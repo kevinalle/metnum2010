@@ -64,6 +64,7 @@ def render():
 	pygame.display.flip()
 	
 def do():
+	screen.fill(bg)
 	
 	drawdot([float(data[n][0]) , 0])
 	drawdot([float(data[n][1]) , float(data[n][2])])
@@ -84,6 +85,5 @@ while running:
 		break
 	elif (event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE):
 		n+=1
-		#if n<len(pnts): do()
-		do()
+		if n<len(data): do()
 

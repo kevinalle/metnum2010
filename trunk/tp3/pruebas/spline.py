@@ -19,4 +19,4 @@ def spline(data):
 	return zip(a,b,c,d,x)
 
 if __name__=="__main__":
-	print spline([(0,0),(1,1),(2,2)])
+	print spline([(0,0),(1,2),(2,4),(3,6)])

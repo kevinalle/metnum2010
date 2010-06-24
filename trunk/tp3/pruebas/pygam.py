@@ -21,9 +21,9 @@ def spline(data):
 		l[i]=2*(x[i+1]-x[i-1])-h[i-1]*mu[i-1]
 		mu[i]=h[i]/l[i]
 		z[i]=(alfa[i]-h[i-1]*z[i-1])/l[i]
-	l[n],z[n],c[n]=1,0,1
+	l[n],z[n],c[n]=1,0,0
 	for j in reversed(range(n)):
-		c[j]=z[j]-mu[j]/c[j+1]
+		c[j]=z[j]-mu[j]*c[j+1]
 		b[j]=(a[j+1]-a[j])/h[j]-h[j]*(c[j+1]+2*c[j])/3.
 		d[j]=(c[j+1]-c[j])/(3*h[j])
 	return zip(a,b,c,d,x)

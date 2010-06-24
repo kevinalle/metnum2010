@@ -16,6 +16,8 @@ screen.fill(bg)
 pygame.display.flip()
 
 test='../Tp_3_Mundial2010v1/tests/test_comba1.txt'
+test='../Tp_3_Mundial2010v1/tests/test_comba2.txt'
+test='../Tp_3_Mundial2010v1/tests/test_comba3.txt'
 pnts=map(lambda x: map(lambda y: float(y) if '.' in y else int(y),x.split()),open(test).read().split("\n")[:-1])
 
 n=3
@@ -33,14 +35,21 @@ def drawdot(pos,col=None):
 	pygame.gfxdraw.aacircle(screen,pos[0],pos[1],2,col)
 	pygame.gfxdraw.filled_circle(screen,pos[0],pos[1],2,col)
 
-def drawline(fro,to,col):
+def drawline(fro,to,col=None):
 	fro=transformation(fro)
 	to=transformation(to)
 	if not col: col=(50,50,50)
 	pygame.draw.aalines(screen,col,False,(fro,to))
 
+def plot(ps,col=None):
+	pst=map(transformation, ps)
+	if not col: col=(50,50,50)
+	pygame.draw.aalines(screen,col,False,pst)
+
+def poli(coef,x):
+	return sum(coef[i]*x**i for i in range(len(coef)))
+
 def setup():
-	screen.fill(bg)
 	drawline((-1,0),(1,0),red)
 
 def render():
@@ -50,9 +59,33 @@ def render():
 	pygame.display.flip()
 	
 def do():
+	screen.fill(bg)
 	global arq
-	if pnts[n][1]>arq: arq+=step
-	elif pnts[n][1]<arq: arq-=step
+	#if pnts[n][1]>arq: arq+=step
+	#elif pnts[n][1]<arq: arq-=step
+	ts,xs,ys=map(list,zip(*pnts[n-3>0 and n-3 or 0:n+1]))
+	
+	#coef_x=cuadmin(ts+[ts[-1]+1],xs+[arq],4)
+	coef_x=cuadmin(ts,xs,2)
+	xxs=[poli(coef_x,t) for t in range(n+20)]
+	
+	#coef_y=cuadmin(ts+[ts[-1]+1],ys+[0],4)
+	coef_y=cuadmin(ts,ys,2)
+	yys=[poli(coef_y,t) for t in range(n+20)]
+	plot(zip(xxs,yys))
+	
+	t=ts[-1]
+	y=ys[-1]
+	yans=ys[-2]
+	while y>0:
+		t+=1
+		yans=y
+		y=poli(coef_y,t)
+		if yans<y: break
+	gol=poli(coef_x,t+y/(yans-y))
+	if gol>arq: arq+=step
+	elif gol<arq: arq-=step
+	
 	render()
 
 render()

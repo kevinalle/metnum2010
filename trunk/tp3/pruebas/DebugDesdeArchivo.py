@@ -27,8 +27,8 @@ view=(0,2.3,2.5) #x,y,width
 
 data = map(lambda x: x.split(),(open(sys.argv[1]).read().split("\n")[:-1]))
 
-for d in data:
-	print d
+#for d in data:
+#	print d
 
 def transformation(p):
 	s=min(size)/2.

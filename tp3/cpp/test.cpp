@@ -1,15 +1,15 @@
 #include "algoritmos.h"
 //#include "ArqueroQueExtrapolaSplines.h"
 //#include "ArqueroQueExtrapolaCM.h"
-//#include "Arquero.h"
-#include "ArqueroLoco.h"
+#include "Arquero.h"
+//#include "ArqueroLoco.h"
 
 int main()
 {
 	//ArqueroQueExtrapolaSplines arquero;
 	//ArqueroQueExtrapolaCM arquero;
-	//Arquero arquero;
-	ArqueroLoco arquero;
+	Arquero arquero;
+	//ArqueroLoco arquero;
 	arquero.Inicializar();
 	int i; double x, y;
 	while( cin >> i && i!=-1 )

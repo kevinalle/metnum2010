@@ -1,5 +1,6 @@
 #!/bin/sh
-for f in `ls tests/`
+dir=tests/
+for f in `ls $dir`
 do
-	./test < tests/$f > /dev/null
+	./test < $dir$f > /dev/null
 done

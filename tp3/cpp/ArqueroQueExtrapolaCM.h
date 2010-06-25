@@ -10,6 +10,8 @@ class ArqueroQueExtrapolaCM : public InterfazDeArquero
 		list<double> datos_i;
 		list<double> datos_x;
 		list<double> datos_y;
+		
+		int ComputarRespuesta();
 };
 
 void ArqueroQueExtrapolaCM::Inicializar()
@@ -21,8 +23,7 @@ void ArqueroQueExtrapolaCM::Inicializar()
 
 int ArqueroQueExtrapolaCM::Respuesta(int i)
 {
-	Mover(0);
-	//cout << Posicion() << " " << 0 << " " << 0 << " "  << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << endl;
+	ComputarRespuesta()
 	return 0;
 }
 
@@ -34,24 +35,34 @@ int ArqueroQueExtrapolaCM::Respuesta(int i, double x, double y)
 
 	if(datos_i.size()>=4)
 	{	
-		Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),3);
-		Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),3);
-	
-		int t_gol = ProximaRaizDiscreta(PY,(int)datos_i.back());
-		
-		if(t_gol<0)
-		{
-			clog << "t_gol: " << t_gol << " la pelota no llega al arco!" << endl;
-			Mover(0);
-		}
-		else
-		{
-			double x_gol = PN(PX,t_gol);
-			Decidir(x_gol);
-		}
-		
-		cout << Posicion() << " " << x << " " << y << " "  << PX(3,0) << " " << PX(2,0) << " " << PX(1,0) << " " << PX(0,0) << " " << PY(3,0) << " " << PY(2,0) << " " << PY(1,0) << " " << PY(0,0) << " " << endl;
+		ComputarRespuesta()cout << Posicion() << " " << x << " " << y << " "  << PX(3,0) << " " << PX(2,0) << " " << PX(1,0) << " " << PX(0,0) << " " << PY(3,0) << " " << PY(2,0) << " " << PY(1,0) << " " << PY(0,0) << " " << endl;
 	}
 	
 	return 0;
+}
+
+
+int ArqueroQueExtrapolaCM::ComputarRespuesta()
+{
+	Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),3);
+	Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),3);
+
+	int t_gol = ProximaRaizDiscreta(PY,(int)datos_i.back());
+	
+	int res = 0;
+	
+	if(t_gol<0)
+	{
+		clog << "t_gol: " << t_gol << " la pelota no llega al arco!" << endl;
+		Mover(0);
+	}
+	else
+	{
+		double x_gol = PN(PX,t_gol);
+		res = Decidir(x_gol);
+	}
+	
+	cout << Posicion() << " " << datos_x.back() << " " << datos_y.back() << " "  << PX(3,0) << " " << PX(2,0) << " " << PX(1,0) << " " << PX(0,0) << " " << PY(3,0) << " " << PY(2,0) << " " << PY(1,0) << " " << PY(0,0) << " " << endl;
+
+	return res;
 }

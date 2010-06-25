@@ -1,145 +1,121 @@
+#include "InterfazDeArquero.h"
+#include "algoritmos.h"
 
-#include <iostream>
-#include <math.h>
-#include <stdlib.h>	// abs()
-using namespace std;
+#define GRADO 4
 
-#define forn(i,n) for(int i=0;i<n;i++)
-#define forsn(i,s,n) for(int i=s;i<n;i++)
-#define forrn(i,n) for(int i=(n)-1;i>=0;i--)
-#define forall(it,X) for(typeof((X).begin()) it=(X).begin();it!=(X).end();it++)
-
-struct Punto
-{
-	Punto() {}
-	Punto(double _x, double _y) : x(_x), y(_y) {}
-	double x;
-	double y;
-};
-
-struct Spline
-{
-	double a;
-	double b;
-	double c;
-	double d;
-};
-
-ostream& operator << (ostream& os, const Spline& S)
-{
-	os <<'{'<<S.a<<','<<S.b<<','<<S.c<<','<<S.d<<'}';
-	return os;
-}
-
-Punto* ToArray(list<Punto> lista)
-{
-	Punto* res = new Punto[lista.size()];
-	int i=0;
-	forall(it,lista)
-	{
-		res[i] = *it;
-		i++;
-	}
-	return res;
-}
-
-Spline* GenerarSpline(const Punto* datos, const int n)
-{
-	double a[n]; forn(i,n) a[i] = datos[i].y;
-	double h[n-1];
-	forn(i,n-1) h[i] = datos[i+1].x - datos[i].x;
-	double alpha[n]; alpha[0]=0; forsn(i,1,n) alpha[i] = (3./h[i])*(a[i+1]-a[i])-(3./h[i-1])*(a[i]-a[i-1]);
-	double l[n]; double mu[n]; double z[n]; l[0] = mu[0] = z[0] = 0;
-	forsn(i,1,n)
-	{
-		l[i] = 2.*(datos[i+1].x-datos[i-1].x)-h[i-1]*mu[i-1];
-		mu[i] = h[i]/l[i];
-		z[i] = (alpha[i]-h[i-1]*z[i-1])/l[i];
-	}
-	double c[n]; double b[n-1]; double d[n-1];
-	l[n-1] = 1; z[n-1] = c[n-1] = 0;
-	forrn(j,n-1)
-	{
-		c[j] = z[j]-mu[j]*c[j+1];
-		b[j] = (a[j+1]-a[j])/h[j] - h[j]*(c[j+1]+2.*c[j])/3.;
-		d[j] = (c[j+1]-c[j])/(3.*h[j]);
-	}
-	Spline* P = new Spline[n-1];
-	forn(i,n-1)
-	{
-		P[i].a = a[i];
-		P[i].b = b[i];
-		P[i].c = c[i];
-		P[i].d = d[i];
-	}
-	return P;
-}
-
-int P3(const Spline& S, double x)
-{
-	return S.a*x*x*x + S.b*x*x + S.c*x + S.d;
-}
-
-int ProximaRaizDiscreta(const Spline& S, int x_ini)
-{
-	int x = x_ini;
-	double y0=P3(S,x); x++;
-	double y1=P3(S,x); x++;
-	while(y1>0)
-	{
-		x++;
-		y0 = y1;
-		y1 = P3(S,x);
-		if(y1>y0) return -1;
-	}
-	return ( abs(y1)<P3(S,x-1) ? x : x-1 );
-}
-
-class Arquero
+class Arquero : public InterfazDeArquero
 {
 	public:
 		void Inicializar();
+		int Respuesta(int i);
 		int Respuesta(int i, double x, double y);
 	private:
-		double arquero;
-		list<Punto> datos_x;
-		list<Punto> datos_y;
+		list<double> datos_i;
+		list<double> datos_x;
+		list<double> datos_y;
+		
+		int Extrapolar(const Matriz& PX, const Matriz& PY);
+		int ComputarRespuesta(int i);
+		void Print(const Matriz& PX, const Matriz& PY);
 };
 
 void Arquero::Inicializar()
 {
-	arquero = 0;
+	datos_i.clear();
 	datos_x.clear();
 	datos_y.clear();
 }
 
-int Arquero::Respuesta(int i, double x, double y)
+void Arquero::Print(const Matriz& PX, const Matriz& PY)
 {
-	if(datos_x.size()>3)
-	{
-		int n = datos_x.size();
-		
-		datos_x.push_back(Punto(i,x));
-		datos_y.push_back(Punto(i,y));
-		Spline* PX = GenerarSpline(ToArray(datos_x),n);
-		Spline* PY = GenerarSpline(ToArray(datos_y),n);
-		
-		int t_gol = ProximaRaizDiscreta(PX[n-2],datos_y.back().x);
-		if(t_gol<0)
-		{
-			cout << "la pelota no llega al arco!" << endl;
-			return 1;
-		}
-		
-		double x_gol = P3(PX[n-2],t_gol);
-		
-		arquero += (x_gol > arquero)*0.005;
-		
-		delete[] PX;
-		delete[] PY;
-		
-		return (int)(x_gol > arquero) + 1;
-	}
-	return 0;
+	cout<<Posicion()<<" "<<datos_x.back()<<" "<<datos_y.back()<<" ";
+	int n=PX.Filas();
+	forn(i,n) cout << PX(n-i-1,0) << " ";
+	forn(i,5-n) cout << 0 << " ";
+	forn(i,n) cout << PY(n-i-1,0) << " ";
+	forn(i,5-n) cout << 0 << " ";
+	cout << endl;
 }
 
+int Arquero::Respuesta(int i)
+{
+	return ComputarRespuesta(i);
+}
+
+int Arquero::Respuesta(int i, double x, double y)
+{
+	datos_i.push_back(i);
+	datos_x.push_back(x);
+	datos_y.push_back(y);
+
+	return ComputarRespuesta(i);
+}
+
+int Arquero::Extrapolar(const Matriz& PX, const Matriz& PY)
+{
+	// Calculo el instante del gol, cuando y~0
+	int t_gol = ProximaRaizDiscreta(PY,(int)datos_i.back());
+	
+	if(t_gol<0)
+	{
+		clog << "t_gol: " << t_gol << " la pelota no llega al arco!" << endl;
+		Mover(0);
+		return 0;
+	}
+	else
+	{
+		// Calculo la posicion de la pelota en el instante del gol
+		int x_gol = Pn(PX,t_gol);
+		// Decido para donde me muevo
+		return Decidir(x_gol);
+	}
+}
+
+int Arquero::ComputarRespuesta(int i)
+{
+	int res = 0;
+	if(i<2)
+	{
+		// Me quedo quieto, no puedo deducir mucho
+		Mover(0);
+		Print(Matriz(0,0),Matriz(0,0));
+		res = 0;
+	}
+	if(i==2)
+	{
+		// Extrapolo la recta que pasa por ambos puntos
+		Matriz PX = Recta(datos_i.front(),datos_x.front(),datos_i.back(),datos_x.back());
+		Matriz PY = Recta(datos_i.front(),datos_y.front(),datos_i.back(),datos_y.back());
+		
+		Print(PX,PY);
+		res=Extrapolar(PX,PY);
+	}
+	else if(2<i && i<GRADO)
+	{
+		// Extrapolo por CM comun de grado i-1
+		Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),i-1);
+		Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),i-1);
+
+		Print(PX,PY);
+		res=Extrapolar(PX,PY);
+	}
+	else
+	{
+		// Aproximo las  funciones por cuadrados mínimos de grado GRADO
+		Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),GRADO);
+		Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),GRADO);
+		
+		// Calculo los 5 ultimos puntos en los polinomios aproximados
+		double i5[5] = { i-4 , i-3 , i-2 , i-1 , i };
+		double PX5[5]; forn(k,5) PX5[k] = Pn(PX,i5[k]);
+		double PY5[5]; forn(k,5) PY5[k] = Pn(PY,i5[k]);
+		
+		// Aproximo los 5 ultimos puntos por una cuadratica con CM
+		Matriz PX2 = CM(i5,PX5,5,2);
+		Matriz PY2 = CM(i5,PY5,5,2);
+		
+		Print(PX2,PY2);
+		res=Extrapolar(PX2,PY2);
+	}
+	return res;
+}

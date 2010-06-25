@@ -12,18 +12,23 @@ using namespace std;
 
 class Vector;
 
-void print(const double* M, int n, int m){
-	cout << '[';
+double abs(const double& n){
+	return ( n<0 ? -n : n );
+}
+
+void print(ostream& os, const double* M, int n, int m){
+	os << "size: " << n << "x" << m << endl;
+	os << '[';
 	forn(i,n){
-		if(i!=0) cout << ';';
-		cout << '[';
+		if(i!=0) os << ';';
+		os << '[';
 		forn(j,m){
-			if(j!=0) cout << ',';
-			cout << M[m*i + j];
+			if(j!=0) os << ',';
+			os << M[m*i + j];
 		}
-		cout << ']';
+		os << ']' << endl;
 	}
-	cout << ']';
+	os << ']' << endl;
 }
 
 void print(const int* M, int n, int m){
@@ -56,38 +61,40 @@ class Matriz{
 		/* Destructor */
 		~Matriz();
 
-		/* define al elemento (i,j) como e */
-		void def(const int i, const int j, const double& e);
-
-		/* devuelve el valor del elemento (i,j) */
-		double elem(const int i, const int j) const;
-
 		/* Devuelve la matriz traspuesta */
 		Matriz T() const;
 
+		int Filas() const;
+		int Columnas() const;
+
 		/* factoriza la matriz en PLU */
-		void factorizar();
+//		void factorizar();
 
 		/* resuelve un sistema de ecuaciones con solucion b */
 		/* requiere factorizacion previa */
-		Matriz resolver(const Matriz& b) const;
+		Matriz resolver(const Vector& b);
 
-		Matriz getL() const;
-		Matriz getU() const;
-		void printPLU() const;
+		/* resuelve un sistema de ecuaciones con solucion b */
+		/* requiere factorizacion previa */
+//		Matriz resolverPLU(const Matriz& b);
 
-		int Filas() const;
-		int Columnas() const;
+//		Matriz getL() const;
+//		Matriz getU() const;
+//		void printPLU() const;
+
+		static Matriz ID(const int n);
 
 		/* Operadores varios */
 
 		double& operator () (const int i, const int j);
 		const double& operator () (const int i, const int j) const;
 		Matriz operator + (const Matriz& B) const;
+		Matriz operator - (const Matriz& B) const;
 		Matriz operator * (const Matriz& B) const;
 		Matriz& operator += (const Matriz& B);
 		Matriz& operator *= (const Matriz& B);
 		Matriz& operator *= (const double& lambda);
+		Matriz& operator = (const Matriz& A);
 		friend Matriz operator * (const double& lambda, const Matriz& A);
 		friend ostream& operator << (ostream& os, const Matriz& A);
 
@@ -96,101 +103,191 @@ class Matriz{
 		int n, m;
 
 		double* M;
-		double* L;
-		double* U;
-		int* P;
 
-		void triangular(const int i);
+		void triangular(Vector& res, double* U2, int* P2, const int k);
+//		void triangularPLU(const int k);
+//		void def(const int i, const int j, const double& e);
+//		double& elem(const int i, const int j) const;
+//		void desfactorizar();
 
+};
+
+class Vector: public Matriz{
+	public:
+		Vector(const int _n, const double& e) : Matriz(_n,1,e) {}
+		Vector(const Matriz& V) : Matriz(V) {}
+		Vector operator+(const Vector& B) const{return (Vector)((Matriz)(*this)+B);}
+		double& operator[](const int i){ return M[i]; }
+		const double& operator[](const int i) const { return M[i]; }
+		friend ostream& operator<<(ostream& os, const Vector& V);
 };
 
 Matriz::Matriz(const int _n, const int _m, const double& e){
 	n = _n; m = _m;
-	M = new double[n*m]; forn(i,n*m) M[i] = e;
-	L = NULL; U = NULL; P = NULL;
+	M = new double[n*m];
+	forn(i,n*m) M[i] = e;
 }
 
 Matriz::Matriz(const Matriz& B){
 	n = B.n; m = B.m;
-	M = new double[n*m]; forn(i,n) forn(j,m) def(i,j,B.elem(i,j));
-	L = NULL; U = NULL; P = NULL;
+	M = new double[n*m]; forn(i,n) forn(j,m) (*this)(i,j) = B(i,j);//def(i,j,B.elem(i,j));
 }
 
 Matriz::Matriz(const double* B, const int _n, const int _m){
 	n = _n; m = _m;
 	M = new double[n*m]; forn(i,n*m) M[i] = B[i];
-	L = NULL; U = NULL; P = NULL;
 }
 
 Matriz::~Matriz(){
 	delete[] M;
-	delete[] L;
-	delete[] U;
-	delete[] P;
-}
-
-int Matriz::Filas() const { return n; }
-int Matriz::Columnas() const { return m; }
-
-void Matriz::def(const int i, const int j, const double& e){
-	assert( 0<=i && i<n && 0<=j && j<m );
-	M[m*i + j] = e;
-}
-
-double Matriz::elem(const int i, const int j) const {
-	assert(0<=i); assert(i<n);
-	assert(0<=j); assert(j<m );
-	return M[m*i + j];
 }
 
 Matriz Matriz::T() const {
 	Matriz res(m,n);
-	forn(i,m) forn(j,n) res.def(i,j, elem(j,i));
+	forn(i,m) forn(j,n) res(i,j) = (*this)(j,i);
 	return res;
 }
 
-void Matriz::factorizar(){
-	assert(n==m);
+int Matriz::Filas() const
+{
+	return n;
+}
 
-	delete[] L; L = new double[n*m];
-	delete[] U; U = new double[n*m];
-	delete[] P; P = new int[n];
+int Matriz::Columnas() const
+{
+	return m;
+}
+
+/*
+void Matriz::factorizar(){
+	#if DEBUG==1
+		assert(n==m);
+	#endif
+	if(L!=NULL) desfactorizar();
+
+	L = new double[n*m];
+	U = new double[n*m];
+	P = new int[n];
 
 	forn(i,n*m) L[i] = 0;
 	forn(i,n*m) U[i] = M[i];
 	forn(i,n) P[i] = i;
 
-	forn(k,n-1) triangular(k);
+	forn(k,n-1) triangularPLU(k);
 
 	forn(i,n) L[i*m + i] = 1;
 
 }
+*/
 
-Matriz Matriz::resolver(const Matriz& b) const{
-	assert( b.n==n && b.m==1 );
+Matriz Matriz::resolver(const Vector& b){
+	#if DEBUG==1
+		assert( b.n==n && b.m==1 );
+	#endif
+
+	double U2[n*m]; forn(i,n*m) U2[i] = M[i];
+	int P2[n]; forn(i,n) P2[i] = i;
+
+	//double res[n]; forn(i,n) res[i] = b.elem(i,0);
+	Vector res(b);
+
+	forn(k,n-1) triangular(res,U2,P2,k);
+
+	fornr(i,n){
+		forsn(j,i+1,n) res[i] -= U2[i*m + j]*res[j];
+		#if DEBUG==1
+			assert(U2[i*m + i]);
+		#endif
+		res[i] /= U2[i*m + i];
+	}
+
+	return res;
+}
+
+void Matriz::triangular(Vector& res, double* U2, int* P2, const int k){
+
+	int f = k;
+	double p = U2[f*m + k];
+
+	// elijo la fila pivote donde el k-esimo elem es maximo
+	forsn(i,k,n) if( abs(U2[i*m + k]) > abs(p) ){ f = i; p = U2[f*m + k]; }
+
+	#if DEBUG==1
+		if(p==0){
+			clog << "SINGULAR!" << endl;
+			assert(p!=0);
+		}
+	#endif
+
+	// swapeo las filas f y k en U y res
+	forn(j,n){
+		double temp_U2 = U2[f*m + j];
+		U2[f*m + j] = U2[k*m + j];
+		U2[k*m + j] = temp_U2;
+		double temp_r = res[f];
+		res[f] = res[k];
+		res[k] = temp_r;
+	}
+
+	// actualizo el vector de perumtación
+	int temp = P2[f];
+	P2[f] = P2[k];
+	P2[k] = temp;
+
+	// triangulo las filas k+1 -> n
+	forsn(i,k+1,n){
+
+		// elijo el m_ij
+		double a = U2[i*m+k]/p;
+
+		// la k-esima columna es 0
+		U2[i*m+k] = 0;
+
+		// calculo el valor de las columnas k+1 -> n
+		forsn(j,k+1,n) U2[i*m+j] -= a*U2[k*m+j];
+
+		res[i] -= a*res[k];
+	}
+}
+
+/*
+Matriz Matriz::resolverPLU(const Matriz& b){
+	#if DEBUG==1
+		assert( b.n==n && b.m==1 );
+	#endif
+	
+	if(L==NULL) factorizar();
 
 	double res[n];
 
-	forn(i,n) res[i] = b.elem(P[i],0);
+	forn(i,n) res[i] = b(P[i],0);
 
 	forn(j,n-1) forsn(i,j+1,n) res[i] -= L[i*m + j]*res[j];
 
 	fornr(i,n){
 		forsn(j,i+1,n) res[i] -= U[i*m + j]*res[j];
-		assert(U[i*m + i]);
+		#if DEBUG==1
+			assert(U[i*m + i]);
+		#endif
 		res[i] /= U[i*m + i];
 	}
 
 	return Matriz(res,n,1);;
 }
 
-void Matriz::triangular(int k){
+void Matriz::triangularPLU(const int k){
 
 	int f = k;
 	double p = U[f*m + k];
 
-	// elijo la fila pivote
-	forsn(i,k,n) if(U[i*m + k] > p){ f = i; p = U[f*m + k]; }
+	// elijo la fila pivote donde el k-esimo elem es maximo
+	forsn(i,k,n) if( abs(U[i*m + k]) > abs(p) ){ f = i; p = U[f*m + k]; }
+
+	if(p==0){
+		clog << "SINGULAR!" << endl;
+		clog << "M: "; print(clog,M,n,m);
+		clog << "U: "; print(clog,U,n,m);
+	}
 
 	// swapeo las filas f y k en L y U
 	forn(j,n){
@@ -227,11 +324,6 @@ void Matriz::triangular(int k){
 			U[ i*m + j ] -= a*U[ k*m + j ];
 
 	}
-
-//cout << "	L: "; print(L,n,m); cout << endl;
-//cout << "	U: "; print(U,n,m); cout << endl;
-//cout << "	Permutacion: "; print(P,1,n); cout << endl;
-
 }
 
 Matriz Matriz::getL() const{
@@ -244,60 +336,96 @@ Matriz Matriz::getU() const{
 
 void Matriz::printPLU() const{
 	cout << "P = "; print(P,1,n); cout << endl;
-	cout << "L = "; print(L,n,m); cout << endl;
-	cout << "U = "; print(U,n,m); cout << endl;
+	cout << "L = "; print(cout,L,n,m); cout << endl;
+	cout << "U = "; print(cout,U,n,m); cout << endl;
+}
+*/
+
+Matriz Matriz::ID(const int n){
+	Matriz res(n,n,0);
+	forn(i,n) res(i,i) = 1;
+	return res;
 }
 
 double& Matriz::operator () (const int i, const int j){
-	assert(0<=i); assert(i<n);
-	assert(0<=j); assert(j<m );
+	#if DEBUG==1
+		assert(0<=i); assert(i<n);
+		assert(0<=j); assert(j<m );
+	#endif
 	return M[m*i + j];
 }
 
 const double& Matriz::operator () (const int i, const int j) const {
-	cout << "const!!" << endl;
-	assert(0<=i); assert(i<n);
-	assert(0<=j); assert(j<m );
+	#if DEBUG==1
+		assert(0<=i); assert(i<n);
+		assert(0<=j); assert(j<m );
+	#endif
 	return M[m*i + j];
 }
 
 Matriz Matriz::operator * (const Matriz& B) const {
-	assert( m==B.n );
+	#if DEBUG==1
+		assert( m==B.n );
+	#endif
 	Matriz res(n,B.m,0);
-	forn(i,res.n) forn(j,res.m) forn(k,m) res.M[i*res.m + j] += elem(i,k)*B.elem(k,j);
+	forn(i,res.n) forn(j,res.m) forn(k,m) res.M[i*res.m + j] += (*this)(i,k)*B(k,j);
 	return res;
 }
 
 Matriz Matriz::operator + (const Matriz& B) const {
-	assert( n==B.n && m==B.m );
+	#if DEBUG==1
+		assert( n==B.n && m==B.m );
+	#endif
 	Matriz res(n,m);
-	forn(i,n) forn(j,m) res.def(i,j, elem(i,j)+B.elem(i,j));
+	forn(i,n) forn(j,m) res(i,j) = (*this)(i,j)+B(i,j);
+	return res;
+}
+
+Matriz Matriz::operator - (const Matriz& B) const {
+	#if DEBUG==1
+		assert( n==B.n && m==B.m );
+	#endif
+	Matriz res(n,m);
+	forn(i,n) forn(j,m) res(i,j) = (*this)(i,j)-B(i,j);
 	return res;
 }
 
 Matriz& Matriz::operator += (const Matriz& B){
-	assert( n==B.n && m==B.m );
-	forn(i,n) forn(j,m) def(i,j, elem(i,j)+B.elem(i,j));
+	#if DEBUG==1
+		assert( n==B.n && m==B.m );
+	#endif
+	forn(i,n) forn(j,m) (*this)(i,j)+=B(i,j);
 	return (*this);
 }
 
 Matriz& Matriz::operator *= (const Matriz& B){
-	assert( n==B.n && m==B.m );
+	#if DEBUG==1
+		assert( n==B.n && m==B.m );
+	#endif
 	double* M2 = new double[n*m]; forn(i,n*m) M2[i] = 0;
-	forn(i,n) forn(j,m) forn(k,m) M2[i*m + j] += elem(i,k)*B.elem(k,j);
+	forn(i,n) forn(j,m) forn(k,m) M2[i*m + j] += (*this)(i,j)*B(i,j);
 	delete M;
 	M = M2;
 	return (*this);
 }
 
 Matriz& Matriz::operator *= (const double& lambda){
-	forn(i,n) forn(j,m) def(i,j,lambda*elem(i,j));
+	forn(i,n) forn(j,m) (*this)(i,j) *= lambda;
 	return (*this);
+}
+
+Matriz& Matriz::operator = (const Matriz& A){
+	#if DEBUG==1
+		assert( n==B.n && m==B.m );
+	#endif
+	if( this!=&A )
+		forn(i,n*m) M[i] = A.M[i];
+	return *this;
 }
 
 Matriz operator * (const double& lambda, const Matriz& A){
 	Matriz res(A);
-	forn(i,A.n) forn(j,A.m) res.def(i,j,lambda*res.elem(i,j));
+	forn(i,A.n) forn(j,A.m) res(i,j) *= lambda;
 	return res;
 }
 
@@ -310,27 +438,20 @@ ostream& operator << (ostream& os, const Matriz& A){
 			if(j!=0) os << ',';
 			os << A.M[A.m*i + j];
 		}
-		os << ']';
+		os << ']' << endl;
 	}
 	os << ']';
 	return os;
 }
 
-class Vector : public Matriz{
-	public:
-		Vector(const int i, const double& e);
-		//Vector(const Vector& v);
-		Vector(const double* b, const int _n, const int _m);
-	private:
-		friend ostream& operator << (ostream& os, const Vector& A);
-};
-
-Vector::Vector(const int i, const double& e) : Matriz(n,1,e){}
-
-Vector::Vector(const double* V, const int _n, const int _m) : Matriz(V,_n,_m) {}
-
-/*ostream& operator << (ostream& os, const Vector& A){
-	
-}*/
+ostream& operator<<(ostream& os, const Vector& V){
+	os << '[';
+	forn(i,V.n){
+		if(i!=0) os << ',';
+		os << V.M[i];
+	}
+	os << ']';
+	return os;
+}
 
 #endif

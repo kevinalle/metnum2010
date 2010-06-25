@@ -93,9 +93,17 @@ Spline* GenerarSpline(const Punto* datos, const int n)
 	return P;
 }
 
-int P3(const Spline& S, double x)
+double P3(const Spline& S, double x)
 {
 	return S.a*x*x*x + S.b*x*x + S.c*x + S.d;
+}
+
+double PN(const double* P, const int grado, const double& x)
+{
+	double res=0;
+	forn(i,grado+1)
+		res += P[i]*pow(x,grado-i);
+	return res;
 }
 
 int ProximaRaizDiscreta(const Spline& S, int x_ini)
@@ -110,7 +118,22 @@ int ProximaRaizDiscreta(const Spline& S, int x_ini)
 		y1 = P3(S,x);
 		if(y1>y0) return -1;
 	}
-	return ( abs(y1)<P3(S,x-1) ? x : x-1 );
+	return ( abs(y1)<y0 ? x : x-1 );
+}
+
+int ProximaRaizDiscreta(const double* P, const int grado, int x_ini)
+{
+	int x = x_ini;
+	double y0=PN(P,grado,x); x++;
+	double y1=PN(P,grado,x); x++;
+	while(y1>0)
+	{
+		x++;
+		y0 = y1;
+		y1 = PN(P,grado,x);
+		if(y1>y0) return -1;
+	}
+	return ( abs(y1)<y0 ? x : x-1 );
 }
 
 Matriz T_CM(Matriz x, int grado)
@@ -125,17 +148,10 @@ Matriz T_CM(Matriz x, int grado)
 
 Matriz CM(const double* x, const double* y, const int n, const int grado)
 {
-cout << 10 << endl;
-	Matriz T(T_CM(Matriz(x,n,1),grado));
-cout << 11 << endl;
+	Matriz T(T_CM(Matriz(x,n,1),grado+1));
 	Matriz T_t(T.T());
-cout << 12 << endl;
 	Matriz A(T_t*T);
-cout << 13 << endl;
 	Matriz b(T_t*Matriz(y,n,1));
-cout << 14 << endl;
-	cout << A << endl;
-	cout << b << endl;
 	return A.resolver(b);
 }
 

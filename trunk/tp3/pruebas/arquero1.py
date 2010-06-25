@@ -58,8 +58,8 @@ for n in range(data[0][0],data[-1][0]+1):
 	out.write("%d "%n)
 	
 	if len(ts)>=4:
-		cxa=cuadmin(ts,xs,6)
-		cya=cuadmin(ts,ys,6)
+		cxa=cuadmin(ts,xs,min(6,len(ts)-1))
+		cya=cuadmin(ts,ys,min(6,len(ts)-1))
 		ts=ts[-6:]
 		xs=[poli(cxa,t) for t in ts]
 		ys=[poli(cya,t) for t in ts]
@@ -82,8 +82,8 @@ for n in range(data[0][0],data[-1][0]+1):
 		goto(gol)"""
 		
 	elif len(ts)>1:
-		cx=cuadmin(ts,xs,1)
-		cy=cuadmin(ts,ys,1)
+		cx=cuadmin(ts,xs,len(ts)-1)
+		cy=cuadmin(ts,ys,len(ts)-1)
 		t=ts[-1]
 		y=ys[-1]
 		yans=ys[-2]

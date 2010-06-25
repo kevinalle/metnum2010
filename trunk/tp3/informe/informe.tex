@@ -8,6 +8,7 @@
 \usepackage{float}
 \usepackage{subfigure}
 \usepackage{listings}
+\usepackage{float}
 \lstset{language=C,basicstyle=\small\tt,keywordstyle=\bf,tabsize=3,breaklines=true,linewidth=16cm,postbreak={\mbox{$\rightsquigarrow$}},prebreak={\mbox{$\rightsquigarrow$}}}
 
  \usepackage{a4wide}
@@ -104,7 +105,31 @@
 
 
 	\begin{usection}{Desarrollo}
-		
+		\begin{figure}[H]
+			\centering
+			\subfigure{
+				\includegraphics[scale=0.7]{img/cm_spline.png}
+				\label{fig:cm_spline1}
+			}
+			\subfigure{
+				\includegraphics[scale=0.7]{img/cm_spline2.png}
+				\label{fig:cm_spline2}
+			}
+			\caption{
+				Arriba: Interpolación de puntos de una trayectoria con cuadrados mínimos (grado 4) y splines.
+				Abajo: Interpolación con cuadrados mínimos y splines de $x(t)$ y $y(t)$ de la misma trayectoria.
+			}
+			\label{ fig:cm_spline }
+		\end{figure}
+
+		\begin{figure}[H]
+			\centering
+			\includegraphics[scale=0.75]{img/extrap.png}
+			\caption{
+				Extrapolación de trayectorias con cuadrados mínimos de grado 3 o 4 (negro) y con splines (rojo).
+			}
+			\label{ fig:extrap }
+		\end{figure}
 	\end{usection}
 	
 	

@@ -7,66 +7,27 @@ from cuadmin import cuadmin
 def poli(coef,x):
 	return sum(coef[i]*x**i for i in range(len(coef)))
 
+def move(direccion):
+	out.write("%d\n"%direccion)
 
-
-def metodo_spline(ts,xs,ys):
+def goto(gol):
 	global arq,lastdir
-	if len(ts)>=4:
-		cx=cuadmin(ts,xs,3)
-		cy=cuadmin(ts,ys,3)
-		xs=[poli(cx,t) for t in ts]
-		ys=[poli(cy,t) for t in ts]
-		#plot(zip([poli(cx,t) for t in ts+range(ts[-1],ts[-1]+40)], [poli(cy,t) for t in ts+range(ts[-1],ts[-1]+40)]),red)
-		Sx=spline(zip(ts,xs))[-2]
-		Sy=spline(zip(ts,ys))[-2]
-		#plot([(poli(Sx[:-1],t-Sx[-1]),poli(Sy[:-1],t-Sy[-1])) for t in range(n+40)])
-	
-		t=ts[-1]
-		y=ys[-1]
-		yans=ys[-2]
-		while y>0 and t<200:
-			t+=1
-			yans=y
-			y=poli(Sy[:-1],t-Sy[-1])
-			#if yans<y: text("whops",pos=(100,100)); break;
-		gol=poli(Sx[:-1],t-Sx[-1]+y/(yans-y))
-	
-		if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2: arq+=step; lastdir=1; out.write("2\n")
-		elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1: arq-=step; lastdir=-1; out.write("1\n")
-		else: lastdir=0; out.write("0\n")
-	
-	elif len(ts)>1:
-		cx=cuadmin(ts,xs,1)
-		cy=cuadmin(ts,ys,1)
-		t=ts[-1]
-		y=ys[-1]
-		yans=ys[-2]
-		while y>0 and t<200:
-			t+=1
-			yans=y
-			y=poli(cy,t)
-		gol=poli(cx,t+y/(yans-y))
-		if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2:
-			arq+=step
-			lastdir=1
-			out.write("2\n")
-		elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1:
-			arq-=step
-			lastdir=-1
-			out.write("1\n")
-		else:
-			lastdir=0
-			out.write("0\n")
-	else: out.write("0\n")
-
+	to=0
+	if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2:
+		arq+=step
+		lastdir=1
+		to=2
+	elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1:
+		arq-=step
+		lastdir=-1
+		to=1
+	else:
+		lastdir=0
+		to=0
+	move(to)
 
 def metodo_spline2(ts,xs,ys):
 	global arq,lastdir
-	cx=cuadmin(ts,xs,3)
-	cy=cuadmin(ts,ys,3)
-	xs=[poli(cx,t) for t in ts]
-	ys=[poli(cy,t) for t in ts]
-	#plot(zip([poli(cx,t) for t in ts+range(ts[-1],ts[-1]+40)], [poli(cy,t) for t in ts+range(ts[-1],ts[-1]+40)]),red)
 	Sx=spline(zip(ts,xs))[-2]
 	Sy=spline(zip(ts,ys))[-2]
 	#plot([(poli(Sx[:-1],t-Sx[-1]),poli(Sy[:-1],t-Sy[-1])) for t in range(n+40)])
@@ -78,14 +39,8 @@ def metodo_spline2(ts,xs,ys):
 		t+=1
 		yans=y
 		y=poli(Sy[:-1],t-Sy[-1])
-		#if yans<y: text("whops",pos=(100,100)); break;
 	gol=poli(Sx[:-1],t-Sx[-1]+y/(yans-y))
-
-	if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2: arq+=step; lastdir=1; out.write("2\n")
-	elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1: arq-=step; lastdir=-1; out.write("1\n")
-	else: lastdir=0; out.write("0\n")
-
-
+	goto(gol)
 
 fin=open(sys.argv[1]).read()
 out=open(sys.argv[2],'w')
@@ -102,21 +57,18 @@ for n in range(data[0][0],data[-1][0]+1):
 	ts,xs,ys=zip(*pnts)
 	out.write("%d "%n)
 	
-	#metodo_spline(ts,xs,ys)
 	if len(ts)>=4:
 		cxa=cuadmin(ts,xs,6)
 		cya=cuadmin(ts,ys,6)
 		ts=ts[-6:]
 		xs=[poli(cxa,t) for t in ts]
 		ys=[poli(cya,t) for t in ts]
-	
-		"""cx=cuadmin(ts[-6:],xs[-6:],2)
-		cy=cuadmin(ts[-6:],ys[-6:],2)"""
 		
 		cx=cuadmin(ts,xs,2)
 		cy=cuadmin(ts,ys,2)
 		xs=[poli(cx,t) for t in ts]
 		ys=[poli(cy,t) for t in ts]
+
 		metodo_spline2(ts,xs,ys)
 		
 		"""t=ts[-1]
@@ -127,17 +79,8 @@ for n in range(data[0][0],data[-1][0]+1):
 			yans=y
 			y=poli(cy,t)
 		gol=poli(cx,t+y/(yans-y))
-		if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2:
-			arq+=step
-			lastdir=1
-			out.write("2\n")
-		elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1:
-			arq-=step
-			lastdir=-1
-			out.write("1\n")
-		else:
-			lastdir=0
-			out.write("0\n")"""
+		goto(gol)"""
+		
 	elif len(ts)>1:
 		cx=cuadmin(ts,xs,1)
 		cy=cuadmin(ts,ys,1)
@@ -149,16 +92,7 @@ for n in range(data[0][0],data[-1][0]+1):
 			yans=y
 			y=poli(cy,t)
 		gol=poli(cx,t+y/(yans-y))
-		if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2:
-			arq+=step
-			lastdir=1
-			out.write("2\n")
-		elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1:
-			arq-=step
-			lastdir=-1
-			out.write("1\n")
-		else:
-			lastdir=0
-			out.write("0\n")
-	else: out.write("0\n")
+		goto(gol)
+
+	else: move(0)
 		

@@ -13,6 +13,7 @@ running=True
 bg=(170,180,240)
 black=(50,50,50)
 red=(200,50,50)
+green=(50,200,50)
 screen.fill(bg)
 pygame.display.flip()
 
@@ -40,7 +41,7 @@ carpeta='../Tp_3_Mundial2010v1/tests/'
 
 view=(0,2.3,2.5) #x,y,width
 step=.05
-tst=1
+tst=0
 def init(tst):
 	global n,arq,lastdir,pnts,test
 	test=tst
@@ -96,6 +97,7 @@ def metodo_spline(ts,xs,ys):
 	xs=[poli(cx,t) for t in ts]
 	ys=[poli(cy,t) for t in ts]
 	plot(zip([poli(cx,t) for t in ts+range(ts[-1],ts[-1]+40)], [poli(cy,t) for t in ts+range(ts[-1],ts[-1]+40)]),red)
+	
 	Sx=spline(zip(ts,xs))[-2]
 	Sy=spline(zip(ts,ys))[-2]
 	plot([(poli(Sx[:-1],t-Sx[-1]),poli(Sy[:-1],t-Sy[-1])) for t in range(n+40)])
@@ -163,6 +165,76 @@ def metodo_CM2(ts,xs,ys):
 	elif abs(arq)>step:
 		arq+=step*(arq/abs(arq))
 
+
+def goto(gol):
+	global arq,lastdir
+	if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2:
+		arq+=step
+		lastdir=1
+	elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1:
+		arq-=step
+		lastdir=-1
+	else:
+		lastdir=0
+
+def metodo_spline2(ts,xs,ys):
+	global arq,lastdir
+	Sx=spline(zip(ts,xs))[-2]
+	Sy=spline(zip(ts,ys))[-2]
+	
+	plot([(poli(Sx[:-1],t-Sx[-1]),poli(Sy[:-1],t-Sy[-1])) for t in range(n+40)])
+
+	t=ts[-1]
+	y=ys[-1]
+	yans=ys[-2]
+	while y>0 and t<200:
+		t+=1
+		yans=y
+		y=poli(Sy[:-1],t-Sy[-1])
+	gol=poli(Sx[:-1],t-Sx[-1]+y/(yans-y))
+	goto(gol)
+
+def metodo_12(ts,xs,ys):
+	global arq,lastdir
+	if len(ts)>=4:
+		cxa=cuadmin(ts,xs,6)
+		cya=cuadmin(ts,ys,6)
+		ts=ts[-6:]
+		xs=[poli(cxa,t) for t in ts]
+		ys=[poli(cya,t) for t in ts]
+		plot([(poli(cxa,t),poli(cya,t)) for t in range(n+40)],red)
+		
+		cx=cuadmin(ts,xs,2)
+		cy=cuadmin(ts,ys,2)
+		plot([(poli(cx,t),poli(cy,t)) for t in range(n+40)],(50,50,200))
+		xs=[poli(cx,t) for t in ts]
+		ys=[poli(cy,t) for t in ts]
+		#metodo_spline2(ts,xs,ys)
+		t=ts[-1]
+		y=ys[-1]
+		yans=ys[-2]
+		while y>0 and t<200:
+			t+=1
+			yans=y
+			y=poli(cy,t)
+		gol=poli(cx,t+y/(yans-y))
+		goto(gol)
+		
+	elif len(ts)>1:
+		cx=cuadmin(ts,xs,1)
+		cy=cuadmin(ts,ys,1)
+		t=ts[-1]
+		y=ys[-1]
+		yans=ys[-2]
+		while y>0 and t<200:
+			t+=1
+			yans=y
+			y=poli(cy,t)
+		gol=poli(cx,t+y/(yans-y))
+		goto(gol)
+
+	else: lastdir=0
+
 def do():
 	screen.fill(bg)
 	global arq,lastdir
@@ -172,7 +244,8 @@ def do():
 	
 	#metodo_spline(ts,xs,ys)
 	#metodo_CM(ts,xs,ys)
-	metodo_CM2(ts,xs,ys)
+	#metodo_CM2(ts,xs,ys)
+	metodo_12(ts,xs,ys)
 	"""#coef_x=cuadmin(ts+[ts[-1]+1],xs+[arq],4)
 	coef_x=cuadmin(ts,xs,3)
 	xxs=[poli(coef_x,t) for t in range(n+20)]

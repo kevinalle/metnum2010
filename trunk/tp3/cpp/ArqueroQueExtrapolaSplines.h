@@ -29,10 +29,10 @@ int ArqueroQueExtrapolaSplines::Respuesta(int i, double x, double y)
 		Spline* PX = GenerarSpline(ToArray(datos_x),n);
 		Spline* PY = GenerarSpline(ToArray(datos_y),n);
 		
-		int t_gol = ProximaRaizDiscreta(PX[n-2],datos_y.back().x);
+		int t_gol = ProximaRaizDiscreta(PY[n-2],datos_y.back().x);
 		if(t_gol<0)
 		{
-			clog << "la pelota no llega al arco!" << endl;
+			clog << "t_gol: " << t_gol << " la pelota no llega al arco!" << endl;
 			Mover(0);
 		}
 		else

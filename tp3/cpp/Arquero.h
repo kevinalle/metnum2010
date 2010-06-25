@@ -45,7 +45,8 @@ int Arquero::Respuesta(int i)
 int Arquero::Respuesta(int i, double x, double y)
 {
 	if(datos_i.size()) forsn(j,datos_i.back()+1,i)
-		clog << ComputarRespuesta(j) << endl;
+		//clog << ComputarRespuesta(j) << endl;
+		ComputarRespuesta(j);
 	
 	datos_i.push_back(i);
 	datos_x.push_back(x);
@@ -62,7 +63,7 @@ int Arquero::Extrapolar(const Matriz& PX, const Matriz& PY)
 	if(t_gol<0)
 	{
 		cout << 0 << endl;
-		clog << "t_gol: " << t_gol << " la pelota no llega al arco!" << endl;
+		//clog << "t_gol: " << t_gol << " la pelota no llega al arco!" << endl;
 		Mover(0);
 		return 0;
 	}
@@ -78,15 +79,16 @@ int Arquero::Extrapolar(const Matriz& PX, const Matriz& PY)
 
 int Arquero::ComputarRespuesta(int i)
 {
+	int n = datos_i.size();
 	int res = 0;
-	if(i<2)
+	if(n<2)
 	{
 		// Me quedo quieto, no puedo deducir mucho
 		Mover(0);
 		Print(Matriz(0,0),Matriz(0,0));
 		res = 0;
 	}
-	else if(i==2)
+	else if(n==2)
 	{
 		// an ... a0
 		// Extrapolo la recta que pasa por ambos puntos
@@ -96,7 +98,7 @@ int Arquero::ComputarRespuesta(int i)
 		Print(PX,PY);
 		res=Extrapolar(PX,PY);
 	}
-	else if(2<i && i<GRADO)
+	else if(2<n && n<GRADO)
 	{
 		// an ... a0
 		// Extrapolo por CM comun de grado i-1

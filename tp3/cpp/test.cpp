@@ -13,7 +13,12 @@ int main()
 	while( cin >> i && i!=-1 )
 	{
 		cin >> x >> y;
-		clog << arquero.Respuesta(i,x,y) << endl;
+		//clog << arquero.Respuesta(i,x,y) << endl;
+		arquero.Respuesta(i,x,y);
 	}
+	if( abs(x-arquero.Posicion())<.05 )
+		clog << "ATAJO!" << endl;
+	else
+		clog << "GOL! a distancia: " << abs(x-arquero.Posicion()) << endl;
 	return 0;
 }

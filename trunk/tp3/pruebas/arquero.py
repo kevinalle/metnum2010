@@ -36,14 +36,19 @@ tests=[
 'test_ruido3.txt',
 'test_ruido4.txt']
 carpeta='../Tp_3_Mundial2010v1/tests/'
-test=4
-pnts=map(lambda x: map(lambda y: float(y) if '.' in y else int(y),x.split()),open(carpeta+tests[test]).read().split("\n")[:-1])
 
-n=1
-arq=0
-lastdir=0
-step=.05
+
 view=(0,2.3,2.5) #x,y,width
+step=.05
+tst=1
+def init(tst):
+	global n,arq,lastdir,pnts,test
+	test=tst
+	n=1
+	arq=0
+	lastdir=0
+	pnts=map(lambda x: map(lambda y: float(y) if '.' in y else int(y),x.split()),open(carpeta+tests[test]).read().split("\n")[:-1])
+init(tst)
 
 def transformation(p):
 	s=min(size)/2.
@@ -104,6 +109,7 @@ def metodo_spline(ts,xs,ys):
 		y=poli(Sy[:-1],t-Sy[-1])
 		#if yans<y: text("whops",pos=(100,100)); break;
 	gol=poli(Sx[:-1],t-Sx[-1]+y/(yans-y))
+	
 	if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2: arq+=step; lastdir=1
 	elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1: arq-=step; lastdir=-1
 	else: lastdir=0
@@ -132,8 +138,14 @@ def metodo_CM(ts,xs,ys):
 def metodo_CM2(ts,xs,ys):
 	global arq,lastdir
 	#eta=ys[0]/(sum(ys[i]-ys[i+1] for i in range(len(ys)-1))/(len(ys)-1))
-	cx=cuadmin(ts[-5:],xs[-5:],2)
-	cy=cuadmin(ts[-5:],ys[-5:],2)
+	cxa=cuadmin(ts,xs,4)
+	cya=cuadmin(ts,ys,4)
+	xs=[poli(cxa,t) for t in ts]
+	ys=[poli(cya,t) for t in ts]
+	plot(zip(xs,ys),(50,200,50))
+	
+	cx=cuadmin(ts[-6:],xs[-6:],2)
+	cy=cuadmin(ts[-6:],ys[-6:],2)
 	plot([(poli(cx,t),poli(cy,t)) for t in ts[-5:]+range(ts[-1],ts[-1]+40)],red)
 	
 	t=ts[-1]
@@ -144,9 +156,12 @@ def metodo_CM2(ts,xs,ys):
 		yans=y
 		y=poli(cy,t)
 	gol=poli(cx,t+y/(yans-y))
-	if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2: arq+=step; lastdir=1
-	elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1: arq-=step; lastdir=-1
-	else: lastdir=0
+	if t-n<50:
+		if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2: arq+=step; lastdir=1
+		elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1: arq-=step; lastdir=-1
+		else: lastdir=0
+	elif abs(arq)>step:
+		arq+=step*(arq/abs(arq))
 
 def do():
 	screen.fill(bg)
@@ -196,4 +211,9 @@ while running:
 	elif (event.type==pygame.KEYDOWN and event.key==pygame.K_SPACE) or event.type==pygame.MOUSEBUTTONDOWN:
 		n+=1
 		if n<len(pnts): do()
-
+	elif (event.type==pygame.KEYDOWN and event.key==pygame.K_RETURN):
+		tst=(tst+1)%len(tests)
+		init(tst)
+		screen.fill(bg)
+		text(tests[tst],pos=(100,20))
+		render()

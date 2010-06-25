@@ -5,26 +5,26 @@ from spline import spline
 from cuadmin import cuadmin
 
 def poli(coef,x):
-	return sum(coef[i]*x**i for i in range(len(coef)))
+        return sum(coef[i]*x**i for i in range(len(coef)))
 
 def move(direccion):
-	out.write("%d\n"%direccion)
+        out.write("%d\n"%direccion)
 
 def goto(gol):
-	global arq,lastdir
-	to=0
-	if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2:
-		arq+=step
-		lastdir=1
-		to=2
-	elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1:
-		arq-=step
-		lastdir=-1
-		to=1
-	else:
-		lastdir=0
-		to=0
-	move(to)
+        global arq,lastdir
+        to=0
+        if gol>arq+step/2 and lastdir!=-1 and arq<1-step/2:
+                arq+=step
+                lastdir=1
+                to=2
+        elif gol<arq-step/2 and lastdir!=1 and arq>step/2-1:
+                arq-=step
+                lastdir=-1
+                to=1
+        else:
+                lastdir=0
+                to=0
+        move(to)
 
 def metodo_spline2(ts,xs,ys):
 	global arq,lastdir
@@ -56,22 +56,22 @@ for n in range(data[0][0],data[-1][0]+1):
 	if data[0][0]<=n: pnts.append(data.pop(0))
 	ts,xs,ys=zip(*pnts)
 	out.write("%d "%n)
-	
+
 	if len(ts)>=4:
 		cxa=cuadmin(ts,xs,min(6,len(ts)-1))
 		cya=cuadmin(ts,ys,min(6,len(ts)-1))
 		ts=ts[-6:]
 		xs=[poli(cxa,t) for t in ts]
 		ys=[poli(cya,t) for t in ts]
-		
+
 		cx=cuadmin(ts,xs,2)
 		cy=cuadmin(ts,ys,2)
 		xs=[poli(cx,t) for t in ts]
 		ys=[poli(cy,t) for t in ts]
 
-		metodo_spline2(ts,xs,ys)
-		
-		"""t=ts[-1]
+		#metodo_spline2(ts,xs,ys)
+
+		t=ts[-1]
 		y=ys[-1]
 		yans=ys[-2]
 		while y>0 and t<200:
@@ -79,8 +79,8 @@ for n in range(data[0][0],data[-1][0]+1):
 			yans=y
 			y=poli(cy,t)
 		gol=poli(cx,t+y/(yans-y))
-		goto(gol)"""
-		
+		goto(gol)
+		    
 	elif len(ts)>1:
 		cx=cuadmin(ts,xs,len(ts)-1)
 		cy=cuadmin(ts,ys,len(ts)-1)
@@ -95,4 +95,3 @@ for n in range(data[0][0],data[-1][0]+1):
 		goto(gol)
 
 	else: move(0)
-		

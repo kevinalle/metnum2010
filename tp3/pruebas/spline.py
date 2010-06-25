@@ -1,7 +1,9 @@
 def spline(data):
 	n=len(data)-1
 	x,y=zip(*data)
-	a=y[:]
+	x=map(float,x)
+	a=map(float,y[:])
+	#a=y[:]
 	h=[x[i+1]-x[i] for i in range(n)]
 	alfa=[0]+[(3./h[i])*(a[i+1]-a[i])-(3./h[i-1])*(a[i]-a[i-1]) for i in range(1,n)]
 	b,d=[0]*n,[0]*n
@@ -19,4 +21,6 @@ def spline(data):
 	return zip(a,b,c,d,x)
 
 if __name__=="__main__":
-	print spline([(0,0),(1,2),(2,4),(3,6)])
+	print spline([(0,3),(1,4),(5,5),(15,2)])
+	print
+	print spline(zip([1,2,3,4,5,6][::2],[1,2,3,4,5,6][::2]))[-2]

@@ -37,6 +37,16 @@ ostream& operator << (ostream& os, const Spline& S)
 	return os;
 }
 
+Matriz SplineAMatriz(const Spline& S)
+{
+	Matriz res(4,1);
+	res(0,0) = S.a;
+	res(1,0) = S.b;
+	res(2,0) = S.c;
+	res(3,0) = S.d;
+	return res;
+}
+
 Punto* ToArray(list<Punto> lista)
 {
 	Punto* res = new Punto[lista.size()];
@@ -71,6 +81,38 @@ Spline* GenerarSpline(const Punto* datos, const int n)
 	forsn(i,1,n)
 	{
 		l[i] = 2.*(datos[i+1].x-datos[i-1].x)-h[i-1]*mu[i-1];
+		mu[i] = h[i]/l[i];
+		z[i] = (alpha[i]-h[i-1]*z[i-1])/l[i];
+	}
+	double c[n]; double b[n-1]; double d[n-1];
+	l[n-1] = 1; z[n-1] = c[n-1] = 0;
+	forrn(j,n-1)
+	{
+		c[j] = z[j]-mu[j]*c[j+1];
+		b[j] = (a[j+1]-a[j])/h[j] - h[j]*(c[j+1]+2.*c[j])/3.;
+		d[j] = (c[j+1]-c[j])/(3.*h[j]);
+	}
+	Spline* P = new Spline[n-1];
+	forn(i,n-1)
+	{
+		P[i].a = a[i];
+		P[i].b = b[i];
+		P[i].c = c[i];
+		P[i].d = d[i];
+	}
+	return P;
+}
+
+Spline* GenerarSpline(const double* datos_x, const double* datos_y, const int n)
+{
+	double a[n]; forn(i,n) a[i] = datos_y[i];
+	double h[n-1];
+	forn(i,n-1) h[i] = datos_x[i+1] - datos_x[i];
+	double alpha[n]; alpha[0]=0; forsn(i,1,n) alpha[i] = (3./h[i])*(a[i+1]-a[i])-(3./h[i-1])*(a[i]-a[i-1]);
+	double l[n]; double mu[n]; double z[n]; l[0] = mu[0] = z[0] = 0;
+	forsn(i,1,n)
+	{
+		l[i] = 2.*(datos_x[i+1]-datos_x[i-1])-h[i-1]*mu[i-1];
 		mu[i] = h[i]/l[i];
 		z[i] = (alpha[i]-h[i-1]*z[i-1])/l[i];
 	}

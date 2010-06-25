@@ -25,7 +25,8 @@ arq=0
 step=.05
 view=(0,2.3,2.5) #x,y,width
 
-data = map(lambda x: x.split(),(open(sys.argv[1]).read().split("\n")[:-1]))
+#data = map(lambda x: x.split(),(open(sys.argv[1]).read().split("\n")[:-1]))
+data = map(lambda x: x.split(),(open(sys.argv[1]).read().split("\n")))
 
 #for d in data:
 #	print d
@@ -64,7 +65,7 @@ def render():
 	pygame.display.flip()
 	
 def do():
-	screen.fill(bg)
+	#screen.fill(bg)
 	
 	drawdot([float(data[n][0]) , 0])
 	drawdot([float(data[n][1]) , float(data[n][2])])

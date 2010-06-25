@@ -4,6 +4,7 @@ class ArqueroQueExtrapolaCM : public InterfazDeArquero
 {
 	public:
 		void Inicializar();
+		int Respuesta(int i);
 		int Respuesta(int i, double x, double y);
 	private:
 		list<double> datos_i;
@@ -18,6 +19,13 @@ void ArqueroQueExtrapolaCM::Inicializar()
 	datos_y.clear();
 }
 
+int ArqueroQueExtrapolaCM::Respuesta(int i)
+{
+	Mover(0);
+	//cout << Posicion() << " " << 0 << " " << 0 << " "  << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << 0 << " " << endl;
+	return 0;
+}
+
 int ArqueroQueExtrapolaCM::Respuesta(int i, double x, double y)
 {
 	datos_i.push_back(i);
@@ -25,7 +33,7 @@ int ArqueroQueExtrapolaCM::Respuesta(int i, double x, double y)
 	datos_y.push_back(y);
 
 	if(datos_i.size()>=4)
-	{
+	{	
 		Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),3);
 		Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),3);
 	
@@ -41,9 +49,6 @@ int ArqueroQueExtrapolaCM::Respuesta(int i, double x, double y)
 			double x_gol = PN(PX,t_gol);
 			Decidir(x_gol);
 		}
-	
-		//cout << PX << endl;
-		//cout << PY << endl;
 		
 		cout << Posicion() << " " << x << " " << y << " "  << PX(3,0) << " " << PX(2,0) << " " << PX(1,0) << " " << PX(0,0) << " " << PY(3,0) << " " << PY(2,0) << " " << PY(1,0) << " " << PY(0,0) << " " << endl;
 	}

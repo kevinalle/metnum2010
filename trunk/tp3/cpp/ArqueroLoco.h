@@ -119,21 +119,23 @@ int ArqueroLoco::ComputarRespuesta(int i)
 		double x6[6]; forn(k,6) x6[k] = Pn(PX,i6[k]);
 		double y6[6]; forn(k,6) y6[k] = Pn(PY,i6[k]);
 		
-		// Aproximo los 5 ultimos puntos por una cuadratica con CM
+		// Aproximo los 5 ultimos datos con una cuadratica con CM
 		Matriz PX2 = CM(i6,x6,6,2);
 		Matriz PY2 = CM(i6,y6,6,2);
 		
-		// Calculo los 6 ultimos puntos en los polinomios aproximados
+		// Calculo los 6 ultimos puntos en el polinomio aproximado
 		double xx6[6]; forn(k,6) xx6[k] = Pn(PX2,i6[k]);
 		double yy6[6]; forn(k,6) yy6[k] = Pn(PY2,i6[k]);
 		
 		// Calculo los 6-1 splines interpolantes
-		Spline* Sx = GenerarSpline(i6,xx6,6);
-		Spline* Sy = GenerarSpline(i6,yy6,6);
+		//Spline* Sx = GenerarSpline(i6,xx6,6);
+		//Spline* Sy = GenerarSpline(i6,yy6,6);
+		Spline* Sx = GenerarSpline(APuntos(i6,xx6,6),6);
+		Spline* Sy = GenerarSpline(APuntos(i6,yy6,6),6);
 		
 		// Extrapolo el anteultimo
-		Matriz SPx = SplineAMatriz(Sx[4]);
-		Matriz SPy = SplineAMatriz(Sy[4]);
+		Matriz SPx = SplineAMatriz(Sx[0]);
+		Matriz SPy = SplineAMatriz(Sy[0]);
 		
 		Print(SPx,SPy);
 		res=Extrapolar(SPx,SPy);

@@ -59,6 +59,13 @@ Punto* ToArray(list<Punto> lista)
 	return res;
 }
 
+Punto* APuntos(const double* xs, const double* ys, const int n)
+{
+	Punto* res = new Punto[n];
+	forn(i,n) res[i] = Punto(xs[i],ys[i]);
+	return res;
+}
+
 double* ToArray(list<double> lista)
 {
 	double* res = new double[lista.size()];
@@ -71,30 +78,28 @@ double* ToArray(list<double> lista)
 	return res;
 }
 
-Spline* GenerarSpline(const Punto* datos, const int n)
+Spline* GenerarSpline(const Punto* datos, const int m)
 {
-	double a[n]; forn(i,n) a[i] = datos[i].y;
-	double h[n-1];
-	forn(i,n-1) h[i] = datos[i+1].x - datos[i].x;
+	int n=m-1;
+	double a[n+1]; forn(i,n+1){ a[i] = datos[i].y; }
+	double h[n];
+	forn(i,n) h[i] = datos[i+1].x - datos[i].x;
 	double alpha[n]; alpha[0]=0; forsn(i,1,n) alpha[i] = (3./h[i])*(a[i+1]-a[i])-(3./h[i-1])*(a[i]-a[i-1]);
-	double l[n]; double mu[n]; double z[n]; l[0] = mu[0] = z[0] = 0;
-	forsn(i,1,n)
-	{
+	double l[n+1]; double mu[n+1]; double z[n+1]; l[0] = 1; mu[0] = z[0] = 0;
+	forsn(i,1,n){
 		l[i] = 2.*(datos[i+1].x-datos[i-1].x)-h[i-1]*mu[i-1];
 		mu[i] = h[i]/l[i];
 		z[i] = (alpha[i]-h[i-1]*z[i-1])/l[i];
 	}
-	double c[n]; double b[n-1]; double d[n-1];
-	l[n-1] = 1; z[n-1] = c[n-1] = 0;
-	forrn(j,n-1)
-	{
+	double c[n+1]; double b[n]; double d[n];
+	l[n] = 1; z[n] = c[n] = 0;
+	forrn(j,n){
 		c[j] = z[j]-mu[j]*c[j+1];
 		b[j] = (a[j+1]-a[j])/h[j] - h[j]*(c[j+1]+2.*c[j])/3.;
 		d[j] = (c[j+1]-c[j])/(3.*h[j]);
 	}
-	Spline* P = new Spline[n-1];
-	forn(i,n-1)
-	{
+	Spline* P = new Spline[n];
+	forn(i,n){
 		P[i].a = a[i];
 		P[i].b = b[i];
 		P[i].c = c[i];
@@ -109,7 +114,7 @@ Spline* GenerarSpline(const double* datos_x, const double* datos_y, const int n)
 	double h[n-1];
 	forn(i,n-1) h[i] = datos_x[i+1] - datos_x[i];
 	double alpha[n]; alpha[0]=0; forsn(i,1,n) alpha[i] = (3./h[i])*(a[i+1]-a[i])-(3./h[i-1])*(a[i]-a[i-1]);
-	double l[n]; double mu[n]; double z[n]; l[0] = mu[0] = z[0] = 0;
+	double l[n]; double mu[n]; double z[n]; l[0] = 1; mu[0] = z[0] = 0;
 	forsn(i,1,n)
 	{
 		l[i] = 2.*(datos_x[i+1]-datos_x[i-1])-h[i-1]*mu[i-1];

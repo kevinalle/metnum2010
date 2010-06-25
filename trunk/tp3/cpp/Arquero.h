@@ -1,7 +1,7 @@
 #include "InterfazDeArquero.h"
 #include "algoritmos.h"
 
-#define GRADO 4
+#define GRADO 6
 
 class Arquero : public InterfazDeArquero
 {
@@ -88,17 +88,7 @@ int Arquero::ComputarRespuesta(int i)
 		Print(Matriz(0,0),Matriz(0,0));
 		res = 0;
 	}
-	else if(n==2)
-	{
-		// an ... a0
-		// Extrapolo la recta que pasa por ambos puntos
-		Matriz PX = Recta(datos_i.front(),datos_x.front(),datos_i.back(),datos_x.back());
-		Matriz PY = Recta(datos_i.front(),datos_y.front(),datos_i.back(),datos_y.back());
-		
-		Print(PX,PY);
-		res=Extrapolar(PX,PY);
-	}
-	else if(2<n && n<GRADO)
+	else if(n<3)
 	{
 		// an ... a0
 		// Extrapolo por CM comun de grado i-1
@@ -110,18 +100,19 @@ int Arquero::ComputarRespuesta(int i)
 	}
 	else
 	{
+		int grado = min(GRADO,n);
 		// Aproximo las  funciones por cuadrados mínimos de grado GRADO
-		Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),GRADO);
-		Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),GRADO);
+		Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),grado);
+		Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),grado);
 		
-		// Calculo los 5 ultimos puntos en los polinomios aproximados
-		double i5[5] = { i-4 , i-3 , i-2 , i-1 , i };
-		double PX5[5]; forn(k,5) PX5[k] = Pn(PX,i5[k]);
-		double PY5[5]; forn(k,5) PY5[k] = Pn(PY,i5[k]);
+		// Calculo los GRADO ultimos puntos en los polinomios aproximados
+		double i5[grado]; forrn(k,grado) i5[k] = i-k;
+		double xs[grado]; forn(k,grado) xs[k] = Pn(PX,i5[k]);
+		double ys[grado]; forn(k,grado) ys[k] = Pn(PY,i5[k]);
 		
-		// Aproximo los 5 ultimos puntos por una cuadratica con CM
-		Matriz PX2 = CM(i5,PX5,5,2);
-		Matriz PY2 = CM(i5,PY5,5,2);
+		// Aproximo los GRADO ultimos puntos por una cuadratica con CM
+		Matriz PX2 = CM(i5,xs,grado,2);
+		Matriz PY2 = CM(i5,ys,grado,2);
 		
 		Print(PX2,PY2);
 		res=Extrapolar(PX2,PY2);

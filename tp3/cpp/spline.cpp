@@ -21,26 +21,27 @@ struct Spline{
 	double d;
 };
 
-Spline* GenerarSpline(const Punto* datos, const int n){
-	double a[n]; forn(i,n) a[i] = datos[i].y;
-	double h[n-1];
-	forn(i,n-1) h[i] = datos[i+1].x - datos[i].x;
+Spline* GenerarSpline(const Punto* datos, const int m){
+	int n=m-1;
+	double a[n+1]; forn(i,n+1){ a[i] = datos[i].y; cout << a[i]<<endl; }
+	double h[n];
+	forn(i,n) h[i] = datos[i+1].x - datos[i].x;
 	double alpha[n]; alpha[0]=0; forsn(i,1,n) alpha[i] = (3./h[i])*(a[i+1]-a[i])-(3./h[i-1])*(a[i]-a[i-1]);
-	double l[n]; double mu[n]; double z[n]; l[0] = mu[0] = z[0] = 0;
+	double l[n+1]; double mu[n+1]; double z[n+1]; l[0] = 1; mu[0] = z[0] = 0;
 	forsn(i,1,n){
 		l[i] = 2.*(datos[i+1].x-datos[i-1].x)-h[i-1]*mu[i-1];
 		mu[i] = h[i]/l[i];
 		z[i] = (alpha[i]-h[i-1]*z[i-1])/l[i];
 	}
-	double c[n]; double b[n-1]; double d[n-1];
-	l[n-1] = 1; z[n-1] = c[n-1] = 0;
-	forrn(j,n-1){
+	double c[n+1]; double b[n]; double d[n];
+	l[n] = 1; z[n] = c[n] = 0;
+	forrn(j,n){
 		c[j] = z[j]-mu[j]*c[j+1];
 		b[j] = (a[j+1]-a[j])/h[j] - h[j]*(c[j+1]+2.*c[j])/3.;
 		d[j] = (c[j+1]-c[j])/(3.*h[j]);
 	}
-	Spline* P = new Spline[n-1];
-	forn(i,n-1){
+	Spline* P = new Spline[n];
+	forn(i,n){
 		P[i].a = a[i];
 		P[i].b = b[i];
 		P[i].c = c[i];
@@ -50,8 +51,8 @@ Spline* GenerarSpline(const Punto* datos, const int n){
 }
 
 int main(){
-	Punto data []={Punto(0,0),Punto(1,1),Punto(2,2)};
-	Spline* S=GenerarSpline(data, 3);
-	forn(i,2) cout<<S[i].a<<" "<<S[i].b<<" "<<S[i].c<<" "<<S[i].d<<endl;
+	Punto data []={Punto(0.,3.),Punto(1.,4.),Punto(5.,5.),Punto(15.,2.)};
+	Spline* S=GenerarSpline(data, 4);
+	forn(i,3) cout<<S[i].a<<" "<<S[i].b<<" "<<S[i].c<<" "<<S[i].d<<endl;
 	return 0;
 }

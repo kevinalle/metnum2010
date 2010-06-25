@@ -85,7 +85,21 @@
 \newpage
 
 	\begin{usection}{Introducción teorica}
+		El objetivo de este trabajo práctico es usar los métodos de interpolación y aproximación de funciones vistos en la materia para predecir el curso de una trayectoria.
+		La trayectoria está dada por puntos en el plano en intervalos de tiempo discretos, que pueden tener errores de aproximación pero en general describen una curva suave.
 		
+		Los métodos que vamos a usar en este trabajo están basados en Splines y/o cuadrados mínimos.
+		
+		Splines es un método de interpolación. Genera una curva suave que pasa exactamente por los puntos dados.
+		Esta curva está formada por muchos polinomios cúbicos que se tocan en los puntos interpolados y además los pedazos consecutivos coinciden en la derivada y en la derivada segunda.
+		La variante de splines que implementamos es el Spline cúbico natural, que también cumple la propiedad de que la derivada segunda en los extremos es 0.
+		
+		Cuadrados mínimos es una técnica para encontrar los coeficientes de una función que aproxime a los puntos dados.
+		A diferencia de splines, genera una curva suave que no necesariamente pasa por los puntos, pero los aproxima lo mejor posible.
+		Por esto es más apropiado para cuando los datos no son exactos, pero la desventaja es que hay que conocer o adivinar el tipo de función.
+		En el trabajo sólo vamos a usar este método para aproximar las curvas con funciones polinómicas de distintos grados.
+		
+		Observamos que los métodos están definidos para funciones y no para trayectorias. Podemos entonces separar nuestra trayectoria en $x(t)$ y $y(t)$ y trabajar con estas funciones.
 	\end{usection}
 
 
@@ -122,6 +136,7 @@
 	
 	\begin{usection}{Referencias}
 	\begin{enumerate}
+		\item \label{ref:spline} \texttt{http://en.wikipedia.org/wiki/Spline\_(mathematics)} \\ Artículo de wikipedia sobre splines con un pseudocódigo de la implementación de Spline cúbico natural.
 		\item \label{ref:waka} \texttt{http://waka-waka} \\ Waka Waka
 	\end{enumerate}	
 	\end{usection}

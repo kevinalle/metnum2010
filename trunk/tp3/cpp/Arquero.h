@@ -31,9 +31,9 @@ void Arquero::Print(const Matriz& PX, const Matriz& PY)
 	cout<<Posicion()<<" "<<datos_x.back()<<" "<<datos_y.back()<<" ";
 	int n=PX.Filas();
 	forn(i,n) cout << PX(n-i-1,0) << " ";
-	forn(i,5-n) cout << 0 << " ";
+	forn(i,3-n) cout << 0 << " ";
 	forn(i,n) cout << PY(n-i-1,0) << " ";
-	forn(i,5-n) cout << 0 << " ";
+	forn(i,3-n) cout << 0 << " ";
 	cout << endl;
 }
 
@@ -44,6 +44,9 @@ int Arquero::Respuesta(int i)
 
 int Arquero::Respuesta(int i, double x, double y)
 {
+	if(datos_i.size()) forsn(j,datos_i.back()+1,i)
+		clog << ComputarRespuesta(j) << endl;
+	
 	datos_i.push_back(i);
 	datos_x.push_back(x);
 	datos_y.push_back(y);
@@ -81,8 +84,9 @@ int Arquero::ComputarRespuesta(int i)
 		Print(Matriz(0,0),Matriz(0,0));
 		res = 0;
 	}
-	if(i==2)
+	else if(i==2)
 	{
+		// an ... a0
 		// Extrapolo la recta que pasa por ambos puntos
 		Matriz PX = Recta(datos_i.front(),datos_x.front(),datos_i.back(),datos_x.back());
 		Matriz PY = Recta(datos_i.front(),datos_y.front(),datos_i.back(),datos_y.back());
@@ -92,6 +96,7 @@ int Arquero::ComputarRespuesta(int i)
 	}
 	else if(2<i && i<GRADO)
 	{
+		// an ... a0
 		// Extrapolo por CM comun de grado i-1
 		Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),i-1);
 		Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),i-1);

@@ -4,6 +4,7 @@ class InterfazDeArquero
 	public:
 		InterfazDeArquero() { posicion=0;ultima_direccion=0; }
 		virtual void Inicializar() = 0;
+		virtual int Respuesta(int i) = 0;
 		virtual int Respuesta(int i, double x, double y) = 0;
 		double Posicion() const { return posicion; };
 		int UltimaDireccion() const { return ultima_direccion; };

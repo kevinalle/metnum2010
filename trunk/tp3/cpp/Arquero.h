@@ -34,7 +34,7 @@ void Arquero::Print(const Matriz& PX, const Matriz& PY)
 	forn(i,3-n) cout << 0 << " ";
 	forn(i,n) cout << PY(n-i-1,0) << " ";
 	forn(i,3-n) cout << 0 << " ";
-	cout << endl;
+	//cout << endl;
 }
 
 int Arquero::Respuesta(int i)
@@ -61,6 +61,7 @@ int Arquero::Extrapolar(const Matriz& PX, const Matriz& PY)
 	
 	if(t_gol<0)
 	{
+		cout << 0 << endl;
 		clog << "t_gol: " << t_gol << " la pelota no llega al arco!" << endl;
 		Mover(0);
 		return 0;
@@ -68,7 +69,8 @@ int Arquero::Extrapolar(const Matriz& PX, const Matriz& PY)
 	else
 	{
 		// Calculo la posicion de la pelota en el instante del gol
-		int x_gol = Pn(PX,t_gol);
+		double x_gol = Pn(PX,t_gol);
+		cout << x_gol << endl;
 		// Decido para donde me muevo
 		return Decidir(x_gol);
 	}

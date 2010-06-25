@@ -95,14 +95,15 @@ Spline* GenerarSpline(const Punto* datos, const int n)
 
 double P3(const Spline& S, double x)
 {
-	return S.a*x*x*x + S.b*x*x + S.c*x + S.d;
+	return S.d*x*x*x + S.c*x*x + S.b*x + S.a;
 }
 
-double PN(const double* P, const int grado, const double& x)
+double PN(const Matriz& P, const double& x)
 {
+	int grado = P.Filas()-1;
 	double res=0;
 	forn(i,grado+1)
-		res += P[i]*pow(x,grado-i);
+		res += P(i,0)*pow(x,grado-i);
 	return res;
 }
 
@@ -116,21 +117,22 @@ int ProximaRaizDiscreta(const Spline& S, int x_ini)
 		x++;
 		y0 = y1;
 		y1 = P3(S,x);
-		if(y1>y0) return -1;
+		if(y1>y0)
+			return -1;
 	}
 	return ( abs(y1)<y0 ? x : x-1 );
 }
 
-int ProximaRaizDiscreta(const double* P, const int grado, int x_ini)
+int ProximaRaizDiscreta(const Matriz& P, int x_ini)
 {
 	int x = x_ini;
-	double y0=PN(P,grado,x); x++;
-	double y1=PN(P,grado,x); x++;
+	double y0=PN(P,x); x++;
+	double y1=PN(P,x); x++;
 	while(y1>0)
 	{
 		x++;
 		y0 = y1;
-		y1 = PN(P,grado,x);
+		y1 = PN(P,x);
 		if(y1>y0) return -1;
 	}
 	return ( abs(y1)<y0 ? x : x-1 );

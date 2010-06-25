@@ -65,13 +65,13 @@ def render():
 	pygame.display.flip()
 	
 def do():
-	#screen.fill(bg)
+	screen.fill(bg)
 	
 	drawdot([float(data[n][0]) , 0])
 	drawdot([float(data[n][1]) , float(data[n][2])])
 	
-	coef_x = [ float(data[n][3]) , float(data[n][4]) , float(data[n][5]) , float(data[n][6]) ]
-	coef_y = [ float(data[n][7]) , float(data[n][8]) , float(data[n][9]) , float(data[n][10]) ]
+	coef_x = [ float(data[n][3]) , float(data[n][4]) , float(data[n][5]) ]
+	coef_y = [ float(data[n][6]) , float(data[n][7]) , float(data[n][8]) ]
 	xxs=[poli(coef_x,t) for t in range(n+20)]
 	yys=[poli(coef_y,t) for t in range(n+20)]
 	plot(zip(xxs,yys))

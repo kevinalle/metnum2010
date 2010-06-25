@@ -105,22 +105,43 @@
 
 
 	\begin{usection}{Desarrollo}
+		Comenzamos por implementar los métodos de splines y cuadrados mínimos para poder hacer pruebas de su comportamiento para después aplicarlo a nuestro objetivo.
+		Desarrollamos interfaces gráficas para ver las curvas que se estaban generando a partir de los puntos de la trayectoria.
+		En la figura \ref{fig:cmspline} se observa como interpolan una secuencia de puntos los dos métodos.
+		
+		Vemos que cuadrados mínimos es útil para filtrar errores en los daots de entrada porque no tiene la condición de tener que pasar exactamente por los puntos.
+		Genera un polinomio que aproxima muy bien a la trayectoria, siempre que se le pide el grado correcto.
+		Si le pidieramos que aproxime una función con un grado demasiado bajo, no se va a ajustar correctamente y el polinomio resultante no representaría a la funcion.
+		En cambio si el grado es demasiado grande, aparecerán oscilaciones inesperadas.
+		
 		\begin{figure}[H]
 			\centering
 			\subfigure{
-				\includegraphics[scale=0.7]{img/cm_spline.png}
-				\label{fig:cm_spline1}
+				\includegraphics[scale=0.6]{img/cm_spline.png}
+				%\label{fig:cm_spline1}
 			}
 			\subfigure{
-				\includegraphics[scale=0.7]{img/cm_spline2.png}
-				\label{fig:cm_spline2}
+				\includegraphics[scale=0.6]{img/cm_spline2.png}
+				%\label{fig:cm_spline2}
 			}
 			\caption{
 				Arriba: Interpolación de puntos de una trayectoria con cuadrados mínimos (grado 4) y splines.
 				Abajo: Interpolación con cuadrados mínimos y splines de $x(t)$ y $y(t)$ de la misma trayectoria.
 			}
-			\label{ fig:cm_spline }
+			\label{fig:cmspline}
 		\end{figure}
+		
+		El trabajo requería un método para predecir el curso de la trayectoria, y es por eso que nos interesa extrapolar las funciones pedidas.
+		En el caso de cuadrados mínimos la extrapolación la tomamos simplemente como la continuación del polinomio para los valores más altos.
+		Así, dados los puntos de una trayectoria, separamos ésta en dos funciones ($x(t)$ y $y(t)$), aplicamos cuadrados mínimos sobre cada función y obtenemos polinomios que aproximan a $x$ e $y$.
+		Para estimar la trayectoria en un punto futuro $t$, simplemente evaluamos los 2 polinomios en ese $t$ y obtenemos una posición.
+		
+		Con Splines podemos hacer algo parecido. La diferencia es que no devuelve una función global para toda la función, sino que genera una curva formada por muchos polinomios cúbicos.
+		Para extrapolar decidimos usar el último o anteúltimo polinomio de la secuencia (más detalles en discusión). Para un $t$ futuro evaluamos $SX_i$ y $SY_i$ en $t$, siendo $i=n$ ó $n-1$.
+		
+		En la figura \ref{fig:extrap} vemos el comportamiento de las curvas obtenidas de los métodos para tiempos futuros con la técnica recien descripta.
+		Entre otras cosas, vemos que el resultado de splines es muy sensible a variaciones en las posiciones de los puntos, pero en el caso general describe mejor lo que se esperaría del futuro de la trayectoria.
+		Cuadrados mínimos funciona bien cuando el grado del polinomio es aproximadamente la cantidad de curvas de la trayectoria.
 
 		\begin{figure}[H]
 			\centering
@@ -128,9 +149,17 @@
 			\caption{
 				Extrapolación de trayectorias con cuadrados mínimos de grado 3 o 4 (negro) y con splines (rojo).
 			}
-			\label{ fig:extrap }
+			\label{fig:extrap}
 		\end{figure}
 	\end{usection}
+	
+	En la versión final, para adivinar el futuro de la trayectoria solamente utilizamos cuadrados mínimos.
+	Además definimos estrategias alternativas para cuando no disponemos de suficientes daots para extrapolar con este método.
+	
+	Si tenemos entre 2,3 o 4 puntos los aproximamos por un polinomio de grados 1,2,3 respectivamente y extrapolamos para calcular en que parte de la linea de gol va a llegar.
+	Con más puntos primero los suavizamos. Para esto los aproximamos con un polinomio de grado a lo sumo 6 con cuadrados mínimos, y luego utilizamos para el resto del cálculo los puntos sobre esta curva con $t$ entero.
+	Decidimos utilizar solamente los 6 últimos puntos del paso anterior, porque consideramos que la trayectoria anterior que realizó no nos da informacion relevante.
+	A estos 6 puntos los volvemos a someter a cuadrados mínimos, esta vez de grado 2, con el objetivo de encontrar los coeficientes de la curva que está realizando.
 	
 	
 	\begin{usection}{Resultados}

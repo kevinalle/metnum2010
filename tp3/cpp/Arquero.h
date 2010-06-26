@@ -34,7 +34,6 @@ void Arquero::Print(const Matriz& PX, const Matriz& PY)
 	forn(i,3-n) cout << 0 << " ";
 	forn(i,n) cout << PY(n-i-1,0) << " ";
 	forn(i,3-n) cout << 0 << " ";
-	//cout << endl;
 }
 
 int Arquero::Respuesta(int i)
@@ -57,24 +56,22 @@ int Arquero::Respuesta(int i, double x, double y)
 
 int Arquero::Extrapolar(const Matriz& PX, const Matriz& PY)
 {
-	// Calculo el instante del gol, cuando y~0
-	int t_gol = ProximaRaizDiscreta(PY,(int)datos_i.back());
-	
-	if(t_gol<0)
+	double t = datos_i.back(); t++;
+	double y0 = datos_y.back();
+	double y1 = Pn(PY,t);
+	while(y1>0 && t<200)
 	{
-		cout << 0 << endl;
-		//clog << "t_gol: " << t_gol << " la pelota no llega al arco!" << endl;
-		Mover(0);
-		return 0;
+		t++;
+		y0=y1;
+		y1=Pn(PY,t);
 	}
-	else
-	{
-		// Calculo la posicion de la pelota en el instante del gol
-		double x_gol = Pn(PX,t_gol);
+	double x_gol = Pn(PX,t+y1/(y0-y1));
+	if(-5<=x_gol && x_gol<=5)
 		cout << x_gol << endl;
-		// Decido para donde me muevo
-		return Decidir(x_gol);
-	}
+	else
+		cout << 0 << endl;
+
+	return Decidir(x_gol);
 }
 
 int Arquero::ComputarRespuesta(int i)
@@ -86,27 +83,28 @@ int Arquero::ComputarRespuesta(int i)
 		// Me quedo quieto, no puedo deducir mucho
 		Mover(0);
 		Print(Matriz(0,0),Matriz(0,0));
+		cout << 0 << endl;
 		res = 0;
 	}
-	else if(n<3)
+	/*else if(n<4)
 	{
 		// an ... a0
 		// Extrapolo por CM comun de grado i-1
-		Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),i-1);
-		Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),i-1);
+		Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),n-1);
+		Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),n-1);
 
 		Print(PX,PY);
 		res=Extrapolar(PX,PY);
-	}
+	}*/
 	else
 	{
-		int grado = min(GRADO,n);
+		int grado = min(GRADO+1,n);
 		// Aproximo las  funciones por cuadrados mínimos de grado GRADO
-		Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),grado);
-		Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),grado);
+		Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),grado-1);
+		Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),grado-1);
 		
 		// Calculo los GRADO ultimos puntos en los polinomios aproximados
-		double i5[grado]; forrn(k,grado) i5[k] = i-k;
+		double i5[grado]; forrn(k,grado) i5[k] = i-grado+k+1;
 		double xs[grado]; forn(k,grado) xs[k] = Pn(PX,i5[k]);
 		double ys[grado]; forn(k,grado) ys[k] = Pn(PY,i5[k]);
 		

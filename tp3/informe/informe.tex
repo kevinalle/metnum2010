@@ -70,14 +70,14 @@
 \integrante{Pablo Herrero}{332/07}{pablodherrero@gmail.com}
 
 \abstracto{
-	Tsamina mina eh eh
-	Waka Waka eh eh
+	Este trabajo pretende encontrar una estrategia para predecir el curso de una trayectoria, dados algunos puntos que pueden tener errores.
+	Está basado en los métodos de Splines y Cuadrados mínimos.
 }
 
-\palabraClave{Waka}
-\palabraClave{Waka}
-\palabraClave{eh}
-\palabraClave{eh}
+\palabraClave{Spline}
+\palabraClave{Cuadrados mínimos}
+\palabraClave{Trayectoria}
+\palabraClave{Extrapolación}
 
 \begin{titlepage}
 \maketitle
@@ -137,10 +137,10 @@
 		Para estimar la trayectoria en un punto futuro $t$, simplemente evaluamos los 2 polinomios en ese $t$ y obtenemos una posición.
 		
 		Con Splines podemos hacer algo parecido. La diferencia es que no devuelve una función global para toda la función, sino que genera una curva formada por muchos polinomios cúbicos.
-		Para extrapolar decidimos usar el último o anteúltimo polinomio de la secuencia (más detalles en discusión). Para un $t$ futuro evaluamos $SX_i$ y $SY_i$ en $t$, siendo $i=n$ ó $n-1$.
+		Para extrapolar decidimos usar el último o anteúltimo polinomio de la secuencia. Para un $t$ futuro evaluamos $SX_i$ y $SY_i$ en $t$, siendo $i=n$ ó $n-1$.
 		
 		En la figura \ref{fig:extrap} vemos el comportamiento de las curvas obtenidas de los métodos para tiempos futuros con la técnica recien descripta.
-		Entre otras cosas, vemos que el resultado de splines es muy sensible a variaciones en las posiciones de los puntos, pero en el caso general describe mejor lo que se esperaría del futuro de la trayectoria.
+		Entre otras cosas, vemos que el resultado de splines es muy sensible a variaciones en las posiciones de los puntos, pero a veces describe mejor lo que se esperaría del futuro de la trayectoria.
 		Cuadrados mínimos funciona bien cuando el grado del polinomio es aproximadamente la cantidad de curvas de la trayectoria.
 
 		\begin{figure}[H]
@@ -151,49 +151,226 @@
 			}
 			\label{fig:extrap}
 		\end{figure}
+
+	
+		En la versión final, para adivinar el futuro de la trayectoria solamente utilizamos cuadrados mínimos.
+		Además definimos estrategias alternativas para cuando no disponemos de suficientes daots para extrapolar con este método.
+	
+		Si tenemos entre 2,3 o 4 puntos los aproximamos por un polinomio de grados 1,2,3 respectivamente y extrapolamos para calcular en que parte de la linea de gol va a llegar.
+		Con más puntos primero los suavizamos. Para esto los aproximamos con un polinomio de grado a lo sumo 6 con cuadrados mínimos, y luego utilizamos para el resto del cálculo los puntos sobre esta curva con $t$ entero.
+		Decidimos utilizar solamente los 6 últimos puntos del paso anterior, porque consideramos que la trayectoria anterior que realizó no nos da informacion relevante.
+		A estos 6 puntos los volvemos a someter a cuadrados mínimos, esta vez de grado 2, con el objetivo de encontrar los coeficientes de la curva que está realizando.
+	
+		Hasta acá tenemos una aproximación de la curvatura del final de la trayectoria. Decidimos mover al arquero en función de esto.
+		Calculamos el punto en el que el polinomio de grado 2 cruza la linea de gol (si existe) y movemos al arquero en esa dirección.
+	
+		\begin{figure}[H]
+			\centering
+			\includegraphics[scale=0.65]{img/tiros.png}
+			\caption{
+				Acá se observan las curvas de grado 6 (rojo) y 2 (azul) que aproximan la trayectoria. El arco es la linea roja y el punto negro es el arquero.
+			}
+			\label{fig:extrap}
+		\end{figure}
+
 	\end{usection}
 	
-	En la versión final, para adivinar el futuro de la trayectoria solamente utilizamos cuadrados mínimos.
-	Además definimos estrategias alternativas para cuando no disponemos de suficientes daots para extrapolar con este método.
-	
-	Si tenemos entre 2,3 o 4 puntos los aproximamos por un polinomio de grados 1,2,3 respectivamente y extrapolamos para calcular en que parte de la linea de gol va a llegar.
-	Con más puntos primero los suavizamos. Para esto los aproximamos con un polinomio de grado a lo sumo 6 con cuadrados mínimos, y luego utilizamos para el resto del cálculo los puntos sobre esta curva con $t$ entero.
-	Decidimos utilizar solamente los 6 últimos puntos del paso anterior, porque consideramos que la trayectoria anterior que realizó no nos da informacion relevante.
-	A estos 6 puntos los volvemos a someter a cuadrados mínimos, esta vez de grado 2, con el objetivo de encontrar los coeficientes de la curva que está realizando.
-	
-	
 	\begin{usection}{Resultados}
+		\begin{figure}[H]
+			\centering
+			\includegraphics[scale=0.75]{img/resultados.png}
+			\caption{
+				Ventana de resultados de la aplicación que prueba el arquero. 10/18 atajadas.
+			}
+			\label{fig:result}
+		\end{figure}
+		
+		La versión final del arquero ataja unos cuantos tiros :). Con el método que usamos el arquero es bueno en tiros con muchos puntos de entrada aunque tengan ruido.
+		Se pueden hacer optimizaciones para que ataje mejor los tiros rectos y los que tienen más velocidad, pero de todas las estrategias esta es la que mejor funcionó.
+		
+		\begin{figure}[H]
+			\centering
+			\includegraphics[scale=0.5]{img/gol.png}
+			\caption{
+				Resultados de algunos tiros satisfactorios e insatisfactorios al arco.
+			}
+			\label{fig:result}
+		\end{figure}
 		
 	\end{usection}
 	
 	
 	\begin{usection}{Discusión}
+		Probamos muchos métodos y combinaciones para llegar a la estrategia final.
+		Usando splines y cuadrados mínimos los combinamos y los probamos de distintas formas para estudiar técnicas alternativas.
 		
+		Las primeras consistían por ejemplo en aproximar la trayectoria con cuadrados mínimos y encontrar la intersección con la línea de gol.
+		Esta tenía el problema de que requería el grado del polinomio exacto, porque sino la extrapolación era inesperada.
+		
+		También probamos interpolar con splines toda la trayectoria y extender el ultimo polinomio para encontrar la interseccion.
+		Esto era demasiado sensible al ruido y no siempre la extrapolación concordaba con la curvatura final.
+		
+		Un método muy efectivo era suavizar la trayectoria aproximándola con cuadrados mínimos y luego usar splines con puntos sobre la curva,
+		pero tenía algunos de los problemas de splines y a veces tenia comportamientos inesperados.
+		
+		Finalmente nos decidimos por suavizar la curva con cuadrados mínimos y luego extrapolar con un polinomio cuadrático.
+		Acordamos que los puntos iniciales de la trayectoria no briandaban información relevante porque podia haber cambios de curvatura a los que había que reaccionar.
+		Dada la cantidad aproximada de puntos en la trayectoria y la cantidad de curvas que una trayectoria puede tener, vimos que cuadrados mínimos con grado menor o igual a 6 era el óptimo para suavizar los puntos.
+		La razón por la cual la curva que extrapolamos es de grado 2 es porque define una trayectoria con una sola curvatura, que era lo que nos interesaba obtener.
+		La idea era encontrar cómo estaba variando la dirección de la pelota para interceptarla.
+		la información de la curvatura imaginamos encontrarla en aproximadamente los últimos 6 puntos de la trayectoria, también debido a la estimación de la cantidad de puntos de entrada.
+		
+		Para probar las estrategias y visualizar las curvas escribimos scripts en \texttt{Python} con \texttt{pygame}.
+		Luego volcabamos la estrategia a código \texttt{C}, pero los resultados no siempre eran los mismos.
+		Posiblemente se deba a pequeñas diferencias en la implementación de los algoritmos que cambian el resultado.
 	\end{usection}
 	
 	
 	\begin{usection}{Conclusiones}
+		Durante el desarrollo del trabajo práctico implementamos algoritmos vistos en la clase teórica como Splines y Cuadrados mínimos y estudiamos su comportamiento para distintos sets de entrada.
+		Pudimos aplicar estos métodos que eran para interpolación y aproximación de funciones, para extrapolar una función y predecir el curso de una trayectoria.
 		
+		Es un problema difícil el de predecir trayectorias, pero con métodos de interpolación pudimos obtener algunos resultados satisfactorios.
+		Sin embargo, las estrategias presentadas hacen suposiciones sobre la entrada que no siempre son ciertas. Es por esto que no son apropiadas para un caso mas general, y tienen que ser modificadas segun el contexto.
 	\end{usection}
 	
-	\begin{usection}{Apéndices}
+	\begin{section}*{Apéndices}	\addcontentsline{toc}{section}{Apéndices}
 		\begin{usubsection}{Apéndice A: Enunciado}
 			\input{enunciado.tex}
 		\end{usubsection}
 		
-		\newpage
 		\begin{usubsection}{Apéndice B: Codigos Fuente}
 			
+\bigskip
+\textbf{Función que calcula splines (Referencia \ref{ref:splines})}
+\begin{lstlisting}
+Spline* GenerarSpline(const Punto* datos, const int m){
+	int n=m-1;
+	double a[n+1]; forn(i,n+1){ a[i] = datos[i].y; cout << a[i]<<endl; }
+	double h[n];
+	forn(i,n) h[i] = datos[i+1].x - datos[i].x;
+	double alpha[n]; alpha[0]=0; forsn(i,1,n) alpha[i] = (3./h[i])*(a[i+1]-a[i])-(3./h[i-1])*(a[i]-a[i-1]);
+	double l[n+1]; double mu[n+1]; double z[n+1]; l[0] = 1; mu[0] = z[0] = 0;
+	forsn(i,1,n){
+		l[i] = 2.*(datos[i+1].x-datos[i-1].x)-h[i-1]*mu[i-1];
+		mu[i] = h[i]/l[i];
+		z[i] = (alpha[i]-h[i-1]*z[i-1])/l[i];
+	}
+	double c[n+1]; double b[n]; double d[n];
+	l[n] = 1; z[n] = c[n] = 0;
+	forrn(j,n){
+		c[j] = z[j]-mu[j]*c[j+1];
+		b[j] = (a[j+1]-a[j])/h[j] - h[j]*(c[j+1]+2.*c[j])/3.;
+		d[j] = (c[j+1]-c[j])/(3.*h[j]);
+	}
+	Spline* P = new Spline[n];
+	forn(i,n){
+		P[i].a = a[i];
+		P[i].b = b[i];
+		P[i].c = c[i];
+		P[i].d = d[i];
+	}
+	return P;
+}
+\end{lstlisting}
+
+\bigskip
+\textbf{Algoritmo que calcula cuadrados mínimos}\\
+Usa los módulos de Matriz y resolución de sistemas lineales implementados para el TP2\\
+\begin{lstlisting}
+Matriz T_CM(Matriz x, int grado)
+{
+	Matriz res(x.Filas(),grado);
+	forn(i,res.Filas()) forn(j,res.Columnas())
+	{
+		res(i,j) = pow(x(i,0),res.Columnas()-j-1);
+	}
+	return res;
+}
+
+Matriz CM(const double* x, const double* y, const int n, const int grado)
+{
+	Matriz T(T_CM(Matriz(x,n,1),grado+1));
+	Matriz T_t(T.T());
+	Matriz A(T_t*T);
+	Matriz b(T_t*Matriz(y,n,1));
+	return A.resolver(b);
+}
+\end{lstlisting}
+
+
+\bigskip
+\textbf{Algoritmo del arquero que decide cómo moverse}\\
+\begin{lstlisting}
+int ArqueroLoco::ComputarRespuesta(int i)
+{
+	int n = datos_i.size();
+	int res = 0;
+	if(n<2){
+		// Me quedo quieto, no puedo deducir mucho
+		Mover(0);
+		Print(Matriz(0,0),Matriz(0,0));
+		res = 0;
+	}else if(n==2){
+		// an ... a0
+		// Extrapolo la recta que pasa por ambos puntos
+		Matriz PX = Recta(datos_i.front(),datos_x.front(),datos_i.back(),datos_x.back());
+		Matriz PY = Recta(datos_i.front(),datos_y.front(),datos_i.back(),datos_y.back());
+		
+		Print(PX,PY);
+		res=Extrapolar(PX,PY);
+	}else if(2<n && n<GRADO){
+		// an ... a0
+		// Extrapolo por CM comun de grado i-1
+		Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),i-1);
+		Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),i-1);
+
+		Print(PX,PY);
+		res=Extrapolar(PX,PY);
+	}else{
+		// Aproximo las  funciones por cuadrados minimos de grado GRADO
+		Matriz PX = CM(ToArray(datos_i),ToArray(datos_x),datos_i.size(),GRADO);
+		Matriz PY = CM(ToArray(datos_i),ToArray(datos_y),datos_i.size(),GRADO);
+		
+		// Calculo los 6 ultimos puntos en los polinomios aproximados
+		double i6[6] = { i-5 , i-4 , i-3 , i-2 , i-1 , i };
+		double x6[6]; forn(k,6) x6[k] = Pn(PX,i6[k]);
+		double y6[6]; forn(k,6) y6[k] = Pn(PY,i6[k]);
+		
+		// Aproximo los 5 ultimos datos con una cuadratica con CM
+		Matriz PX2 = CM(i6,x6,6,2);
+		Matriz PY2 = CM(i6,y6,6,2);
+		
+		// Calculo los 6 ultimos puntos en el polinomio aproximado
+		double xx6[6]; forn(k,6) xx6[k] = Pn(PX2,i6[k]);
+		double yy6[6]; forn(k,6) yy6[k] = Pn(PY2,i6[k]);
+		
+		// Calculo los 6-1 splines interpolantes
+		//Spline* Sx = GenerarSpline(i6,xx6,6);
+		//Spline* Sy = GenerarSpline(i6,yy6,6);
+		Spline* Sx = GenerarSpline(APuntos(i6,xx6,6),6);
+		Spline* Sy = GenerarSpline(APuntos(i6,yy6,6),6);
+		
+		// Extrapolo el anteultimo
+		Matriz SPx = SplineAMatriz(Sx[0]);
+		Matriz SPy = SplineAMatriz(Sy[0]);
+		
+		Print(SPx,SPy);
+		res=Extrapolar(SPx,SPy);
+	}
+	return res;
+}
+\end{lstlisting}
+
 		\end{usubsection}
-	\end{usection}
+	\end{section}
 	
 	
-	\begin{usection}{Referencias}
+	\begin{section}*{Referencias}	\addcontentsline{toc}{section}{Referencias}
 	\begin{enumerate}
 		\item \label{ref:spline} \texttt{http://en.wikipedia.org/wiki/Spline\_(mathematics)} \\ Artículo de wikipedia sobre splines con un pseudocódigo de la implementación de Spline cúbico natural.
-		\item \label{ref:waka} \texttt{http://waka-waka} \\ Waka Waka
 	\end{enumerate}	
-	\end{usection}
+	\end{section}
 
 \end{document}
 

@@ -202,11 +202,11 @@ def metodo_12(ts,xs,ys):
 		ts=ts[-6:]
 		xs=[poli(cxa,t) for t in ts]
 		ys=[poli(cya,t) for t in ts]
-		plot([(poli(cxa,t),poli(cya,t)) for t in range(n+40)],red)
+		plot([(poli(cxa,t),poli(cya,t)) for t in range(ts[-1]+4)],red)
 		
 		cx=cuadmin(ts,xs,2)
 		cy=cuadmin(ts,ys,2)
-		plot([(poli(cx,t),poli(cy,t)) for t in range(n+40)],(50,50,200))
+		plot([(poli(cx,t),poli(cy,t)) for t in range(ts[-1]+40)],(50,50,200))
 		xs=[poli(cx,t) for t in ts]
 		ys=[poli(cy,t) for t in ts]
 		#metodo_spline2(ts,xs,ys)

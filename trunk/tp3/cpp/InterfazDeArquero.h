@@ -28,12 +28,12 @@ void InterfazDeArquero::Mover(int direccion)
 
 int InterfazDeArquero::Decidir(double x_pelota)
 {
-	if (x_pelota-Posicion() > .05)
+	if (x_pelota-Posicion() >= .05)
 	{
 		Mover(1);
 		return 1;
 	}
-	else if (x_pelota-Posicion() < .05)
+	else if (x_pelota-Posicion() <= .05)
 	{
 		Mover(-1);
 		return -1;

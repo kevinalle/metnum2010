@@ -1,5 +1,7 @@
 #include "Matriz.h"
+#include<vector>
 using namespace std;
+#define forall(it,X) for(typeof((X).begin()) it=(X).begin();it!=(X).end();it++)
 
 Matriz T_CM(Matriz x, int grado){
 	Matriz res(x.Filas(),grado);
@@ -9,17 +11,24 @@ Matriz T_CM(Matriz x, int grado){
 	return res;
 }
 
-Matriz CM(vector<double> x, vector<double> y, const int grado){
+vector<double> CM(vector<double> x, vector<double> y, const int grado){
+	//clog << "CM" << endl;
 	int n=x.size();
-	Matriz X(n,1);
-	Matriz Y(n,1);
+	Matriz X(1,n+1);
+	Matriz Y(1,n+1);
 	forn(i,n){
-		X(i,0)=x[i];
-		Y(i,0)=y[i];
+		X(0,i)=x[i];
+		Y(0,i)=y[i];
 	}
 	Matriz T(T_CM(X,grado+1));
 	Matriz T_t(T.T());
 	Matriz A(T_t*T);
 	Matriz b(T_t*Y);
-	return A.resolver(b);
+	Matriz res(A.resolver(b));
+forn(i,n) clog<<res(i,0)<<","; clog<<endl;
+	vector<double> ret;
+	forn(i,grado) ret.push_back(res(0,i));
+	//clog << "endCM" << endl;
+forall(it,ret) clog<<*it<<".."; clog<<endl;
+	return ret;
 }

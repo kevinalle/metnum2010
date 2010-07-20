@@ -11,14 +11,7 @@ Matriz& T_CM(Matriz x, int grado){
 	return *res;
 }
 
-vector<double>& CM(vector<double> x, vector<double> y, const int grado){
-
-	clog << "============================================================" << endl;
-	clog << "		CM INPUT" << endl;
-	clog << "		x: "; forall(it,x) clog<<*it<<","; clog<<endl;
-	clog << "		y: "; forall(it,y) clog<<*it<<","; clog<<endl;
-	clog << "		grado: " << grado << endl << endl;
-	
+vector<double> CM(const vector<double>& x, const vector<double>& y, const int grado){
 	int n = x.size();
 
 	Matriz X(n,1);
@@ -30,29 +23,15 @@ vector<double>& CM(vector<double> x, vector<double> y, const int grado){
 		Y(i,0)=y[i];
 	}
 
-	clog << "		X: " << X << endl;
-	clog << "		Y: " << Y << endl << endl;
-
 	Matriz T(T_CM(X,grado));
 	Matriz T_t(T.T());
 	Matriz A(T_t*T);
-cout << "		T: " << T << endl;
-cout << "		T.t: " << T_t << endl << endl;
 	Matriz b(T_t*Y);
-cout << "		A: " << A << endl;
-cout << "		b: " << b << endl;
 	Matriz res(A.resolver(b));
-cout << "		res: " << res << endl;
-//	forn(i,n) clog<<res(i,0)<<","; clog<<endl;
-
+	
 	// transformo de matriz a vector
-
-	vector<double>* ret = new vector<double>();
-	forn(i,grado+1) ret->push_back(res(i,0));
-
-	clog << endl << "		CM OUTPUT" << endl;
-	clog << "		"; forall(it,*ret) clog<<*it<<","; clog<<endl;
-	clog << "============================================================" << endl;
-
-	return *ret;
+	vector<double> ret;
+	forn(i,grado) ret.push_back(res(i,0));
+	
+	return ret;
 }

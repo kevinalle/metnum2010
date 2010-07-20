@@ -2,6 +2,7 @@
 #include<vector>
 using namespace std;
 #define forall(it,X) for(typeof((X).begin()) it=(X).begin();it!=(X).end();it++)
+#define forrn(i,n) for(int i=(n)-1;i>=0;i--)
 
 Matriz& T_CM(Matriz x, int grado){
 	Matriz* res = new Matriz(x.Filas(),grado+1);
@@ -22,16 +23,16 @@ vector<double> CM(const vector<double>& x, const vector<double>& y, const int gr
 		X(i,0)=x[i];
 		Y(i,0)=y[i];
 	}
-
 	Matriz T(T_CM(X,grado));
 	Matriz T_t(T.T());
 	Matriz A(T_t*T);
 	Matriz b(T_t*Y);
+	cout << b << endl;
 	Matriz res(A.resolver(b));
 	
 	// transformo de matriz a vector
 	vector<double> ret;
-	forn(i,grado) ret.push_back(res(i,0));
+	forrn(i,grado+1) ret.push_back(res(i,0));
 	
 	return ret;
 }

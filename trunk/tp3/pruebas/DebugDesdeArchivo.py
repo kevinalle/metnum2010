@@ -38,6 +38,7 @@ def transformation(p):
 def drawdot(pos,col=None):
 	pos=transformation(pos)
 	if not col: col=(50,50,50)
+	#print(pos[0],pos[1],col)
 	pygame.gfxdraw.aacircle(screen,pos[0],pos[1],2,col)
 	pygame.gfxdraw.filled_circle(screen,pos[0],pos[1],2,col)
 
@@ -66,8 +67,11 @@ def render():
 	
 def do():
 	screen.fill(bg)
-	
+	print data[n]
 	drawdot([float(data[n][0]) , 0])
+	#print float(data[n][9])
+	drawdot([float(data[n][9]) , 0],(255,0,0))
+	#print float(data[n][1]) , float(data[n][2])
 	drawdot([float(data[n][1]) , float(data[n][2])])
 	
 	coef_x = [ float(data[n][3]) , float(data[n][4]) , float(data[n][5]) ]

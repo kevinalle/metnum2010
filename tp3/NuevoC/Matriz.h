@@ -214,7 +214,7 @@ void Matriz::triangular(Vector& res, double* U2, int* P2, const int k){
 
 	#if DEBUG==1
 		if(p==0){
-			clog << "SINGULAR!" << endl;
+//			clog << "SINGULAR!" << endl;
 			assert(p!=0);
 		}
 	#endif
@@ -438,7 +438,7 @@ ostream& operator << (ostream& os, const Matriz& A){
 			if(j!=0) os << ',';
 			os << A.M[A.m*i + j];
 		}
-		os << ']' << endl;
+		os << ']';
 	}
 	os << ']';
 	return os;

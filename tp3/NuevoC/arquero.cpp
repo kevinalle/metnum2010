@@ -70,10 +70,10 @@ int main(int argc, const char* argv[]){
 	cout << "============================================================" << endl;
 	//fin.close();
 	
-//	forsn(i,1,data_ts[0]) move(i,0);
+	forsn(i,1,data_ts[0]) move(i,0);
 	int c=0;
 	forsn(n,data_ts[0],data_ts.back()+1){
-		while( data_ts[c] <= n ){
+		if( data_ts[c] <= n ){
 			ts.push_back(data_ts[c]);
 			xs.push_back(data_xs[c]);
 			ys.push_back(data_ys[c]);

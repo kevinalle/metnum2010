@@ -14,11 +14,10 @@ using namespace std;
 typedef vector<double> V;
 typedef vector<int> Vi;
 
-
 double step=.05;
 double arq=0.;
 int lastdir=0;
-
+ofstream out;
 
 double poli(V coef,double x){
 	double res=0;
@@ -27,7 +26,7 @@ double poli(V coef,double x){
 }
 
 void move(int i, int to){
-	cout << i << "\t" << to << endl;
+	out << i << "\t" << to << endl;
 }
 
 int go_to(double gol){
@@ -52,8 +51,8 @@ int main(int argc, const char* argv[]){
 		cout << "Not enough arguments" << endl;
 		return 0;
 	}
+	out.open(argv[2]);
 	ifstream fin(argv[1]);
-	ofstream out(argv[2]);
 	int t; double x,y;
 	Vi data_ts; V data_xs,data_ys;
 	V ts; V xs,ys;
@@ -63,12 +62,7 @@ int main(int argc, const char* argv[]){
 		data_xs.push_back(x);
 		data_ys.push_back(y);
 	}
-	cout << "PROGRAM INPUT" << endl;
-	clog << "ts: "; forall(it,data_ts) clog<<*it<<","; clog<<endl;
-	clog << "xs: "; forall(it,data_xs) clog<<*it<<","; clog<<endl;
-	clog << "ys: "; forall(it,data_ys) clog<<*it<<","; clog<<endl;
-	cout << "============================================================" << endl;
-	//fin.close();
+	fin.close();
 	
 	forsn(i,1,data_ts[0]) move(i,0);
 	int c=0;
@@ -80,44 +74,26 @@ int main(int argc, const char* argv[]){
 			c++;
 		}
 
-		cout << "============================================================" << endl;
-		cout << "	LOOP INPUT" << endl;
-		clog << "	ts: "; forall(it,ts) clog<<*it<<","; clog<<endl;
-		clog << "	xs: "; forall(it,xs) clog<<*it<<","; clog<<endl;
-		clog << "	ys: "; forall(it,ys) clog<<*it<<","; clog<<endl;
-		cout << "============================================================" << endl;
-
 		if(ts.size()>=4){
 			int grado = min(6,(int)ts.size()-1);
-			cout << "	grado: " << grado << endl;
 			V cxa( CM(ts,xs,grado) );
 			V cya( CM(ts,ys,grado) );
-
-			cout << "	WTF INPUT" << endl;
-			clog << "	cxa: "; forall(it,cxa) clog<<*it<<","; clog<<endl;
-			clog << "	cya: "; forall(it,cya) clog<<*it<<","; clog<<endl;
-			
 			//ts=ts[-6:]
-			ts.erase(ts.begin(),ts.end()-6);
-			//xs=[poli(cxa,t) for t in ts]
-			//ys=[poli(cya,t) for t in ts]
-			V xxs; forall(t,ts) xxs.push_back( poli(cxa,*t) );
-			V yys; forall(t,ts) yys.push_back( poli(cya,*t) );
-
-			cout << "	CM INPUT" << endl;
-			clog << "	xxs: "; forall(it,xxs) clog<<*it<<","; clog<<endl;
-			clog << "	yys: "; forall(it,yys) clog<<*it<<","; clog<<endl;
-clog << "0" << endl;
+			V tts;
+			//tts.erase(tts.begin(),tts.end()-6);
+			for(int j=max(0,(int)ts.size()-6);j<ts.size();j++) tts.push_back(ts[j]);
+			//xs=[poli(cxa,t) for t in tts]
+			//ys=[poli(cya,t) for t in tts]
+			V xxs; forall(t,tts) xxs.push_back( poli(cxa,*t) );
+			V yys; forall(t,tts) yys.push_back( poli(cya,*t) );
 			//cx=cuadmin(ts,xs,2)
 			//cy=cuadmin(ts,ys,2)
-			V cx( CM(ts,xxs,2) );
-			V cy( CM(ts,yys,2) );
-clog << "1" << endl;			
+			V cx( CM(tts,xxs,2) );
+			V cy( CM(tts,yys,2) );
 			//xs=[poli(cx,t) for t in ts]
 			//ys=[poli(cy,t) for t in ts]
-			V xxxs; forall(t,ts) xxxs.push_back(poli(cx,*t));
-			V yyys; forall(t,ts) yyys.push_back(poli(cy,*t));
-clog << "2" << endl;
+			V xxxs; forall(t,tts) xxxs.push_back(poli(cx,*t));
+			V yyys; forall(t,tts) yyys.push_back(poli(cy,*t));
 			//t=ts[-1]
 			int t=ts.back();
 			//y=ys[-1]
@@ -167,6 +143,6 @@ clog << "2" << endl;
 			move(n,0);
 		}
 	}
-	
+	out.close();
 	return 0;
 }

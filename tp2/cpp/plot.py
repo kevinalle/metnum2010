@@ -45,18 +45,19 @@ posiciones=map(list,zip(*[map(eval,l.split()) for l in stdin.read().strip().spli
 
 #relative_object=find(lambda x:'*' in x, cuerpos)
 relative_object=int(options.relative_object)
+
 if relative_object>=0:
 	#relativizo las posiciones
 	for c in range(N):
 		if c!=relative_object:
 			for i in range(len(posiciones[c])):
 				posiciones[c][i]=[posiciones[c][i][pos]-posiciones[relative_object][i][pos] for pos in (0,1,2)]
+	posiciones[relative_object]=[(0,0,0) for _ in range(len(posiciones[relative_object]))] 
 
 for c in range(N):
-	if c!=relative_object:
-		plot(*zip(*posiciones[c])[:2], label=cuerpos[c] , color=colors[c])
-		plot(posiciones[c][-1][0],posiciones[c][-1][1], 'o', ms=6, color=colors[c], mew=0)
-		if options.nombres: anota(posiciones[c][-1][:2],cuerpos[c] ,colors[c]) #nombres de los planetas
+	plot(*zip(*posiciones[c])[:2], label=cuerpos[c] , color=colors[c])
+	plot(posiciones[c][-1][0],posiciones[c][-1][1], 'o', ms=6, color=colors[c], mew=0)
+	if options.nombres: anota(posiciones[c][-1][:2],cuerpos[c] ,colors[c]) #nombres de los planetas
 
 axes().set_aspect(1.)
 #axis([-1.2,1.2,-1.2,1.2], aspect='scaled') # ver solo el centro

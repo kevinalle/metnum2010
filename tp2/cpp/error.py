@@ -35,8 +35,8 @@ def prueba(m,p):
 
 	f.close()
 
-metodos = [1,2,3]
-precisiones = [1,4,12,24]
+metodos = [1,2]
+precisiones = [6,24]
 
 for m in metodos:
 	for p in precisiones:

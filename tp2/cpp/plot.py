@@ -23,6 +23,7 @@ parser.add_option("-z", "--zoom", dest="zoom", default="all", help="Zoom del plo
 parser.add_option("-c", "--center", type="int", dest="center", default=0, help="Cuerpo para centrar zoom (-1 es el ultimo)")
 parser.add_option("-t", "--title", dest="title",help="Titulo del Grafico")
 parser.add_option("-n", "--sinnombres", action="store_false", default=True, dest="nombres", help="Poner labels a los planetas")
+parser.add_option("-r", "--relative", dest="relative_object", default=-1, help="Dibujar las trayectorias relativas a un planeta")
 (options, args) = parser.parse_args()
 
 def anota(pnt,txt,color=(1.0, 0.7, 0.7)):
@@ -42,7 +43,8 @@ posiciones=map(list,zip(*[map(eval,l.split()) for l in stdin.read().strip().spli
 
 #print posiciones
 
-relative_object=find(lambda x:'*' in x, cuerpos)
+#relative_object=find(lambda x:'*' in x, cuerpos)
+relative_object=int(options.relative_object)
 if relative_object>=0:
 	#relativizo las posiciones
 	for c in range(N):

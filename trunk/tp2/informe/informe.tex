@@ -213,7 +213,7 @@
 	\label{sec:res}
 		\input{resultados_ej1_m1.tex}
 		\input{resultados_ej1_m2.tex}
-		\input{resultados_ej1_m3.tex}
+%		\input{resultados_ej1_m3.tex}
 		\input{resultados_ej1_error.tex}
 %		\input{resultados_ej2_m1.tex}
 %		\input{resultados_ej2_m2.tex}
@@ -286,28 +286,40 @@
 
 		\begin{usubsection}{Error}
 		
-			En los dos ultimos casos de al figura \ref{res_ej1_err} vemos
-			como el error evoluciona de manera pareja en función del tiempo,
-			lo que parece indicar un buen funcionamiento del algoritmo, ya que no hay saltos bruscos,
-			excepto los de la posición del sol para los cuáles no hemos encontrado aún una explicación.
+			En los gráficos respectivos a la tierra y la luna en la figura \ref{res_ej1_err}, vemos
+			como el error evoluciona de manera pareja en función del tiempo para el método 1.
+			Esto parece indicar un buen funcionamiento del algoritmo, ya que no hay saltos bruscos en la gráfica del error.
 			
-			Los errores se deben seguramente a la diferencia de presición en el cálculo con respecto a los cómputos de la NASA,
+			Los errores se deben seguramente a la diferencia de precisión en el cálculo con respecto a los cómputos de la NASA,
 			y se incrementan contínuamente a causa del error acumulado.
 			Podemos también ver que el comportamiento del error
 			se ve reflejado en los gráficos correspondientes
 			de las órbitas de los planetas mostradas anteriormente, y viceversa.
 			
-			En los gráficos de la tierra y la luna podemos ver que se producen osilaciones
-			que curiosamente tienen un peíodo de 365 días.
-			Si buscamos la causa en los gráficos de órbitas, vemos que a medida que
+			En los gráficos correspondientes al método 2 podemos ver que se producen osilaciones
+			que curiosamente tienen un peíodo aproximado de 365 días.
+			Si buscamos la causa en las órbitas, podemos decir que a medida que
 			la tierra y por ende la luna se alejan de su punto de partida,
 			se alejan también de la órbita ``correcta'',
 			que suponemos es muy parecida a la calculada por la NASA.
 			Cuando pasado la mitad del período de orbitación terrestre,
 			los cuerpos comienza a acercarse de nuevo a su punto de partida,
 			la órbita simulada se va ajustando de nuevo a la de la NASA.
+			O sea que la elipse de la órbita es un poco mas grande que la real,
+			pero sin embargo tienen un punto en ``común''.
 			Igual vemos que no se ajusta del todo, ya que en cada período
 			se incrementa la distancia a la órbita ideal.
+
+			Esto nos lleva a pensar que tal vez halla una falla en la implementación del algoritmo correspondiente al método 2,
+			posiblemente al armar la matriz con los datos o en el algoritmo de Gauss para solución de ecuaciones lineales.
+			No obstante, vemos que a medida que achicamos el $\Delta t$ el error disminuye considerablemente, por lo cuál tal vez
+			el método simplemente no sea del todo adecuado para trabajar con esta granularidad,
+			y disminuyendola más (lo cuál requiere mucho tiempo de cómputo, por eso no tenemos resultados)
+			se logren resultados buenos.
+
+			El método 3 nos resulto demasiado costoso para calcular
+			durante un período de tiempo significativo como para hablar
+			de la evolución del error.
 			
 		\end{usubsection}
 		
@@ -334,7 +346,6 @@
 		El método 3 parece arreglar este problema, aproximando varias derivadas en un mismo $\Delta t$,
 		hasta que la diferencia entre dos derivadas sucesivas se haga mas chica que un umbral.
 		Sin embargo esto es muy parecido, y practicamente igual de eficiente que achicar todavía mas el $\Delta t$ para los métodos anteriores.
-		
 
 	\end{section}
 	

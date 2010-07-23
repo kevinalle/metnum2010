@@ -134,6 +134,26 @@
 		del segundo método de resolución. Los módulos fueron
 		implementados en el lenguaje \texttt{C++} para garantizar una
 		buena performance.
+		
+		Escribimos el módulo \texttt{Matriz.h} que implementa una matriz
+		con las operaciones:
+		
+		\begin{tabular}{rl}
+			\texttt{T} & Transpuesta\\
+			\texttt{resolver} & Solución al sistema $Mx=b$\\
+			\texttt{triangular} & Triangula la matriz con el método de eliminación gausseana con pivoteo simple\\
+			\multicolumn{2}{l}{
+				\texttt{Suma, Resta, Multiplicación, Multiplicación por escalar}
+			}
+		\end{tabular}
+		
+		Elegimos implementar la triangulación con el método gausseano
+		de pivoteo simple porque es una de las formas más simples para
+		resolver un sistema de ecuaciones lineal.
+		
+		Además escribimos la clase \texttt{Vector3} que implementa un vector
+		en $\mathbb{R}^3$ con las operaciones básicas como \texttt{Suma, Resta
+		Producto Escalar, Producto Vectorial, Normalizar}, etc.
 
 		Luego procedimos a implementar un entorno de simulación
 		(\texttt{C++}) y un pequeño script para plotear y poder
@@ -144,7 +164,16 @@
 		lineales, intercalando la producción de cada uno, con fases de
 		validación que consistían en simular los sistemas propuestos
 		en el enunciado, y cuyos resultados se pueden observar en la
-		sección \textbf{resultados} \ref{sec:res}.
+		sección \textbf{resultados}.
+		
+		Para validar los métodos utilizados en la simulación corrimos pruebas
+		que consistían en casos simples como por ejemplo Sol-Tierra-Luna, o el
+		sistema solar y observamos si las trayectorias de los cuerpos se comportaban
+		como esperadas. Por ejemplo comprobamos si la órbita de la tierra alrededor del
+		sol era aproximadamente circular y si recorría una vuelta entera en 365 días.
+		Ademas vimos si la trayectoria de la luna parecía acompañar a la tierra.
+		Observamos que con un $dt$ de una hora los planetas se comportaban suficientemente
+		parecido a lo que esperábamos.
 
 		Validados los métodos de simulación, tuvimos que idear un
 		algoritmo para calcular el vector de velocidad inicial de
@@ -165,6 +194,10 @@
 		Definimos entonces una función (\texttt{mindist}) que dadas las condiciones iniciales, un cuerpo \texttt{proyectil} y un cuerpo \texttt{target}, nos devuelva la distancia mínima a la que se encontrarán estos cuerpos en algun futuro acotado.
 		Nos restringimos a los casos en los que la distancia es monótonamente decreciente, y consideramos sólo los tiempos para los cuales los cuerpos se acercan. (Esto es una desicion de implementación, ya que no estaríamos encontrando las soluciones en las que el proyectil se aleja y luego se vuelve a acercar).
 		
+		Como posición de lanzamiento elegimos un punto aproximadamente sobre la
+		órbita de neptuno, esto es, a unos 30AU del sol, sobre el plano $xy$.
+		Por ejemplo, los lanzamientos de prueba tenían como posición inicial el punto $(30,0,0)$.
+		
 		Tenemos entonces que minimizar esta función (o encontrar un valor para el cual sea menor que $10^{-4}$).
 		Para esto elegimos una velocidad inicial a mano (aproximadamente hacia el cuerpo \texttt{target}) y corremos un algoritmo que va ajustando la velocidad para minimizar la función \texttt{mindist}. [Más detalles en \textbf{Discusión}]
 
@@ -178,13 +211,13 @@
 	\end{usection}
 	\begin{usection}{Resultados}
 	\label{sec:res}
-		\input{resultados_ej1_m1.tex}
-		\input{resultados_ej1_m2.tex}
-		\input{resultados_ej1_m3.tex}
-		\input{resultados_ej2_m1.tex}
-		\input{resultados_ej2_m2.tex}
-		\input{resultados_misil.tex}
-		\input{resultados_bomba.tex}
+%		\input{resultados_ej1_m1.tex}
+%		\input{resultados_ej1_m2.tex}
+%		\input{resultados_ej1_m3.tex}
+%		\input{resultados_ej2_m1.tex}
+%		\input{resultados_ej2_m2.tex}
+%		\input{resultados_misil.tex}
+%		\input{resultados_bomba.tex}
 	\end{usection}
 	
 	\begin{usection}{Discusión}

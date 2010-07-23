@@ -211,9 +211,9 @@
 	\end{usection}
 	\begin{usection}{Resultados}
 	\label{sec:res}
-%		\input{resultados_ej1_m1.tex}
-%		\input{resultados_ej1_m2.tex}
-%		\input{resultados_ej1_m3.tex}
+		\input{resultados_ej1_m1.tex}
+		\input{resultados_ej1_m2.tex}
+		\input{resultados_ej1_m3.tex}
 		\input{resultados_ej1_error.tex}
 %		\input{resultados_ej2_m1.tex}
 %		\input{resultados_ej2_m2.tex}
@@ -282,6 +282,33 @@
 			Un problema que observamos durante las simulaciones, cuando tratábamos de pegarle con el proyectil a la tierra, es que el $\Delta t$ no era lo suficientemente chico para lograr la presicion de impacto requerida.
 			De un instante de tiempo al otro, el proyectil estaba adelante y luego atrás de la tierra, siendo la distancia entre los cuerpos nunca suficientemente chica.
 			Por esto en la función \texttt{mindist} alteramos el $\Delta t$ dinámicamente a medida que el proyectil se acercaba al \texttt{target}, para tener más presicion cuando se encontraban cerca.
+		\end{usubsection}
+
+		\begin{usubsection}{Error}
+		
+			En los dos ultimos casos de al figura \ref{res_ej1_err} vemos
+			como el error evoluciona de manera pareja en función del tiempo,
+			lo que parece indicar un buen funcionamiento del algoritmo, ya que no hay saltos bruscos,
+			excepto los de la posición del sol para los cuáles no hemos encontrado aún una explicación.
+			
+			Los errores se deben seguramente a la diferencia de presición en el cálculo con respecto a los cómputos de la NASA,
+			y se incrementan contínuamente a causa del error acumulado.
+			Podemos también ver que el comportamiento del error
+			se ve reflejado en los gráficos correspondientes
+			de las órbitas de los planetas mostradas anteriormente, y viceversa.
+			
+			En los gráficos de la tierra y la luna podemos ver que se producen osilaciones
+			que curiosamente tienen un peíodo de 365 días.
+			Si buscamos la causa en los gráficos de órbitas, vemos que a medida que
+			la tierra y por ende la luna se alejan de su punto de partida,
+			se alejan también de la órbita ``correcta'',
+			que suponemos es muy parecida a la calculada por la NASA.
+			Cuando pasado la mitad del período de orbitación terrestre,
+			los cuerpos comienza a acercarse de nuevo a su punto de partida,
+			la órbita simulada se va ajustando de nuevo a la de la NASA.
+			Igual vemos que no se ajusta del todo, ya que en cada período
+			se incrementa la distancia a la órbita ideal.
+			
 		\end{usubsection}
 		
 	\end{usection}

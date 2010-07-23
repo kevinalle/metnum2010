@@ -90,14 +90,15 @@ validar_relativo: simulador $(CONJ)
 	@echo "Running"
 	@./simulador -m 1 -d 1825 -dt .04166 -or 1825 < $(CONJ) > relative/validacion_m1_24.out
 	@./simulador -m 2 -d 1825 -dt .04166 -or 1825 < $(CONJ) > relative/validacion_m2_24.out
-	@./simulador -m 3 -d 1825 -dt .04166 -or 1825 < $(CONJ) > relative/validacion_m3_24.out
+	#@./simulador -m 3 -d 1825 -dt .04166 -or 1825 < $(CONJ) > relative/validacion_m3_24.out
 	@./simulador -m 1 -d 1825 -dt .006 -or 1825 < $(CONJ) > relative/validacion_m1_1000.out
 	@./simulador -m 2 -d 1825 -dt .006 -or 1825 < $(CONJ) > relative/validacion_m2_1000.out
-	@./simulador -m 3 -d 1825 -dt .006 -or 1825 < $(CONJ) > relative/validacion_m3_1000.out
+	@./simulador -m 3 -d 800 -dt .0008 -or 2000 < $(CONJ) > relative/validacion_m3.out
+	@echo "Plotting"
 	@./plot.py -c 1 -r 1 -q -o relative/validacion_m1_24 < relative/validacion_m1_24.out
 	@./plot.py -c 1 -r 1 -q -o relative/validacion_m2_24 < relative/validacion_m2_24.out
-	@./plot.py -c 1 -r 1 -q -o relative/validacion_m3_24 < relative/validacion_m3_24.out
+	#@./plot.py -c 1 -r 1 -q -o relative/validacion_m3_24 < relative/validacion_m3_24.out
 	@./plot.py -c 1 -r 1 -q -o relative/validacion_m1_1000 < relative/validacion_m1_1000.out
 	@./plot.py -c 1 -r 1 -q -o relative/validacion_m2_1000 < relative/validacion_m2_1000.out
-	@./plot.py -c 1 -r 1 -q -o relative/validacion_m3_1000 < relative/validacion_m3_1000.out
+	@./plot.py -c 1 -r 1 -q -o relative/validacion_m3 < relative/validacion_m3.out
 	@./plot.py -c 1 -r 1 -z .013 -q -o relative/zoom_validacion_m1_1000 < relative/validacion_m1_1000.out

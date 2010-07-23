@@ -108,7 +108,8 @@ Matriz Df(const Vn& y){
 	Matriz res(6*N,6*N,0);
 
 	// lleno A21
-	forn(i,3*N) forn(j,3*N) if(i==j) res(3*N+i,j) = 1;
+	//forn(i,3*N) forn(j,3*N) if(i==j) res(3*N+i,j) = 1;
+	forn(i,3*N) res(3*N+i,i)=1;
 
 	// lleno A12
 	forn(i,N) forn(j,N) {
@@ -121,6 +122,7 @@ Matriz Df(const Vn& y){
 		}
 		forn(ii,3) forn(jj,3) res(3*i+ii,3*N+3*j+jj) = (long double)S(ii,jj);
 	}
+	//clog << res << endl;
 	return res;
 }
 
@@ -335,6 +337,8 @@ void init_misil(const V3& target_pos, const misil_t type){
 }
 
 int main(int argc, char*argv[]){
+
+	if( argc<2 || strcmp(argv[1],"--help")==0 || strcmp(argv[1],"-h")==0 ) help();
 
 	init_planets();
 	parse_options(argc,argv);

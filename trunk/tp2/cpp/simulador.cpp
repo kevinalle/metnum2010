@@ -51,7 +51,7 @@ int resolution;
 int outresolution;
 long double dt;
 int metodo;
-misil_t misiltype=BombaOscura/*Proyectil*/;
+misil_t misiltype=Proyectil/*Proyectil*/;
 sim_t simType;
 
 /* solo hacen falta si el tipo de simulacion es Misil */
@@ -65,7 +65,7 @@ int N;//=sizeof(sistema)/sizeof(Cuerpo);
 vector<Cuerpo> Cuerpos;//(sistema, sistema+N);
 
 void printPos(const Vn& y){
-	forn(i,N) cout << "(" << y[3*N+3*i] << "," << y[3*N+3*i+1] << "," << y[3*N+3*i+2] << ")" <<" ";
+	forn(i,N) cout << "" << y[3*N+3*i] << "," << y[3*N+3*i+1] << "," << y[3*N+3*i+2] << "" <<" ";
 	cout<<endl;
 }
 void printNames(){
@@ -78,16 +78,10 @@ Vn f(const Vn& y){
 		long double sumx=0,sumy=0,sumz=0;
 		forn(j,N) if(j!=i){
 			long double dist=(V3(y[3*N+3*i],y[3*N+3*i+1],y[3*N+3*i+2])-V3(y[3*N+3*j],y[3*N+3*j+1],y[3*N+3*j+2])).norm();
-			//sumx+=F(i,j,0);
-			//sumy+=F(i,j,1);
-			//sumz+=F(i,j,2);
 			sumx+=AC(i,j,0);
 			sumy+=AC(i,j,1);
 			sumz+=AC(i,j,2);
 		}
-		//res[3*i]  =sumx/Cuerpos[i].m;
-		//res[3*i+1]=sumy/Cuerpos[i].m;
-		//res[3*i+2]=sumz/Cuerpos[i].m;
 		res[3*i]  =sumx;
 		res[3*i+1]=sumy;
 		res[3*i+2]=sumz;
@@ -174,9 +168,7 @@ Vn MetodoIterativo(const Vn& y, const long double dx){
 /* Inicializa el vector y */
 Vn makeY(){
 	N=Cuerpos.size();
-	
 	Vn y(6*N,0);
-
 	forn(i,N){
 		y[3*i]  	 = Cuerpos[i].v.X();
 		y[3*i+1]	 = Cuerpos[i].v.Y();
@@ -200,9 +192,9 @@ Vn next(const Vn& y){
 	}
 }
 
-/* Calcula la minima distancia a la que le pasa el proyectil a la tierra */
+/* Devuelve la distancia minima relativa que alcanzan los objetos obj y target
+ * mientras se esten acercando y mientras no supere el tiempo de simulacion */
 pair<long double,int> mindist(const Vn& y_in, int obj, int target){
-	// Devuelve la distancia minima que alcanzan los objetos obj y target mientras se esten acercando y mientras no supere el tiempo de simulacion
 	double dtbak=dt;
 	Vn y(y_in);
 	long double d=(XYZ(obj)-XYZ(target)).norm();
